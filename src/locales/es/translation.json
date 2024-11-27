@@ -1,0 +1,16 @@
+{
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "dont-have-account": "¿No tienes una cuenta?",
+    "already-have-account": "¿Ya tienes una cuenta?",
+    "registration-successful": "¡Registro exitoso!",
+    "registration-failed": "El registro falló. Por favor, inténtalo de nuevo.",
+    "unexpected-error": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
+    "username-already-exists": "El nombre de usuario ya existe",
+    "login-successful": "¡Inicio de sesión exitoso!",
+    "login-failed": "El inicio de sesión falló. Por favor, verifica tu nombre de usuario y contraseña.",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "email": "Correo electrónico",
+    "description": "Descripción"
+}

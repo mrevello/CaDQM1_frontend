@@ -1,0 +1,16 @@
+{
+    "login": "Log in",
+    "register": "Register",
+    "dont-have-account": "Don’t have an account?",
+    "already-have-account": "Already have an account?",
+    "registration-successful": "Registration successful!",
+    "registration-failed": "Registration failed. Please try again.",
+    "unexpected-error": "An unexpected error occurred. Please try again.",
+    "username-already-exists": "Username already exists",
+    "login-successful": "Login successful!",
+    "login-failed": "Login failed. Please check your username and password.",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "description": "Description"
+}

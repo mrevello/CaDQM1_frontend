@@ -10,6 +10,7 @@ enum themePalette {
     NERO = "#222222",
     FONT = "Open Sans",
     GREY = "#93999e64",
+    WHITE = "#ffffff",
 }
 
 const theme = createTheme({
@@ -49,20 +50,28 @@ const theme = createTheme({
                 },
             },
         },
-        MuiPaper: {
-            styleOverrides: {
-                root: {
-                    borderRadius: "1em",
-                },
-            },
-        },
         MuiTextField: {
             defaultProps: {
                 size: "small",
             },
             styleOverrides: {
                 root: {
-                    borderRadius: "0.5em",
+                    borderRadius: "1em",
+                },
+            },
+        },
+        MuiSelect: {
+            defaultProps: {
+                size: "small",
+            },
+        },
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    borderRadius: "0",
+                    backgroundColor: themePalette.WHITE,
+                    boxShadow: "none",
+                    color: themePalette.NERO,
                 },
             },
         },

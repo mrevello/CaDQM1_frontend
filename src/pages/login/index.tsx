@@ -5,6 +5,8 @@ import { LoginValidate } from "../../utils/validateForm";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../api/login";
 import * as yup from 'yup';
+import "../../i18n"
+import { useTranslation } from "react-i18next";
 
 type LoginType = {
     username: string;
@@ -17,6 +19,8 @@ type LoginErrorsType = {
 };
 
 export const Login: React.FC = () => {
+    const { t, i18n } = useTranslation();
+
     const navigate = useNavigate();
     const { getSuccess, getError } = useNotification();
 
@@ -41,7 +45,7 @@ export const Login: React.FC = () => {
             setLoginErrors({});
 
             const tokens = await login.login(loginData.username, loginData.password);
-            getSuccess("Login successful!");
+            getSuccess(t('login-successful'));
             localStorage.setItem("accessToken", tokens.access);
         } catch (error) {
             if (error instanceof yup.ValidationError) {
@@ -52,7 +56,7 @@ export const Login: React.FC = () => {
                 setLoginErrors(errors);
             } else {
                 // Server error
-                getError("Login failed. Please check your username and password.");
+                getError(t('login-failed'));
             }
         }
     };
@@ -68,10 +72,10 @@ export const Login: React.FC = () => {
                         paddingBottom: "2.5em",
                     }}>
                         <Box component="form" onSubmit={handleSubmit} >
-                            <Typography variant="h4" sx={{ mt: 1, mb: 1 }}>Log in</Typography>
+                            <Typography variant="h4" sx={{ mt: 1, mb: 1 }}> {t("login")} </Typography>
                             <TextField
                                 name="username"
-                                label="Username"
+                                label={t("username")}
                                 fullWidth
                                 sx={{ mt: 2, mb: 1.5 }}
                                 onChange={onChangeLoginData}
@@ -81,7 +85,7 @@ export const Login: React.FC = () => {
                             />
                             <TextField
                                 name="password"
-                                label="Password"
+                                label={t("password")}
                                 type="password"
                                 fullWidth
                                 sx={{ mt: 1.5, mb: 1.5 }}
@@ -90,7 +94,7 @@ export const Login: React.FC = () => {
                                 error={!!loginErrors.password}
                                 helperText={loginErrors.password}
                             />
-                            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3, mb: 3 }}>Log in</Button>
+                            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3, mb: 3 }}> {t("login")} </Button>
                         </Box>
                         <Typography
                             display="flex"
@@ -99,8 +103,8 @@ export const Login: React.FC = () => {
                             flexDirection="row"
                             variant="body1"
                         >
-                            Don’t have an account?
-                            <Link component="button" sx={{ ml: 1 }} onClick={() => { navigate("/register"); }}>Register</Link>
+                            {t("dont-have-account")}
+                            <Link component="button" sx={{ ml: 1 }} onClick={() => { navigate("/register"); }}>{t("register")}</Link>
                         </Typography>
                     </Paper>
                 </Grid2>

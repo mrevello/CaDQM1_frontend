@@ -5,6 +5,8 @@ import { RegisterValidate } from "../../utils/validateForm";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import { register } from "../../api/register";
+import "../../i18n"
+import { useTranslation } from "react-i18next";
 
 type RegisterType = {
     username: string;
@@ -21,6 +23,8 @@ type RegisterErrorsType = {
 };
 
 export const Register: React.FC = () => {
+    const { t, i18n } = useTranslation();
+
     const navigate = useNavigate();
     const { getSuccess, getError } = useNotification();
 
@@ -53,9 +57,9 @@ export const Register: React.FC = () => {
                 registerData.description || ""
             );
 
-            getSuccess("Registration successful!");
+            getSuccess(t('registration-successful'));
             navigate("/login");
-            
+
         } catch (error: any) {
             if (error instanceof yup.ValidationError) {
                 const errors: RegisterErrorsType = {};
@@ -67,10 +71,10 @@ export const Register: React.FC = () => {
                 if (error.message.includes("nombre de usuario ya existe")) {
                     setRegisterErrors({ username: error.message });
                 } else {
-                    getError(error.message || "Registration failed. Please try again.");
+                    getError(error.message || t('registration-failed'));
                 }
             } else {
-                getError("An unexpected error occurred. Please try again.");
+                getError(t('unexpected-error'));
             }
         }
     };
@@ -86,10 +90,10 @@ export const Register: React.FC = () => {
                         paddingBottom: "2.5em",
                     }}>
                         <Box component="form" onSubmit={handleSubmit}>
-                            <Typography variant="h4" sx={{ mt: 1, mb: 1 }}>Register</Typography>
+                            <Typography variant="h4" sx={{ mt: 1, mb: 1 }}>{t("register")}</Typography>
                             <TextField
                                 name="username"
-                                label="Username"
+                                label={t("username")}
                                 fullWidth
                                 sx={{ mt: 2, mb: 1.5 }}
                                 onChange={onChangeRegisterData}
@@ -99,7 +103,7 @@ export const Register: React.FC = () => {
                             />
                             <TextField
                                 name="password"
-                                label="Password"
+                                label={t("password")}
                                 type="password"
                                 fullWidth
                                 sx={{ mt: 1.5, mb: 1.5 }}
@@ -110,7 +114,7 @@ export const Register: React.FC = () => {
                             />
                             <TextField
                                 name="email"
-                                label="Email"
+                                label={t("email")}
                                 fullWidth
                                 sx={{ mt: 1.5, mb: 1.5 }}
                                 onChange={onChangeRegisterData}
@@ -120,7 +124,7 @@ export const Register: React.FC = () => {
                             />
                             <TextField
                                 name="description"
-                                label="Description"
+                                label={t("description")}
                                 fullWidth
                                 rows={2}
                                 multiline
@@ -130,7 +134,7 @@ export const Register: React.FC = () => {
                                 error={!!registerErrors.description}
                                 helperText={registerErrors.description}
                             />
-                            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3, mb: 3 }}>Register</Button>
+                            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3, mb: 3 }}>{t("register")}</Button>
                         </Box>
                         <Typography
                             display="flex"
@@ -139,8 +143,8 @@ export const Register: React.FC = () => {
                             flexDirection="row"
                             variant="body1"
                         >
-                            Already have an account?
-                            <Link component="button" sx={{ ml: 1 }} onClick={() => { navigate("/login"); }}> Log in</Link>
+                            {t("already-have-account")}
+                            <Link component="button" sx={{ ml: 1 }} onClick={() => { navigate("/login"); }}>{t("login")}</Link>
                         </Typography>
                     </Paper>
                 </Grid2>
