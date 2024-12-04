@@ -1,8 +1,8 @@
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import { createTheme, CssBaseline, Theme, ThemeProvider } from "@mui/material";
 import React from "react";
 
 type ThemeProp = {
-    children: JSX.Element;
+    children: JSX.Element
 };
 
 enum themePalette {
