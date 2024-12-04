@@ -7,39 +7,82 @@ type ThemeProp = {
 
 enum themePalette {
     BACKGROUND = "#f8f9fa",
-    BLUE = "#004987",
+    NERO = "#222222",
     FONT = "Open Sans",
-    TEXT = "#212529"
-};
+    GREY = "#93999e64",
+    WHITE = "#ffffff",
+}
 
 const theme = createTheme({
     palette: {
         mode: "light",
         background: {
-            default: themePalette.BACKGROUND
+            default: themePalette.BACKGROUND,
         },
         primary: {
-            main: themePalette.BLUE
-        }
+            main: themePalette.NERO,
+        },
     },
     typography: {
         fontFamily: themePalette.FONT,
-        fontSize: 16
+        fontSize: 16,
+        button: {
+            fontWeight: 700,
+        },
     },
     components: {
         MuiButton: {
+            styleOverrides: {
+                root: {
+                    textTransform: "none",
+                },
+            },
+        },
+        MuiLink: {
+            styleOverrides: {
+                root: {
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    cursor: "pointer",
+                    "&:hover": {
+                        fontWeight: 700,
+                    },
+                },
+            },
+        },
+        MuiTextField: {
             defaultProps: {
-                style: {
-                    textTransform: "none"
-                }
-            }
-        }
-    }
+                size: "small",
+            },
+            styleOverrides: {
+                root: {
+                    borderRadius: "1em",
+                },
+            },
+        },
+        MuiSelect: {
+            defaultProps: {
+                size: "small",
+            },
+        },
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    borderRadius: "0",
+                    backgroundColor: themePalette.WHITE,
+                    boxShadow: "none",
+                    color: themePalette.NERO,
+                },
+            },
+        },
+    },
 });
 
 export const ThemeConfig: React.FC<ThemeProp> = ({ children }) => {
-    return <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-    </ThemeProvider>;
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            {children}
+        </ThemeProvider>
+    );
 };
