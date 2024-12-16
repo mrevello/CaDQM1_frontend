@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Notification } from "../components";
+import { Notification } from "../components/Notification";
 import { AlertColor } from "@mui/material";
 
 type ContextProps = {
