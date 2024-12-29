@@ -7,14 +7,15 @@ type ThemeProp = {
 
 export enum themePalette {
   BACKGROUND = "#f8f9fa",
-  NERO = "#222222",
-  FONT = "Open Sans",
-  GRAY = "#908b8b",
-  WHITE = "#ffffff",
-  SUCCESS = "#00a68a",
-  WARNING = "#ff8a00",
+  BACKGROUND_GRAY = "#091E420F",
+  BACKGROUND_INFO = "#e9f2ff",
+  BACKGROUND_SUCCESS = "#dcfff1",
   ERROR = "#ff0055",
-  INFO = "#0083ff",
+  GRAY = "#44546F",
+  INFO = "#0055cc",
+  SUCCESS = "#216e4e",
+  TEXT = "#353036",
+  WARNING = "#ff8a00",
 }
 
 const theme = createTheme({
@@ -23,27 +24,15 @@ const theme = createTheme({
     background: {
       default: themePalette.BACKGROUND,
     },
-    primary: {
-      main: themePalette.NERO,
-    },
-    success: {
-      main: themePalette.SUCCESS,
-    },
-    warning: {
-      main: themePalette.WARNING,
-    },
-    error: {
-      main: themePalette.ERROR,
-    },
-    info: {
-      main: themePalette.INFO,
-    },
   },
   typography: {
-    fontFamily: themePalette.FONT,
+    fontFamily: "Roboto, Arial, sans-serif",
     fontSize: 16,
     button: {
       fontWeight: 700,
+    },
+    allVariants: {
+      color: themePalette.TEXT
     },
   },
   components: {
@@ -80,9 +69,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "0",
-          backgroundColor: themePalette.WHITE,
+          backgroundColor: "white",
           boxShadow: "none",
-          color: themePalette.NERO,
+          color: themePalette.TEXT,
         },
       },
     },
@@ -92,6 +81,37 @@ const theme = createTheme({
           p: 4,
           backgroundColor: themePalette.GRAY,
           textTransform: "none",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: "16px",
+          // justifyContent="space-between"
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          padding: "16px",
+          justifyContent: "flex-end",
+        },
+      },
+    },
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "transparent",
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "white",
+          padding: "4px 16px",
         },
       },
     },

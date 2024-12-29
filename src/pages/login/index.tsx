@@ -4,6 +4,7 @@ import {
   Container,
   Link,
   Paper,
+  styled,
   TextField,
   Typography,
 } from "@mui/material";
@@ -27,6 +28,23 @@ type LoginErrorsType = {
   username?: string;
   password?: string;
 };
+
+export const StyledGrid = styled(Grid)({
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+});
+
+export const StyledFormPaper = styled(Paper)({
+  padding: "4rem 3rem",
+});
+
+export const StyledBottomGrid = styled(Grid)({
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: "2rem",
+});
 
 export const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -76,26 +94,21 @@ export const Login: React.FC = () => {
     }
   };
 
+  const handleRegisterClicked = () => {
+    navigate("/register");
+  };
+
   return (
     <Container maxWidth="sm">
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        sx={{ minHeight: "100vh" }}
-      >
-        <Grid>
-          <Paper sx={{ pl: 8, pr: 8, pt: 6, pb: 6 }}>
-            <Box component="form" onSubmit={handleSubmit}>
-              <Typography variant="h4" sx={{ mt: 1, mb: 1 }}>
-                {t("login")}
-              </Typography>
+      <StyledGrid>
+        <StyledFormPaper>
+          <Box component="form" onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              <Typography variant="h4">{t("login")}</Typography>
               <TextField
                 name="username"
                 label={t("username")}
                 fullWidth
-                sx={{ mt: 2, mb: 1.5 }}
                 onChange={onChangeLoginData}
                 value={loginData.username}
                 error={!!loginErrors.username}
@@ -106,42 +119,24 @@ export const Login: React.FC = () => {
                 label={t("password")}
                 type="password"
                 fullWidth
-                sx={{ mt: 1.5, mb: 1.5 }}
                 onChange={onChangeLoginData}
                 value={loginData.password}
                 error={!!loginErrors.password}
                 helperText={loginErrors.password}
               />
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                sx={{ mt: 3, mb: 3 }}
-              >
+              <Button fullWidth type="submit" variant="contained">
                 {t("login")}
               </Button>
-            </Box>
-            <Typography
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="row"
-              variant="body1"
-            >
-              {t("dont-have-account")}
-              <Link
-                component="button"
-                sx={{ ml: 1 }}
-                onClick={() => {
-                  navigate("/register");
-                }}
-              >
-                {t("register")}
-              </Link>
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+            </Grid>
+          </Box>
+          <StyledBottomGrid container spacing={1}>
+            <Typography variant="body1">{t("dont-have-account")}</Typography>
+            <Link component="button" onClick={handleRegisterClicked}>
+              {t("register")}
+            </Link>
+          </StyledBottomGrid>
+        </StyledFormPaper>
+      </StyledGrid>
     </Container>
   );
 };

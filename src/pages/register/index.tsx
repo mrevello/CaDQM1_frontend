@@ -3,7 +3,6 @@ import {
   Button,
   Container,
   Link,
-  Paper,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,6 +15,7 @@ import * as yup from "yup";
 import { register } from "../../api/register";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
+import { StyledGrid, StyledFormPaper, StyledBottomGrid } from "../login";
 
 type RegisterType = {
   username: string;
@@ -88,26 +88,21 @@ export const Register: React.FC = () => {
     }
   };
 
+  const handleLoginClicked = () => {
+    navigate("/login");
+  };
+
   return (
     <Container maxWidth="sm">
-      <Grid
-        container
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        sx={{ minHeight: "100vh" }}
-      >
-        <Grid>
-          <Paper sx={{ pl: 8, pr: 8, pt: 6, pb: 6 }}>
-            <Box component="form" onSubmit={handleSubmit}>
-              <Typography variant="h4" sx={{ mt: 1, mb: 1 }}>
-                {t("register")}
-              </Typography>
+      <StyledGrid>
+        <StyledFormPaper>
+          <Box component="form" onSubmit={handleSubmit}>
+            <Grid container spacing={3}>
+              <Typography variant="h4">{t("register")}</Typography>
               <TextField
                 name="username"
                 label={t("username")}
                 fullWidth
-                sx={{ mt: 2, mb: 1.5 }}
                 onChange={onChangeRegisterData}
                 value={registerData.username}
                 error={!!registerErrors.username}
@@ -118,7 +113,6 @@ export const Register: React.FC = () => {
                 label={t("password")}
                 type="password"
                 fullWidth
-                sx={{ mt: 1.5, mb: 1.5 }}
                 onChange={onChangeRegisterData}
                 value={registerData.password}
                 error={!!registerErrors.password}
@@ -128,7 +122,6 @@ export const Register: React.FC = () => {
                 name="email"
                 label={t("email")}
                 fullWidth
-                sx={{ mt: 1.5, mb: 1.5 }}
                 onChange={onChangeRegisterData}
                 value={registerData.email}
                 error={!!registerErrors.email}
@@ -140,42 +133,24 @@ export const Register: React.FC = () => {
                 fullWidth
                 rows={2}
                 multiline
-                sx={{ mt: 1.5, mb: 1.5 }}
                 onChange={onChangeRegisterData}
                 value={registerData.description}
                 error={!!registerErrors.description}
                 helperText={registerErrors.description}
               />
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                sx={{ mt: 3, mb: 3 }}
-              >
+              <Button fullWidth type="submit" variant="contained">
                 {t("register")}
               </Button>
-            </Box>
-            <Typography
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              flexDirection="row"
-              variant="body1"
-            >
-              {t("already-have-account")}
-              <Link
-                component="button"
-                sx={{ ml: 1 }}
-                onClick={() => {
-                  navigate("/login");
-                }}
-              >
-                {t("login")}
-              </Link>
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+            </Grid>
+          </Box>
+          <StyledBottomGrid container spacing={1}>
+            <Typography variant="body1">{t("already-have-account")}</Typography>
+            <Link component="button" onClick={handleLoginClicked}>
+              {t("login")}
+            </Link>
+          </StyledBottomGrid>
+        </StyledFormPaper>
+      </StyledGrid>
     </Container>
   );
 };

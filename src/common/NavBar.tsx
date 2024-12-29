@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AppBar,
   Box,
@@ -8,12 +9,23 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React from "react";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { AccountCircle } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN } from "../utils/constants";
 import { useTranslation } from "react-i18next";
+import { styled } from "@mui/system";
+
+const StyledToolbar = styled(Toolbar)({
+  display: "flex",
+  justifyContent: "space-between",
+  width: "100%",
+});
+
+const RightSide = styled(Grid)({
+  display: "flex",
+  alignItems: "center",
+});
 
 export const NavBar: React.FC = () => {
   const { t } = useTranslation();
@@ -37,13 +49,14 @@ export const NavBar: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="sticky">
-        <Toolbar>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1, fontWeight: 600 }}>
+      <AppBar position="sticky" sx={{ boxShadow: 1 }}>
+        <StyledToolbar>
+          <Typography variant="h6" noWrap>
             CaDQM
           </Typography>
-          <LanguageSwitcher />
-          <Grid>
+
+          <RightSide>
+            <LanguageSwitcher />
             <IconButton
               size="large"
               aria-controls="menu-appbar"
@@ -60,8 +73,8 @@ export const NavBar: React.FC = () => {
             >
               <MenuItem onClick={handleLogout}>{t("logout")}</MenuItem>
             </Menu>
-          </Grid>
-        </Toolbar>
+          </RightSide>
+        </StyledToolbar>
       </AppBar>
     </Box>
   );
