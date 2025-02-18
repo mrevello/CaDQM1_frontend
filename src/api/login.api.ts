@@ -1,3 +1,4 @@
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../utils/constants";
 import { instance } from "./base.api";
 
 const endpoint = "login/";
@@ -10,11 +11,10 @@ export const login = {
         password: password,
       });
 
-      const { access } = response.data;
+      const { access, refresh } = response.data;
 
-      console.log("Access Token:", access);
-
-      return access;
+      localStorage.setItem(ACCESS_TOKEN, access);
+      localStorage.setItem(REFRESH_TOKEN, refresh);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;

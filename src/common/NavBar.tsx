@@ -49,7 +49,7 @@ export const NavBar: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="sticky" sx={{ boxShadow: 1 }}>
+      <AppBar position="sticky" >
         <StyledToolbar>
           <Typography variant="h6" noWrap>
             CaDQM

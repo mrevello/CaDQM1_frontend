@@ -84,19 +84,10 @@ const theme = createTheme({
         },
       },
     },
-    MuiDialogTitle: {
-      styleOverrides: {
-        root: {
-          padding: "16px",
-          // justifyContent="space-between"
-        },
-      },
-    },
     MuiDialogActions: {
       styleOverrides: {
         root: {
-          padding: "16px",
-          justifyContent: "flex-end",
+          padding: "16px 24px",
         },
       },
     },

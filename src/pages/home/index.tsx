@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -21,25 +21,27 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  CircularProgress,
   styled,
+  Tooltip,
+  Link,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
-import { MockProjects } from "../../utils/mockData";
+import { projects } from "../../api/projects.api";
 import { getName, getTitle, Stage } from "../../types/stage";
 import { StateChip } from "../../components/StateChip";
+import { NewProjectDialog } from "../../components/NewProjectDialog";
+import { ProjectErrorsType, ProjectType } from "../../types/project";
+import { ProjectValidate } from "../../utils/validateForm";
+import { useNotification } from "../../context/notification.context";
+import * as yup from "yup";
+import { AlertDialog } from "../../components/AlertDialog";
 
 const Title = styled(Typography)({
   margin: "1.5rem 0rem",
-});
-
-const FilterContainer = styled(Grid)({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "1.5rem 1rem 2rem 1rem",
 });
 
 const ChipBoxContainer = styled(Box)({
@@ -48,15 +50,74 @@ const ChipBoxContainer = styled(Box)({
   flexWrap: "wrap",
 });
 
+interface Column {
+  id: string;
+  label: string;
+  width?: string;
+  align?: "right" | "left" | "center";
+  render: (project: ProjectType) => React.ReactNode;
+}
+
 export const Home: React.FC = () => {
   const { t } = useTranslation();
+  const { getSuccess, getError } = useNotification();
 
   const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
-
   const [search, setSearch] = useState("");
 
+  const [projectsList, setProjectsList] = useState<ProjectType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [newDialogOpen, setNewDialogOpen] = useState(false);
+  const [projectErrors, setProjectErrors] = useState<ProjectErrorsType>({});
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<ProjectType | null>(
+    null
+  );
+
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await projects.listProjects();
+      setProjectsList(data);
+    } catch (err: any) {
+      console.error("Error fetching projects:", err);
+      setError(t("error-fetching-projects"));
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  // Filter projects
+  const filteredProjects = projectsList
+    .filter((project) => {
+      const matchesSearch =
+        project.name.toLowerCase().includes(search.toLowerCase()) ||
+        (project.context?.version || "")
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+      const matchesStages =
+        selectedStages.length === 0 || selectedStages.includes(project.stage);
+
+      return matchesSearch && matchesStages;
+    })
+    .sort((a, b) => {
+      return (
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+    });
+
+  // Handlers
   const handleStageChange = (event: SelectChangeEvent<Stage[]>) => {
     setSelectedStages(event.target.value as Stage[]);
   };
@@ -72,7 +133,26 @@ export const Home: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    console.log(`Delete project with ID: ${id}`);
+    const project = projectsList.find((p) => p.id === id);
+    if (project) {
+      setProjectToDelete(project);
+      setDeleteDialogOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!projectToDelete) return;
+    try {
+      await projects.deleteProject(projectToDelete.id);
+      getSuccess(t("delete-success", { name: projectToDelete.name }));
+      await fetchProjects();
+    } catch (err: any) {
+      getError(t("error-deleting-project", { message: err.message }));
+      console.error("Error deleting project:", err);
+    } finally {
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
+    }
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -83,34 +163,124 @@ export const Home: React.FC = () => {
     setSearch(event.target.value);
   };
 
-  const filteredProjects = MockProjects.filter((project) => {
-    const matchesSearch =
-      project.name.toLowerCase().includes(search.toLowerCase()) ||
-      project.context.version.toLowerCase().includes(search.toLowerCase());
+  const handleOpenNewDialog = () => {
+    setNewDialogOpen(true);
+  };
 
-    const matchesStages =
-      selectedStages.length === 0 || selectedStages.includes(project.stage);
+  const handleCloseNewDialog = () => {
+    setProjectErrors({});
+    setNewDialogOpen(false);
+  };
 
-    return matchesSearch && matchesStages;
-  });
+  const handleNewProjectSubmit = async (formData: Record<string, any>) => {
+    try {
+      await ProjectValidate.validate(formData);
+      setProjectErrors({});
+      await projects.createProject({
+        name: formData.name,
+        description: formData.description,
+      });
+      handleCloseNewDialog();
+      await fetchProjects();
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        // Set form errors
+        setProjectErrors({ name: error.errors[0] });
+      } else {
+        getError(t("error-creating-project", { error }));
+      }
+    }
+  };
+
+  // Column definitions
+  const columns: Column[] = [
+    {
+      id: "name",
+      label: t("name"),
+      width: "25%",
+      render: (project: ProjectType) => (
+        <Tooltip title={project.name} placement="bottom-start">
+          <span>{project.name}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      id: "description",
+      label: t("description"),
+      width: "20%",
+      render: (project: ProjectType) => (
+        <Tooltip title={project.description} placement="bottom-start">
+          <span>{project.description}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      id: "context-version",
+      label: t("context-version"),
+      width: "25%",
+      render: (project: ProjectType) =>
+        project.context ? (
+          <span>{project.context.version}</span>
+        ) : (
+          <Link>{t("create-context")}</Link>
+        ),
+    },
+    {
+      id: "stage",
+      label: t("stage"),
+      width: "20%",
+      render: (project: ProjectType) => (
+        <Tooltip title={t(getTitle(project.stage))}>
+          <span>{t(getTitle(project.stage))}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      id: "state",
+      label: t("state"),
+      width: "10%",
+      render: (project: ProjectType) => <StateChip state={project.state} />,
+    },
+    {
+      id: "actions",
+      label: t("actions"),
+      width: "10%",
+      render: (project: ProjectType) => (
+        <Box display="flex" justifyContent="flex-end">
+          <Tooltip title={t("edit")}>
+            <IconButton onClick={() => handleEdit(project.id)}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t("delete")}>
+            <IconButton onClick={() => handleDelete(project.id)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      ),
+    },
+  ];
 
   return (
     <Container maxWidth="xl">
-      <Title variant="h4">Projects</Title>
+      <Title variant="h4">{t("projects")}</Title>
 
-      <Card>
-        <FilterContainer>
-          <Grid container alignItems="center" spacing={2} flex={1}>
+      <Card
+        sx={{ display: "flex", flexDirection: "column", minHeight: 600, p: 2 }}
+      >
+        <Grid mt={2} mb={4} display="flex">
+          <Grid container spacing={2} alignItems="center" flex={1}>
             <TextField
               name="search"
-              label="Search"
-              placeholder="Project, context, etc..."
+              label={t("search")}
+              placeholder={t("search-placeholder")}
               value={search}
               onChange={handleSearchChange}
               sx={{ width: "30%" }}
             />
             <FormControl sx={{ minWidth: 300 }} size="small">
-              <InputLabel id="stage-select-label">Stage</InputLabel>
+              <InputLabel id="stage-select-label">{t("stage")}</InputLabel>
               <Select
                 multiple
                 name="stage"
@@ -146,58 +316,124 @@ export const Home: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Button variant="contained">New</Button>
-        </FilterContainer>
 
-        <TableContainer sx={{ maxHeight: 400 }}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ width: "28%" }}>{t("name")}</TableCell>
-                <TableCell sx={{ width: "15%" }}>
-                  {t("context-version")}
-                </TableCell>
-                <TableCell sx={{ width: "30%" }}>{t("stage")}</TableCell>
-                <TableCell sx={{ width: "15%" }}>{t("state")}</TableCell>
-                <TableCell sx={{ width: "10%" }}>{t("actions")}</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredProjects
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((project) => (
-                  <TableRow hover tabIndex={-1} key={project.id}>
-                    <TableCell>{project.name}</TableCell>
-                    <TableCell>{project.context.version}</TableCell>
-                    <TableCell>{t(getTitle(project.stage))}</TableCell>
-                    <TableCell>
-                      <StateChip state={project.state} />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        sx={{ pl: 0 }}
-                        onClick={() => handleEdit(project.id)}
+          <Button variant="contained" onClick={handleOpenNewDialog}>
+            {t("add")}
+          </Button>
+        </Grid>
+
+        {loading ? (
+          <Box
+            flex={1}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Box
+            flex={1}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography color="error">{error}</Typography>
+          </Box>
+        ) : filteredProjects.length === 0 ? (
+          <Box
+            flex={1}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            p={2}
+          >
+            <Typography variant="body1" color="textSecondary">
+              {t("no-projects-found")}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <TableContainer
+              sx={{
+                flex: 1,
+                overflow: "auto",
+                maxHeight: 440,
+              }}
+            >
+              <Table stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        style={{ width: column.width }}
                       >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleDelete(project.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
+                        {column.label}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[-1]}
-            component="div"
-            count={MockProjects.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-          />
-        </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredProjects
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((project) => (
+                      <TableRow hover tabIndex={-1} key={project.id}>
+                        {columns.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{
+                              width: column.width,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {column.render(project)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <TablePagination
+              rowsPerPageOptions={[-1]}
+              component="div"
+              count={projectsList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+            />
+          </>
+        )}
       </Card>
+
+      <NewProjectDialog
+        open={newDialogOpen}
+        onClose={handleCloseNewDialog}
+        onSubmit={handleNewProjectSubmit}
+        errors={projectErrors}
+      />
+
+      <AlertDialog
+        open={deleteDialogOpen}
+        title={t("delete-project-alert-title")}
+        description={
+          projectToDelete
+            ? t("delete-project-alert-description", {
+                name: projectToDelete.name,
+              })
+            : ""
+        }
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </Container>
   );
 };
