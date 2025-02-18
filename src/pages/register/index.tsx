@@ -12,7 +12,7 @@ import { useNotification } from "../../context/notification.context";
 import { RegisterValidate } from "../../utils/validateForm";
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
-import { register } from "../../api/register";
+import { register } from "../../api/register.api";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
 import { StyledGrid, StyledFormPaper, StyledBottomGrid } from "../login";

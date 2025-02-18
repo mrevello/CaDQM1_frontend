@@ -193,33 +193,3 @@ export const Contexts: ContextType[] = [
     previousVersion: null,
   },
 ];
-
-export const MockProjects: ProjectType[] = [
-  {
-    id: "1",
-    name: "Project 1",
-    description: "A project to explore features.",
-    createdAt: new Date("2024-01-01"),
-    state: State.DONE,
-    stage: Stage.ST1,
-    context: Contexts[0],
-  },
-  {
-    id: "2",
-    name: "Project 1",
-    description: "A project for 2 testing.",
-    createdAt: new Date("2024-02-15"),
-    state: State.IN_PROGRESS,
-    stage: Stage.ST3,
-    context: Contexts[1],
-  },
-  {
-    id: "3",
-    name: "Project 3",
-    description: "Final project in the 3 series.",
-    createdAt: new Date("2024-03-20"),
-    state: State.TO_DO,
-    stage: Stage.ST6,
-    context: Contexts[0],
-  },
-];

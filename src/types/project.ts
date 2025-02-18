@@ -6,8 +6,13 @@ export interface ProjectType {
   id: string;
   name: string;
   description: string;
-  createdAt: Date;
+  created_at: Date;
+  updated_at: Date;
   state: State;
   stage: Stage;
   context: ContextType;
 }
+
+export type ProjectErrorsType = {
+  name?: string;
+};

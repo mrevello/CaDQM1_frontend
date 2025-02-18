@@ -1,10 +1,21 @@
 import { themePalette } from "../config/theme.config";
 
 export enum State {
-  TO_DO = "to-do",
-  IN_PROGRESS = "in-progress",
-  DONE = "done",
+  TO_DO = "TO_DO",
+  IN_PROGRESS = "IN_PROGRESS",
+  DONE = "DONE",
 }
+
+export const getName = (state: State) => {
+  switch (state) {
+    case State.TO_DO:
+      return "to-do";
+    case State.IN_PROGRESS:
+      return "in-progress";
+    case State.DONE:
+      return "done";
+  }
+};
 
 export const getBackgroundColor = (state: State) => {
   switch (state) {

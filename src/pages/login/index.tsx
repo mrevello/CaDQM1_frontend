@@ -13,11 +13,10 @@ import React, { useState } from "react";
 import { useNotification } from "../../context/notification.context";
 import { LoginValidate } from "../../utils/validateForm";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/login";
+import { login } from "../../api/login.api";
 import * as yup from "yup";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
-import { ACCESS_TOKEN } from "../../utils/constants";
 
 type LoginType = {
   username: string;
@@ -72,12 +71,11 @@ export const Login: React.FC = () => {
 
       setLoginErrors({});
 
-      const accessToken = await login.login(
+      await login.login(
         loginData.username,
         loginData.password
       );
       getSuccess(t("login-successful"));
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
       navigate("/");
     } catch (error) {
       if (error instanceof yup.ValidationError) {
@@ -104,7 +102,7 @@ export const Login: React.FC = () => {
         <StyledFormPaper>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Typography variant="h4">{t("login")}</Typography>
+              <Typography variant="h5">{t("login")}</Typography>
               <TextField
                 name="username"
                 label={t("username")}
