@@ -46,7 +46,7 @@ export const StyledBottomGrid = styled(Grid)({
 });
 
 export const Login: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['login', 'register', 'common']);
 
   const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
@@ -102,7 +102,7 @@ export const Login: React.FC = () => {
         <StyledFormPaper>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Typography variant="h5">{t("login")}</Typography>
+              <Typography variant="h5">{t("login:login")}</Typography>
               <TextField
                 name="username"
                 label={t("username")}
@@ -114,7 +114,7 @@ export const Login: React.FC = () => {
               />
               <TextField
                 name="password"
-                label={t("password")}
+                label={t("common:password")}
                 type="password"
                 fullWidth
                 onChange={onChangeLoginData}
@@ -123,14 +123,14 @@ export const Login: React.FC = () => {
                 helperText={loginErrors.password}
               />
               <Button fullWidth type="submit" variant="contained">
-                {t("login")}
+                {t("login:login")}
               </Button>
             </Grid>
           </Box>
           <StyledBottomGrid container spacing={1}>
             <Typography variant="body1">{t("dont-have-account")}</Typography>
             <Link component="button" onClick={handleRegisterClicked}>
-              {t("register")}
+              {t("register:register")}
             </Link>
           </StyledBottomGrid>
         </StyledFormPaper>

@@ -1,0 +1,12 @@
+{
+  "projects": "Proyectos",
+  "new-project": "Nuevo proyecto",
+  "no-projects-found": "No se encontraron proyectos.",
+  "delete-project-alert-title": "¿Eliminar proyecto?",
+  "delete-project-alert-description": "¿Estás seguro de que deseas eliminar \"{{name}}\"?",
+  "delete-success": "¡\"{{name}}\" fue eliminado exitosamente!",
+  "error-fetching-projects": "Error al obtener proyectos.",
+  "error-creating-project": "Error al crear el proyecto: {{error}}",
+  "error-deleting-project": "Error al eliminar el proyecto: {{message}}",
+  "create-context": "Crear contexto"
+}

@@ -1,0 +1,6 @@
+{
+  "login": "Iniciar sesión",
+  "login-failed": "Inicio de sesión fallido. Por favor, verifica tu nombre de usuario y contraseña.",
+  "login-successful": "¡Inicio de sesión exitoso!",
+  "logout": "Cerrar sesión"
+}

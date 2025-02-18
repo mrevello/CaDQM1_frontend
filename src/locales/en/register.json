@@ -1,0 +1,6 @@
+{
+  "register": "Register",
+  "registration-failed": "Registration failed. Please try again.",
+  "registration-successful": "Registration successful!",
+  "username-already-exists": "Username already exists"
+}
