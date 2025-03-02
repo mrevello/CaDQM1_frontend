@@ -10,13 +10,13 @@ import loginES from "./locales/es/login.json";
 import registerES from "./locales/es/register.json";
 
 export const availableLanguages = [
-  { code: "en", label: "English" },
+  { code: "en-US", label: "English" },
   { code: "es", label: "Español" },
 ];
 
 i18n.use(initReactI18next).init({
   debug: true,
-  fallbackLng: "en",
+  fallbackLng: "en-US",
   supportedLngs: ["en", "es"],
 
   resources: {

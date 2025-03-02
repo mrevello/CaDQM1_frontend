@@ -75,7 +75,7 @@ export const Login: React.FC = () => {
         loginData.username,
         loginData.password
       );
-      getSuccess(t("login-successful"));
+      getSuccess(t("login:login-successful"));
       navigate("/");
     } catch (error) {
       if (error instanceof yup.ValidationError) {
@@ -87,7 +87,7 @@ export const Login: React.FC = () => {
         setLoginErrors(errors);
       } else {
         // Server error
-        getError(t("login-failed"));
+        getError(t("login:login-failed"));
       }
     }
   };
@@ -105,7 +105,7 @@ export const Login: React.FC = () => {
               <Typography variant="h5">{t("login:login")}</Typography>
               <TextField
                 name="username"
-                label={t("username")}
+                label={t("common:username")}
                 fullWidth
                 onChange={onChangeLoginData}
                 value={loginData.username}
@@ -128,7 +128,7 @@ export const Login: React.FC = () => {
             </Grid>
           </Box>
           <StyledBottomGrid container spacing={1}>
-            <Typography variant="body1">{t("dont-have-account")}</Typography>
+            <Typography variant="body1">{t("common:dont-have-account")}</Typography>
             <Link component="button" onClick={handleRegisterClicked}>
               {t("register:register")}
             </Link>

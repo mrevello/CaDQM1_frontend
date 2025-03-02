@@ -49,9 +49,16 @@ export const NavBar: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="sticky" >
+      <AppBar position="sticky">
         <StyledToolbar>
-          <Typography variant="h6" noWrap>
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
             CaDQM
           </Typography>
 

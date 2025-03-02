@@ -31,7 +31,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
 import { projects } from "../../api/projects.api";
-import { getName, getTitle, Stage } from "../../types/stage";
+import {
+  getStageActivities,
+  getStageName,
+  getStageTitle,
+  Stage,
+} from "../../types/stage";
 import { StateChip } from "../../components/StateChip";
 import { NewProjectDialog } from "../../components/NewProjectDialog";
 import { ProjectErrorsType, ProjectType } from "../../types/project";
@@ -39,6 +44,7 @@ import { ProjectValidate } from "../../utils/validateForm";
 import { useNotification } from "../../context/notification.context";
 import * as yup from "yup";
 import { AlertDialog } from "../../components/AlertDialog";
+import { useNavigate } from "react-router-dom";
 
 const Title = styled(Typography)({
   margin: "1.5rem 0rem",
@@ -60,6 +66,7 @@ interface Column {
 
 export const Home: React.FC = () => {
   const { t } = useTranslation(["home", "common"]);
+  const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
 
   const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
@@ -230,8 +237,8 @@ export const Home: React.FC = () => {
       label: t("common:stage"),
       width: "15%",
       render: (project: ProjectType) => (
-        <Tooltip title={t(getTitle(project.stage))}>
-          <span>{t(getTitle(project.stage))}</span>
+        <Tooltip title={t(getStageTitle(project.stage))}>
+          <span>{t(getStageTitle(project.stage))}</span>
         </Tooltip>
       ),
     },
@@ -301,7 +308,7 @@ export const Home: React.FC = () => {
                       {sortedStages.map((stage) => (
                         <Chip
                           key={stage}
-                          label={t(getName(stage))}
+                          label={t(getStageName(stage))}
                           onDelete={() => handleDeleteChip(stage)}
                           onMouseDown={(event) => event.stopPropagation()}
                         />
@@ -312,7 +319,7 @@ export const Home: React.FC = () => {
               >
                 {Object.values(Stage).map((stage) => (
                   <MenuItem key={stage} value={stage}>
-                    {t(getTitle(stage))}
+                    {t(getStageTitle(stage))}
                   </MenuItem>
                 ))}
               </Select>
@@ -380,24 +387,27 @@ export const Home: React.FC = () => {
                 <TableBody>
                   {filteredProjects
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((project) => (
-                      <TableRow hover tabIndex={-1} key={project.id}>
-                        {columns.map((column) => (
-                          <TableCell
-                            key={column.id}
-                            align={column.align}
-                            style={{
-                              width: column.width,
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {column.render(project)}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    .map((project) => {
+                      const activities = getStageActivities(project.stage);
+                      const firstActivity = activities[0];
+                      const linkTo = `/projects/${project.id}/${project.stage.toLowerCase()}/${firstActivity.toLowerCase()}`;
+
+                      return (
+                        <TableRow
+                          hover
+                          tabIndex={-1}
+                          key={project.id}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => navigate(linkTo)}
+                        >
+                          {columns.map((column) => (
+                            <TableCell key={column.id} align={column.align}>
+                              {column.render(project)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </TableContainer>

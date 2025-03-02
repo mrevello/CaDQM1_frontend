@@ -32,7 +32,7 @@ const theme = createTheme({
       fontWeight: 700,
     },
     allVariants: {
-      color: themePalette.TEXT
+      color: themePalette.TEXT,
     },
   },
   components: {

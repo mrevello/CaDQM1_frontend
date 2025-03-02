@@ -1,3 +1,5 @@
+import { Activity } from "./activity";
+
 export enum Stage {
   ST1 = "ST1",
   ST2 = "ST2",
@@ -7,7 +9,20 @@ export enum Stage {
   ST6 = "ST6",
 }
 
-export const getName = (stage: Stage) => {
+const STAGE_ACTIVITY_MAP: Record<Stage, Activity[]> = {
+  [Stage.ST1]: [Activity.A01, Activity.A02, Activity.A03, Activity.A04],
+  [Stage.ST2]: [Activity.A03, Activity.A05, Activity.A06],
+  [Stage.ST3]: [Activity.A03, Activity.A07],
+  [Stage.ST4]: [],
+  [Stage.ST5]: [],
+  [Stage.ST6]: [],
+};
+
+export function getStageActivities(stage: Stage): Activity[] {
+  return STAGE_ACTIVITY_MAP[stage] || [];
+}
+
+export function getStageName(stage: Stage): string {
   switch (stage) {
     case Stage.ST1:
       return "common:stage-1-name";
@@ -22,9 +37,9 @@ export const getName = (stage: Stage) => {
     case Stage.ST6:
       return "common:stage-6-name";
   }
-};
+}
 
-export const getTitle = (stage: Stage) => {
+export function getStageTitle(stage: Stage): string {
   switch (stage) {
     case Stage.ST1:
       return "common:stage-1-title";
@@ -51,11 +66,6 @@ export const getSteps = (stage: Stage) => {
         { label: "A04", path: "a04" },
       ];
     default:
-      return [];
-    // case Stage.ST2:
-    // case Stage.ST3:
-    // case Stage.ST4:
-    // case Stage.ST5:
-    // case Stage.ST6:
+      return "";
   }
-};
+}
