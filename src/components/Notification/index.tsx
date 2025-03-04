@@ -11,7 +11,7 @@ type NotificationProps = {
 export const Notification: React.FC<NotificationProps> = ({ open, msg, severity, handleClose }) => {
     return (
         <Snackbar
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             autoHideDuration={4000}
             open={open}
             onClose={handleClose}

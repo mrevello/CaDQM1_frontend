@@ -7,15 +7,21 @@ export enum Stage {
   ST4 = "ST4",
   ST5 = "ST5",
   ST6 = "ST6",
+  ST7 = "ST7",
+  ST8 = "ST8",
+  ST9 = "ST9",
 }
 
 const STAGE_ACTIVITY_MAP: Record<Stage, Activity[]> = {
   [Stage.ST1]: [Activity.A01, Activity.A02, Activity.A03, Activity.A04],
-  [Stage.ST2]: [Activity.A03, Activity.A05, Activity.A06],
-  [Stage.ST3]: [Activity.A03, Activity.A07],
+  [Stage.ST2]: [Activity.A05, Activity.A03, Activity.A06, Activity.A07],
+  [Stage.ST3]: [Activity.A08, Activity.A03, Activity.A07],
   [Stage.ST4]: [],
   [Stage.ST5]: [],
   [Stage.ST6]: [],
+  [Stage.ST7]: [],
+  [Stage.ST8]: [],
+  [Stage.ST9]: [],
 };
 
 export function getStageActivities(stage: Stage): Activity[] {
@@ -36,6 +42,8 @@ export function getStageName(stage: Stage): string {
       return "common:stage-5-name";
     case Stage.ST6:
       return "common:stage-6-name";
+    default:
+      return "";
   }
 }
 
@@ -53,8 +61,10 @@ export function getStageTitle(stage: Stage): string {
       return "common:stage-5-title";
     case Stage.ST6:
       return "common:stage-6-title";
+    default:
+      return "";
   }
-};
+}
 
 export const getSteps = (stage: Stage) => {
   switch (stage) {
@@ -68,4 +78,13 @@ export const getSteps = (stage: Stage) => {
     default:
       return "";
   }
+};
+
+export function getNextStage(stage: Stage): Stage {
+  const stages: Stage[] = Object.values(Stage);
+  const currentIndex = stages.indexOf(stage);
+  if (currentIndex === -1 || currentIndex === stages.length - 1) {
+    return Stage.ST1;
+  }
+  return stages[currentIndex + 1];
 }

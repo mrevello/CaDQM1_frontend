@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useTheme } from "@mui/material/styles";
 import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
@@ -18,15 +17,12 @@ export const ActivityStepper: React.FC<ActivityStepperProps> = ({
   selectedActivity,
   onSelectActivity,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   const activeStep = activities.indexOf(selectedActivity);
 
   const handleNext = () => {
-    if (activeStep < activities.length - 1) {
-      onSelectActivity?.(activities[activeStep + 1]);
-    }
+    onSelectActivity?.(activities[activeStep + 1]);
   };
 
   const handleBack = () => {
@@ -43,26 +39,16 @@ export const ActivityStepper: React.FC<ActivityStepperProps> = ({
       activeStep={activeStep}
       sx={{ width: "100%", flexGrow: 1, pt: 2, pb: 2 }}
       nextButton={
-        <Button
-          size="small"
-          onClick={handleNext}
-          disabled={activeStep === activities.length - 1}
-        >
-          {t("next")}
-          {theme.direction === "rtl" ? (
-            <KeyboardArrowLeft />
-          ) : (
-            <KeyboardArrowRight />
-          )}
+        <Button size="small" onClick={handleNext}>
+          {activeStep === activities.length - 1
+            ? t("complete-stage")
+            : t("next")}
+          <KeyboardArrowRight />
         </Button>
       }
       backButton={
         <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-          {theme.direction === "rtl" ? (
-            <KeyboardArrowRight />
-          ) : (
-            <KeyboardArrowLeft />
-          )}
+          <KeyboardArrowLeft />
           {t("back")}
         </Button>
       }

@@ -1,22 +1,27 @@
 import { TreeItem } from "@mui/x-tree-view";
 import { Divider, Typography, Box, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ContextComponentData } from "../../types/contextComponent";
+import {
+  ContextComponent,
+  ContextComponentData,
+} from "../../types/contextComponent";
+import { useTranslation } from "react-i18next";
 
-interface ContextcomponentItemProps<T> {
+interface ContextcomponentItemProps<T extends ContextComponent> {
   component: ContextComponentData<T>;
-  onDelete: (item: any) => void;
+  onDelete: (item: T) => void;
 }
 
-export const ContextcomponentItem = <T extends object>({
+export const ContextcomponentItem = <T extends ContextComponent>({
   component,
   onDelete,
 }: ContextcomponentItemProps<T>) => {
+  const { t } = useTranslation();
   return (
-    <TreeItem itemId={component.title} label={component.title}>
+    <TreeItem itemId={component.title} label={t(component.title)}>
       <Box sx={{ pl: 1, pr: 1 }}>
-        {component.data.map((data, itemIndex) => (
-          <Box key={itemIndex}>
+        {component.data.map((data) => (
+          <Box key={data.id}>
             <Box
               sx={{
                 display: "flex",
@@ -30,6 +35,7 @@ export const ContextcomponentItem = <T extends object>({
                 ([key, value], index) =>
                   index > 0 && (
                     <Box
+                      key={key}
                       sx={{
                         display: "flex",
                         flexDirection: "row",

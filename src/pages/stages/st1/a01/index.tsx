@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Box, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -76,7 +76,7 @@ export const A01: React.FC = () => {
   return (
     <Box
       component="form"
-      sx={{ display: "flex", flexDirection: "column", gap: 4 }}
+      sx={{ display: "flex", flexDirection: "column", gap: 3 }}
       onSubmit={handleSubmit}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>

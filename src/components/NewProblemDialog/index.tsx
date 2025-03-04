@@ -1,15 +1,15 @@
 import React from "react";
 import { FormDialog, TextFieldConfig } from "../FormDialog";
-import { ProjectErrorsType } from "../../types/project";
+import { ProblemErrorsType } from "../../types/problem";
 
-interface NewProjectDialogProps {
+interface NewProblemDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (formData: Record<string, any>) => void;
-  errors?: ProjectErrorsType;
+  errors?: ProblemErrorsType;
 }
 
-export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
+export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
   open,
   onClose,
   onSubmit,
@@ -20,6 +20,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
       id: "name",
       name: "name",
       label: "Name",
+      // labelText: "Name",
       error: !!errors?.name,
       helperText: errors?.name,
     },
@@ -27,6 +28,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
       id: "description",
       name: "description",
       label: "Description",
+      // labelText: "Description",
       multiline: true,
       rows: 3,
     },
@@ -37,8 +39,8 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
       open={open}
       onClose={onClose}
       onSubmit={onSubmit}
-      title="New project"
-      dialogContentText="Create a new project"
+      title="Problem"
+      dialogContentText="Identify DQ problem"
       textFieldConfigs={textFieldConfigs}
     />
   );

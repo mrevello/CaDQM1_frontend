@@ -6,6 +6,7 @@ export enum Activity {
   A05 = "A05",
   A06 = "A06",
   A07 = "A07",
+  A08 = "A08",
 }
 
 interface ActivityInfo {
@@ -49,6 +50,11 @@ const ACTIVITY_INFO: Record<Activity, ActivityInfo> = {
     name: "activity-7-name",
     title: "activity-7-title",
     description: "activity-7-description",
+  },
+  [Activity.A08]: {
+    name: "activity-8-name",
+    title: "activity-8-title",
+    description: "activity-8-description",
   },
 };
 

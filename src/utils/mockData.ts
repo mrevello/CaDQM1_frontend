@@ -1,24 +1,22 @@
 import { ContextType } from "../types/context";
 import { ContextComponentsType } from "../types/contextComponent";
-import { ProjectType } from "../types/project";
-import { Stage } from "../types/stage";
-import { State } from "../types/state";
 
 export const ContextComponents: ContextComponentsType = {
-  applicationDomain: {
-    title: "application-domain",
-    columns: ["description"],
-    data: [
-      {
-        id: 1,
-        description: "Description for Application Domain 1",
-      },
-      {
-        id: 2,
-        description: "Description for Application Domain 2",
-      },
-    ],
-  },
+  applicationDomain: null,
+  //  {
+  //   title: "application-domain",
+  //   columns: ["description"],
+  //   data: [
+  //     {
+  //       id: 1,
+  //       description: "Description for Application Domain 1",
+  //     },
+  //     {
+  //       id: 2,
+  //       description: "Description for Application Domain 2",
+  //     },
+  //   ],
+  // },
   businessRule: {
     title: "business-rules",
     columns: ["statement", "semantic"],
@@ -118,14 +116,12 @@ export const ContextComponents: ContextComponentsType = {
         path: "/path/to/othermetadata1",
         description: "Description for OtherMetadata 1",
         author: "Author 1",
-        last_update: "2024-11-26",
       },
       {
         id: 14,
         path: "/path/to/othermetadata2",
         description: "Description for OtherMetadata 2",
         author: "Author 2",
-        last_update: "2024-11-27",
       },
     ],
   },

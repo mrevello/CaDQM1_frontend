@@ -45,6 +45,7 @@ import { useNotification } from "../../context/notification.context";
 import * as yup from "yup";
 import { AlertDialog } from "../../components/AlertDialog";
 import { useNavigate } from "react-router-dom";
+import { Opacity } from "@mui/icons-material";
 
 const Title = styled(Typography)({
   margin: "1.5rem 0rem",
@@ -60,6 +61,7 @@ interface Column {
   id: string;
   label: string;
   width?: string;
+  pr?: number;
   align?: "right" | "left" | "center";
   render: (project: ProjectType) => React.ReactNode;
 }
@@ -224,7 +226,7 @@ export const Home: React.FC = () => {
     {
       id: "context-version",
       label: t("common:context-version"),
-      width: "25%",
+      width: "20%",
       render: (project: ProjectType) =>
         project.context ? (
           <span>{project.context.version}</span>
@@ -235,7 +237,7 @@ export const Home: React.FC = () => {
     {
       id: "stage",
       label: t("common:stage"),
-      width: "15%",
+      width: "20%",
       render: (project: ProjectType) => (
         <Tooltip title={t(getStageTitle(project.stage))}>
           <span>{t(getStageTitle(project.stage))}</span>
@@ -252,8 +254,10 @@ export const Home: React.FC = () => {
       id: "actions",
       label: t("common:actions"),
       width: "10%",
+      align: "right",
+      pr: 0,
       render: (project: ProjectType) => (
-        <Box display="flex" justifyContent="flex-end">
+        <Box>
           <Tooltip title={t("common:edit")}>
             <IconButton onClick={() => handleEdit(project.id)}>
               <EditIcon />
@@ -377,7 +381,7 @@ export const Home: React.FC = () => {
                       <TableCell
                         key={column.id}
                         align={column.align}
-                        style={{ width: column.width }}
+                        sx={{ width: column.width, opacity: 0.8, fontSize: 14 }}
                       >
                         {column.label}
                       </TableCell>
@@ -401,7 +405,11 @@ export const Home: React.FC = () => {
                           onClick={() => navigate(linkTo)}
                         >
                           {columns.map((column) => (
-                            <TableCell key={column.id} align={column.align}>
+                            <TableCell
+                              key={column.id}
+                              align={column.align}
+                              sx={{ pr: column.pr }}
+                            >
                               {column.render(project)}
                             </TableCell>
                           ))}

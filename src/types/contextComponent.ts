@@ -1,4 +1,17 @@
-interface ContextComponent {
+export enum ContextComponentType {
+  APPLICATION_DOMAIN = "application-domain",
+  BUSINESS_RULE = "business-rule",
+  DATA_FILTERING = "data-filtering",
+  DQ_METADATA = "dq-metadata",
+  DQ_REQUIREMENT = "dq-requirement",
+  OTHER_DATA = "other-data",
+  OTHER_METADATA = "other-metadata",
+  SYSTEM_REQUIREMENT = "system-requirement",
+  TASK_AT_HAND = "task-at-hand",
+  USER_TYPE = "user-type",
+}
+
+export interface ContextComponent {
   id: number;
 }
 
@@ -26,7 +39,7 @@ interface DQMetadata extends ContextComponent {
 interface DQRequirement extends ContextComponent {
   statement: string;
   description: string;
-  data_filtering: any[];
+  data_filtering: DataFiltering[];
   user_type: number;
 }
 
@@ -40,7 +53,6 @@ interface OtherMetadata extends ContextComponent {
   path: string;
   description: string;
   author: string;
-  last_update: string;
 }
 
 interface SystemRequirement extends ContextComponent {
@@ -58,111 +70,21 @@ interface UserType extends ContextComponent {
   characteristics: string;
 }
 
-export interface ContextComponentData<T> {
+export interface ContextComponentData<T extends ContextComponent> {
   title: string;
   columns: string[];
   data: T[];
 }
 
 export interface ContextComponentsType {
-  applicationDomain: ContextComponentData<ApplicationDomain>;
-  businessRule: ContextComponentData<BusinessRule>;
-  dataFiltering: ContextComponentData<DataFiltering>;
-  dqMetadata: ContextComponentData<DQMetadata>;
-  dqRequirement: ContextComponentData<DQRequirement>;
-  otherData: ContextComponentData<OtherData>;
-  otherMetadata: ContextComponentData<OtherMetadata>;
-  systemRequirement: ContextComponentData<SystemRequirement>;
-  taskAtHand: ContextComponentData<TaskAtHand>;
-  userType: ContextComponentData<UserType>;
+  applicationDomain: ContextComponentData<ApplicationDomain> | null;
+  businessRule: ContextComponentData<BusinessRule> | null;
+  dataFiltering: ContextComponentData<DataFiltering> | null;
+  dqMetadata: ContextComponentData<DQMetadata> | null;
+  dqRequirement: ContextComponentData<DQRequirement> | null;
+  otherData: ContextComponentData<OtherData> | null;
+  otherMetadata: ContextComponentData<OtherMetadata> | null;
+  systemRequirement: ContextComponentData<SystemRequirement> | null;
+  taskAtHand: ContextComponentData<TaskAtHand> | null;
+  userType: ContextComponentData<UserType> | null;
 }
-
-export const mockconstContextComponents: ContextComponentsType = {
-  applicationDomain: {
-    title: "Application Domain",
-    columns: ["ID", "Description"],
-    data: [{ id: 1, description: "Finance sector" }],
-  },
-  businessRule: {
-    title: "Business Rule",
-    columns: ["ID", "Statement", "Semantic"],
-    data: [
-      { id: 2, statement: "Rule 1", semantic: "Logical" },
-      { id: 22, statement: "Rule 2", semantic: "Logical large description" },
-    ],
-  },
-  dataFiltering: {
-    title: "Data Filtering",
-    columns: ["ID", "Statement", "Description", "Task At Hand"],
-    data: [
-      {
-        id: 3,
-        statement: "Filter 1",
-        description: "Basic filter",
-        task_at_hand: 1,
-      },
-    ],
-  },
-  dqMetadata: {
-    title: "DQ Metadata",
-    columns: ["ID", "Path", "Description", "Measurement"],
-    data: [
-      {
-        id: 4,
-        path: "/data",
-        description: "Metadata details",
-        measurement: "Accuracy",
-      },
-    ],
-  },
-  dqRequirement: {
-    title: "DQ Requirement",
-    columns: ["ID", "Statement", "Description", "Data Filtering", "User Type"],
-    data: [
-      {
-        id: 5,
-        statement: "Quality Check",
-        description: "Check all data",
-        data_filtering: [],
-        user_type: 1,
-      },
-    ],
-  },
-  otherData: {
-    title: "Other Data",
-    columns: ["ID", "Path", "Description", "Owner"],
-    data: [
-      { id: 6, path: "/other", description: "Other metadata", owner: "Admin" },
-    ],
-  },
-  otherMetadata: {
-    title: "Other Metadata",
-    columns: ["ID", "Path", "Description", "Author", "Last Update"],
-    data: [
-      {
-        id: 7,
-        path: "/meta",
-        description: "Extra metadata",
-        author: "User",
-        last_update: "2025-01-01",
-      },
-    ],
-  },
-  systemRequirement: {
-    title: "System Requirement",
-    columns: ["ID", "Statement", "Description"],
-    data: [
-      { id: 8, statement: "High performance", description: "Optimize speed" },
-    ],
-  },
-  taskAtHand: {
-    title: "Task At Hand",
-    columns: ["ID", "Name", "Purpose"],
-    data: [{ id: 9, name: "Data analysis", purpose: "Improve insights" }],
-  },
-  userType: {
-    title: "User Type",
-    columns: ["ID", "Name", "Characteristics"],
-    data: [{ id: 10, name: "Admin", characteristics: "Full access" }],
-  },
-};
