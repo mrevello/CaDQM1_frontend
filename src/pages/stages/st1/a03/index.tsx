@@ -228,8 +228,8 @@ export const A03: React.FC = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: 1.5,
-                  m: 1.5,
+                  // gap: 1.5,
+                  // m: 1.5,
                 }}
               >
                 {Object.values(mockProblems).map((problem, index) => (
@@ -270,11 +270,11 @@ export const A03: React.FC = () => {
         onClose={handleCloseMenu}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right", // or 'left' depending on your button alignment
+          horizontal: "right",
         }}
         transformOrigin={{
           vertical: "top",
-          horizontal: "right", // match this to the anchor's horizontal setting
+          horizontal: "right",
         }}
       >
         <MenuItem onClick={handleCreateContextComponent}>
