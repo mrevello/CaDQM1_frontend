@@ -6,65 +6,33 @@ import {
   Typography,
   IconButton,
   Tooltip,
-  Divider,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
+  Button,
 } from "@mui/material";
 import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ContextcomponentItem } from "../../../../components/ContextComponentItem";
 import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
-import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { mockProblems, ProblemErrorsType } from "../../../../types/problem";
+import { ProblemErrorsType, Problem } from "../../../../types/problem";
 import { ProblemItem } from "../../../../components/ProblemItem";
 import { NewProblemDialog } from "../../../../components/NewProblemDialog";
 import { NewContextComponentDialog } from "../../../../components/NewContextComponentDialog";
-import { ContextComponents } from "../../../../utils/mockData";
-import { useHeaderButtons } from "../../../../context/headerButtons.context";
+import { ContextComponentErrorsType } from "../../../../types/contextComponent";
+import { Placeholder } from "../../../../components/Placeholder";
+import { ProblemBody, problemsApi } from "../../../../api/problem.api";
+import { ProblemValidate } from "../../../../utils/validateForm";
+import { useNotification } from "../../../../context/notification.context";
+import * as yup from "yup";
+import { Add } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+import { ContextComponents } from "../../../../components/ContextComponents";
 
-export const A03: React.FC = () => {
+export const A03A04: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+
   const { t } = useTranslation();
-  const { setButtons } = useHeaderButtons();
-
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
-  React.useEffect(() => {
-    setButtons(
-      //   <SpeedDial
-      //   ariaLabel="SpeedDial actions"
-      //   icon={<MoreVertOutlinedIcon />}
-      //   direction="down"
-      //   FabProps={{ size: "small" }}
-      // >
-      //   <SpeedDialAction
-      //     key="contextComponent"
-      //     icon={<AddOutlinedIcon fontSize="small" />}
-      //     tooltipTitle="Identify Context Component"
-      //     onClick={handleCreateContextComponent}
-      //   />
-      //   <SpeedDialAction
-      //     key="dqProblem"
-      //     icon={<PriorityHighOutlinedIcon fontSize="small" />}
-      //     tooltipTitle="Identify DQ Problem"
-      //     onClick={handleCreateProblem}
-      //   />
-      // </SpeedDial>
-      <IconButton onClick={handleMenu}>
-        <MoreVertOutlinedIcon />
-      </IconButton>
-    );
-
-    return () => setButtons(null);
-  }, [setButtons]);
+  const { getSuccess, getError } = useNotification();
 
   const [text, setText] = useState(
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
@@ -76,6 +44,30 @@ export const A03: React.FC = () => {
 
   const [newProblemDialogOpen, setNewProblemDialogOpen] = useState(false);
   const [problemErrors, setProblemErrors] = useState<ProblemErrorsType>({});
+
+  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] =
+    useState(false);
+  const [contextComponentErrors, setContextComponentErrors] =
+    useState<ContextComponentErrorsType>({});
+
+  const [problemList, setProblemList] = useState<Problem[]>([]);
+
+  useEffect(() => {
+    if (!projectId) return;
+
+    const fetchProblems = async () => {
+      try {
+        const problemsFromApi = await problemsApi.listProblems(
+          Number(projectId)
+        );
+        setProblemList(problemsFromApi ?? []);
+      } catch (err) {
+        console.error("Error fetching problems:", err);
+      }
+    };
+
+    fetchProblems();
+  }, [projectId]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -92,38 +84,59 @@ export const A03: React.FC = () => {
   };
 
   const handleCreateContextComponent = () => {
-    console.log("Identify Context Component for:", selectedText);
+    setNewContextComponentDialogOpen(true);
     setShowMenu(false);
   };
 
   const handleCreateProblem = () => {
     setNewProblemDialogOpen(true);
-    console.log("Identify Problem for:", selectedText);
     setShowMenu(false);
   };
 
   const handleCloseNewProblemDialog = () => {
     setProblemErrors({});
     setNewProblemDialogOpen(false);
+    setSelectedText("");
   };
 
   const handleNewProblemSubmit = async (formData: Record<string, any>) => {
     try {
-      //   await ProjectValidate.validate(formData);
-      //   setProjectErrors({});
-      //   await projects.createProject({
-      //     name: formData.name,
-      //     description: formData.description,
-      //   });
-      //   handleCloseNewDialog();
-      //   await fetchProjects();
+      await ProblemValidate.validate(formData);
+      setProblemErrors({});
+      const newProblemData: ProblemBody = {
+        name: formData.name,
+        description: formData.description,
+        project: Number(projectId),
+      };
+
+      const createdProblem = await problemsApi.createProblem(newProblemData);
+      if (createdProblem) {
+        setProblemList((prev) => [...prev, createdProblem]);
+      }
+      handleCloseNewProblemDialog();
     } catch (error) {
-      // if (error instanceof yup.ValidationError) {
-      //   // Set form errors
-      //   setProjectErrors({ name: error.errors[0] });
-      // } else {
-      //   getError(t("home:error-creating-project", { error }));
-      // }
+      console.log("error", error);
+      if (error instanceof yup.ValidationError) {
+        setProblemErrors({ name: error.errors[0] });
+      } else {
+        getError(String(error));
+        handleCloseNewProblemDialog();
+      }
+    }
+  };
+
+  const handleCloseNewContextComponentDialog = () => {
+    setContextComponentErrors({});
+    setNewContextComponentDialogOpen(false);
+  };
+
+  const handleNewContextComponentSubmit = async (
+    formData: Record<string, any>
+  ) => {
+    try {
+      // Handle new context component submission here
+    } catch (error) {
+      console.error("Error creating context component:", error);
     }
   };
 
@@ -209,18 +222,11 @@ export const A03: React.FC = () => {
 
           <Box sx={{ pt: 1 }}>
             {tabValue === 0 && (
-              <SimpleTreeView>
-                {Object.values(ContextComponents).map(
-                  (component, index) =>
-                    component && (
-                      <ContextcomponentItem
-                        key={index}
-                        component={component}
-                        onDelete={() => {}}
-                      />
-                    )
-                )}
-              </SimpleTreeView>
+              <ContextComponents
+                projectId={Number(projectId)}
+                showNew={true}
+                onCreate={handleCreateContextComponent}
+              />
             )}
 
             {tabValue === 1 && (
@@ -228,20 +234,33 @@ export const A03: React.FC = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  // gap: 1.5,
-                  // m: 1.5,
+                  gap: 1,
                 }}
               >
-                {Object.values(mockProblems).map((problem, index) => (
-                  <>
+                {problemList.length > 0 && (
+                  <Box display="flex" justifyContent="flex-end">
+                    <Button startIcon={<Add />} onClick={handleCreateProblem}>
+                      New
+                    </Button>
+                  </Box>
+                )}
+
+                {problemList.length > 0 ? (
+                  problemList.map((problem, index) => (
                     <ProblemItem
                       key={index}
                       problem={problem}
+                      onUpdate={(problemId) => {}}
                       onDelete={(problemId) => {}}
                     />
-                    <Divider />
-                  </>
-                ))}
+                  ))
+                ) : (
+                  <Placeholder
+                    description={t("No problems identified yet.")}
+                    linkText={t("Identify problem")}
+                    onClick={handleCreateProblem}
+                  />
+                )}
               </Box>
             )}
           </Box>
@@ -250,46 +269,18 @@ export const A03: React.FC = () => {
 
       <NewProblemDialog
         open={newProblemDialogOpen}
+        description={selectedText}
         onClose={handleCloseNewProblemDialog}
         onSubmit={handleNewProblemSubmit}
         errors={problemErrors}
       />
 
       <NewContextComponentDialog
-        open={newProblemDialogOpen}
-        onClose={handleCloseNewProblemDialog}
-        onSubmit={handleNewProblemSubmit}
-        // errors={contextComponentErrors}
+        open={newContextComponentDialogOpen}
+        onClose={handleCloseNewContextComponentDialog}
+        onSubmit={handleNewContextComponentSubmit}
+        errors={contextComponentErrors}
       />
-
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleCloseMenu}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
-        <MenuItem onClick={handleCreateContextComponent}>
-          <ListItemIcon>
-            <AddOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Identify Context component" />
-        </MenuItem>
-        <MenuItem onClick={handleCreateProblem}>
-          <ListItemIcon>
-            <PriorityHighOutlinedIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Identify DQ problem" />
-        </MenuItem>
-      </Menu>
     </>
   );
 };

@@ -1,11 +1,19 @@
 import { TreeItem } from "@mui/x-tree-view";
-import { Divider, Typography, Box, IconButton } from "@mui/material";
+import {
+  Divider,
+  Typography,
+  Box,
+  IconButton,
+  Card,
+  useTheme,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   ContextComponent,
   ContextComponentData,
 } from "../../types/contextComponent";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 interface ContextcomponentItemProps<T extends ContextComponent> {
   component: ContextComponentData<T>;
@@ -17,18 +25,31 @@ export const ContextcomponentItem = <T extends ContextComponent>({
   onDelete,
 }: ContextcomponentItemProps<T>) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <TreeItem itemId={component.title} label={t(component.title)}>
-      <Box sx={{ pl: 1, pr: 1 }}>
+    <TreeItem itemId={component.type} label={t(component.type)}>
+      <Box pl={1} pr={1} gap={1.5}>
         {component.data.map((data) => (
-          <Box key={data.id}>
+          <Card
+            key={data.id}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              background: "transparent",
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 1,
-                mt: 1.5,
-                mb: 1.5,
+                // gap: 1,
+                // mt: 1.5,
+                // mb: 1.5,
               }}
             >
               {Object.entries(data).map(
@@ -61,8 +82,8 @@ export const ContextcomponentItem = <T extends ContextComponent>({
                   )
               )}
             </Box>
-            <Divider />
-          </Box>
+            {/* <Divider /> */}
+          </Card>
         ))}
       </Box>
     </TreeItem>

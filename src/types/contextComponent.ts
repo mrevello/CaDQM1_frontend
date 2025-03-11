@@ -71,8 +71,7 @@ interface UserType extends ContextComponent {
 }
 
 export interface ContextComponentData<T extends ContextComponent> {
-  title: string;
-  columns: string[];
+  type: ContextComponentType;
   data: T[];
 }
 
@@ -88,3 +87,20 @@ export interface ContextComponentsType {
   taskAtHand: ContextComponentData<TaskAtHand> | null;
   userType: ContextComponentData<UserType> | null;
 }
+
+export const emptyContextComponentsType = {
+  applicationDomain: null,
+  businessRule: null,
+  dataFiltering: null,
+  dqMetadata: null,
+  dqRequirement: null,
+  otherData: null,
+  otherMetadata: null,
+  systemRequirement: null,
+  taskAtHand: null,
+  userType: null,
+};
+
+export type ContextComponentErrorsType = {
+  // name?: string;
+};

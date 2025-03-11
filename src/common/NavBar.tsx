@@ -42,8 +42,6 @@ export const NavBar: React.FC = () => {
     handleClose();
   };
 
-  const userInitial = "U";
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="sticky">
@@ -59,12 +57,8 @@ export const NavBar: React.FC = () => {
             CaDQM
           </Typography>
 
-          <IconButton
-            size="large"
-            aria-controls="menu-appbar"
-            onClick={handleMenu}
-          >
-            <Avatar sx={{ fontWeight: 500 }}>{userInitial}</Avatar>
+          <IconButton aria-controls="menu-appbar" onClick={handleMenu}>
+            <Avatar />
           </IconButton>
           <Menu
             id="menu-appbar"

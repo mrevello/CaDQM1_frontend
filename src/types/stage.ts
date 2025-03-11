@@ -12,73 +12,85 @@ export enum Stage {
   ST9 = "ST9",
 }
 
-const STAGE_ACTIVITY_MAP: Record<Stage, Activity[]> = {
-  [Stage.ST1]: [Activity.A01, Activity.A02, Activity.A03, Activity.A04],
-  [Stage.ST2]: [Activity.A05, Activity.A03, Activity.A06, Activity.A07],
-  [Stage.ST3]: [Activity.A08, Activity.A03, Activity.A07],
-  [Stage.ST4]: [],
-  [Stage.ST5]: [],
-  [Stage.ST6]: [],
-  [Stage.ST7]: [],
-  [Stage.ST8]: [],
-  [Stage.ST9]: [],
+interface StageInfo {
+  name: string;
+  title: string;
+  description: string;
+  activities: Activity[];
+}
+
+export const STAGE_INFO: Record<Stage, StageInfo> = {
+  [Stage.ST1]: {
+    name: "common:stage-1-name",
+    title: "common:stage-1-title",
+    description: "common:stage-1-description",
+    activities: [Activity.A01, Activity.A02, Activity.A03A04],
+  },
+  [Stage.ST2]: {
+    name: "common:stage-2-name",
+    title: "common:stage-2-title",
+    description: "common:stage-2-description",
+    activities: [Activity.A05, Activity.A03A04, Activity.A06], //, Activity.A07],
+  },
+  [Stage.ST3]: {
+    name: "common:stage-3-name",
+    title: "common:stage-3-title",
+    description: "common:stage-3-description",
+    activities: [Activity.A08, Activity.A03A04], //, Activity.A07],
+  },
+  [Stage.ST4]: {
+    name: "common:stage-4-name",
+    title: "common:stage-4-title",
+    description: "common:stage-4-description",
+    activities: [],
+  },
+  [Stage.ST5]: {
+    name: "common:stage-5-name",
+    title: "common:stage-5-title",
+    description: "common:stage-5-description",
+    activities: [],
+  },
+  [Stage.ST6]: {
+    name: "common:stage-6-name",
+    title: "common:stage-6-title",
+    description: "common:stage-6-description",
+    activities: [],
+  },
+  [Stage.ST7]: {
+    name: "",
+    title: "",
+    description: "",
+    activities: [],
+  },
+  [Stage.ST8]: {
+    name: "",
+    title: "",
+    description: "",
+    activities: [],
+  },
+  [Stage.ST9]: {
+    name: "",
+    title: "",
+    description: "",
+    activities: [],
+  },
 };
 
 export function getStageActivities(stage: Stage): Activity[] {
-  return STAGE_ACTIVITY_MAP[stage] || [];
+  return STAGE_INFO[stage]?.activities || [];
 }
 
-export function getStageName(stage: Stage): string {
-  switch (stage) {
-    case Stage.ST1:
-      return "common:stage-1-name";
-    case Stage.ST2:
-      return "common:stage-2-name";
-    case Stage.ST3:
-      return "common:stage-3-name";
-    case Stage.ST4:
-      return "common:stage-4-name";
-    case Stage.ST5:
-      return "common:stage-5-name";
-    case Stage.ST6:
-      return "common:stage-6-name";
-    default:
-      return "";
-  }
+export function getStageLabel(stage: Stage): string {
+  return STAGE_INFO[stage]?.name || "";
 }
 
 export function getStageTitle(stage: Stage): string {
-  switch (stage) {
-    case Stage.ST1:
-      return "common:stage-1-title";
-    case Stage.ST2:
-      return "common:stage-2-title";
-    case Stage.ST3:
-      return "common:stage-3-title";
-    case Stage.ST4:
-      return "common:stage-4-title";
-    case Stage.ST5:
-      return "common:stage-5-title";
-    case Stage.ST6:
-      return "common:stage-6-title";
-    default:
-      return "";
-  }
+  return STAGE_INFO[stage]?.title || "";
 }
 
-export const getSteps = (stage: Stage) => {
-  switch (stage) {
-    case Stage.ST1:
-      return [
-        { label: "A01", path: "a01" },
-        { label: "A02", path: "a02" },
-        { label: "A03", path: "a03" },
-        { label: "A04", path: "a04" },
-      ];
-    default:
-      return "";
-  }
-};
+export function getStageDescription(stage: Stage): string {
+  return STAGE_INFO[stage]?.description || "";
+}
 
 export function getNextStage(stage: Stage): Stage {
   const stages: Stage[] = Object.values(Stage);

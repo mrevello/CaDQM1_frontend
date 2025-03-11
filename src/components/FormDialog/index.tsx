@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   TextField,
   FormControl,
   Select,
   MenuItem,
-  Typography,
   Box,
 } from "@mui/material";
 import { GenericDialog } from "../Dialog";
@@ -26,6 +25,10 @@ export interface TextFieldConfig {
   error?: boolean;
   helperText?: string;
   options?: SelectOption[];
+  placeholder?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 interface FormDialogProps {
@@ -51,18 +54,22 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   cancelText = "Cancel",
   onFieldChange,
 }) => {
-  const initialFormData = textFieldConfigs.reduce(
-    (acc, field) => {
-      if (field.defaultValue !== undefined) {
-        acc[field.name] = field.defaultValue;
-      }
-      return acc;
-    },
-    {} as Record<string, any>
-  );
+  const [formData, setFormData] = useState<Record<string, any>>({});
 
-  const [formData, setFormData] =
-    useState<Record<string, any>>(initialFormData);
+  useEffect(() => {
+    if (open) {
+      const initialData = textFieldConfigs.reduce(
+        (acc, field) => {
+          if (field.defaultValue !== undefined) {
+            acc[field.name] = field.defaultValue;
+          }
+          return acc;
+        },
+        {} as Record<string, any>
+      );
+      setFormData(initialData);
+    }
+  }, [open, textFieldConfigs]);
 
   const handleChange = (name: string, value: any) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -77,18 +84,19 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   };
 
   const dialogContent = (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+    >
       {textFieldConfigs.map((field) =>
         field.type === "select" ? (
           <FormControl fullWidth key={field.id}>
-            {/* <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              {field.labelText}
-            </Typography> */}
             <Select
               value={formData[field.name] || ""}
               onChange={(e) => handleChange(field.name, e.target.value)}
               fullWidth
-              sx={{fontSize:"1rem"}}
+              sx={{ fontSize: "1rem" }}
             >
               {field.options?.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -99,43 +107,33 @@ export const FormDialog: React.FC<FormDialogProps> = ({
           </FormControl>
         ) : (
           <Box key={field.id}>
-            {/* <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              {field.labelText}
-            </Typography> */}
             <TextField
               fullWidth
               {...field}
-              value={formData[field.name] || ""}
               onChange={(e) => handleChange(field.name, e.target.value)}
             />
           </Box>
         )
       )}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }}>
+          {cancelText}
+        </Button>
+        <Button type="submit" autoFocus variant="contained">
+          {confirmText}
+        </Button>
+      </Box>
     </Box>
   );
 
-  const dialogActions = (
-    <>
-      <Button variant="outlined" onClick={onClose}>
-        {cancelText}
-      </Button>
-      <Button type="submit" autoFocus variant="contained">
-        {confirmText}
-      </Button>
-    </>
-  );
-
   return (
-    <form onSubmit={handleSubmit}>
-      <GenericDialog
-        open={open}
-        onClose={onClose}
-        title={title}
-        subtitle={dialogContentText}
-        content={dialogContent}
-        actions={dialogActions}
-        showDividers={true}
-      />
-    </form>
+    <GenericDialog
+      open={open}
+      onClose={onClose}
+      title={title}
+      subtitle={dialogContentText}
+      content={dialogContent}
+      showDividers={true}
+    />
   );
 };

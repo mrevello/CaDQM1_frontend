@@ -1,5 +1,5 @@
-import axios from "axios";
 import { instance } from "./base.api";
+import { handleApiError } from "./errorHandler";
 
 const endpoint = "projects/";
 
@@ -51,18 +51,4 @@ export const projects = {
       handleApiError(error);
     }
   },
-};
-
-const handleApiError = (error: any) => {
-  if (axios.isAxiosError(error)) {
-    if (!error.response || error.response.status === 404) {
-      window.location.href = "/server-error";
-    } else {
-      throw new Error(
-        error.response.data?.error || "An unexpected error occurred."
-      );
-    }
-  } else {
-    throw new Error("An unexpected error occurred.");
-  }
 };

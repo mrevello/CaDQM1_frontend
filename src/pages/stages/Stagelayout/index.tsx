@@ -1,23 +1,34 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Box, Container, SpeedDial, SpeedDialAction } from "@mui/material";
 import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { ActivityHeader } from "../../../components/ActivityHeader";
 import { getNextStage, getStageActivities, Stage } from "../../../types/stage";
 import { Activity } from "../../../types/activity";
-import { ActivityStepper } from "../../../components/ActivitySepper";
-import { useHeaderButtons } from "../../../context/headerButtons.context";
+import { ActivityStepper } from "../../../components/ActivityStepper";
 import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { KeyboardArrowUpOutlined } from "@mui/icons-material";
+import { StageDialog } from "../../../components/StagesDialog";
+import { ContextDialog } from "../../../components/ContextDialog";
+import { ProblemsDialog } from "../../../components/ProblemsDialog";
+
+export interface ActivityHandle {
+  validateForm: () => Promise<boolean>;
+}
 
 export const StageLayout: React.FC = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { buttons } = useHeaderButtons();
+  const { projectId, stage: stageParam } = useParams<{
+    projectId: string;
+    stage: string;
+  }>();
 
   const navigate = useNavigate();
   const location = useLocation();
+  const activityRef = useRef<ActivityHandle>(null);
 
-  const [stage, setStage] = useState<Stage>(Stage.ST1);
+  const stageFromPath = location.pathname.split("/")[3].toUpperCase() as Stage;
+
+  const [stage, setStage] = useState<Stage>(stageFromPath);
   const activities = React.useMemo(() => getStageActivities(stage), [stage]);
 
   const lastSegment = location.pathname.split("/").pop()?.toLowerCase() || "";
@@ -26,16 +37,31 @@ export const StageLayout: React.FC = () => {
     return found ?? activities[0];
   }, [lastSegment, activities]);
 
-  const handleSelectActivity = (next: Activity) => {
-    // Check if the selected activity exists in the current activities list
+  const [stagesDialogOpen, setStagesDialogOpen] = useState(false);
+  const [contextDialogOpen, setContextDialogOpen] = useState(false);
+  const [problemsDialogOpen, setProblemsDialogOpen] = useState(false);
+
+  const continueToStage = (nextStage: Stage) => {
+    setStage(nextStage);
+    const newActivities = getStageActivities(nextStage);
+    navigate(
+      `/projects/${projectId}/${nextStage.toLowerCase()}/${newActivities[0].toLowerCase()}`
+    );
+  };
+
+  const handleSelectActivity = async (next: Activity) => {
+    if (activityRef.current) {
+      const isValid = await activityRef.current.validateForm();
+      if (!isValid) return;
+    }
+
     if (!activities.includes(next)) {
-      const newStage = getNextStage(stage);
-      // Update stage, which automatically updates activities
-      setStage(newStage);
-      const newActivities = getStageActivities(newStage);
-      navigate(
-        `/projects/${projectId}/${newStage.toLowerCase()}/${newActivities[0].toLowerCase()}`
-      );
+      if (stage === Stage.ST1) {
+        setStagesDialogOpen(true);
+      } else {
+        const newStage = getNextStage(stage);
+        continueToStage(newStage);
+      }
     } else {
       navigate(
         `/projects/${projectId}/${stage.toLowerCase()}/${next.toLowerCase()}`
@@ -43,66 +69,89 @@ export const StageLayout: React.FC = () => {
     }
   };
 
-  // Define SpeedDial actions with placeholder click handlers
+  const handleStageSelect = (stage: Stage) => {
+    continueToStage(stage);
+    setStagesDialogOpen(false);
+  };
+
   const actions = [
     {
       icon: <AddOutlinedIcon />,
       name: "View Context",
-      onClick: () => console.log("View Context clicked"),
+      onClick: () => setContextDialogOpen(true),
     },
     {
       icon: <PriorityHighOutlinedIcon />,
       name: "View Problems",
-      onClick: () => console.log("View Problems clicked"),
+      onClick: () => setProblemsDialogOpen(true),
     },
   ];
 
   return (
-    <Container maxWidth="xl" sx={{ pb: 8 }}>
-      <ActivityHeader
-        stage={stage}
-        selectedActivity={selectedActivity}
-        onSelectActivity={handleSelectActivity}
-      >
-        {buttons}
-      </ActivityHeader>
+    <>
+      <StageDialog
+        title="Choose next stage"
+        open={stagesDialogOpen}
+        onClose={() => setStagesDialogOpen(false)}
+        onStageSelect={handleStageSelect}
+      />
 
-      <Box sx={{ mb: 10, pl: 8, pr: 8 }}>
-        <Outlet />
-      </Box>
+      <ContextDialog
+        projectId={Number(projectId)}
+        open={contextDialogOpen}
+        onClose={() => setContextDialogOpen(false)}
+      />
 
-      <SpeedDial
-        direction="up"
-        ariaLabel="SpeedDial for extra actions"
-        sx={{ position: "fixed", bottom: 92, right: 24 }}
-        icon={<KeyboardArrowUpOutlined />}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            onClick={action.onClick}
-          />
-        ))}
-      </SpeedDial>
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "#fff",
-          zIndex: 1300,
-          boxShadow: "0px -2px 16px #091E420F",
-        }}
-      >
-        <ActivityStepper
-          activities={activities}
+      <ProblemsDialog
+        projectId={Number(projectId)}
+        open={problemsDialogOpen}
+        onClose={() => setProblemsDialogOpen(false)}
+      />
+
+      <Container maxWidth="xl" sx={{ pb: 8 }}>
+        <ActivityHeader
+          stage={stage}
           selectedActivity={selectedActivity}
           onSelectActivity={handleSelectActivity}
         />
-      </Box>
-    </Container>
+
+        <Box sx={{ mb: 10, pl: 8, pr: 8 }}>
+          <Outlet context={{ activityRef }} />
+        </Box>
+
+        <SpeedDial
+          direction="up"
+          ariaLabel="SpeedDial for extra actions"
+          sx={{ position: "fixed", bottom: 92, right: 24 }}
+          icon={<KeyboardArrowUpOutlined />}
+        >
+          {actions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={action.onClick}
+            />
+          ))}
+        </SpeedDial>
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#fff",
+            zIndex: 1300,
+            boxShadow: "0px -2px 16px #091E420F",
+          }}
+        >
+          <ActivityStepper
+            activities={activities}
+            selectedActivity={selectedActivity}
+            onSelectActivity={handleSelectActivity}
+          />
+        </Box>
+      </Container>
+    </>
   );
 };

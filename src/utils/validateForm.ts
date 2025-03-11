@@ -1,3 +1,4 @@
+import { text } from "stream/consumers";
 import * as yup from "yup";
 
 export const LoginValidate = yup.object().shape({
@@ -19,4 +20,26 @@ export const ProjectValidate = yup.object().shape({
 export const DatasetValidate = yup.object().shape({
   name: yup.string().trim().required("This field is mandatory"),
   // file: yup.
+});
+
+export const a01Validate = yup.object().shape({
+  name: yup.string().trim().required("This field is mandatory"),
+  description: yup.string().trim().required("This field is mandatory"),
+  mainFiles: yup
+    .array()
+    .min(1, "At least one file is required")
+    .required("At least one file is required"),
+});
+
+export const a02Validate = yup.object().shape({
+  text: yup.string().trim().required("This field is mandatory"),
+});
+
+export const a08Validate = yup.object().shape({
+  text: yup.string().trim().required("This field is mandatory"),
+});
+
+export const ProblemValidate = yup.object().shape({
+  name: yup.string().trim().required("This field is mandatory"),
+  description: yup.string().trim().required("This field is mandatory"),
 });

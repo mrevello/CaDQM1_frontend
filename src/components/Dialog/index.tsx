@@ -8,8 +8,11 @@ import {
   Typography,
   Divider,
   Box,
+  Slide,
+  Breakpoint,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
+import { TransitionProps } from "@mui/material/transitions";
 
 export interface GenericDialogProps {
   open: boolean;
@@ -17,9 +20,21 @@ export interface GenericDialogProps {
   title: string;
   subtitle?: string;
   content: React.ReactNode;
-  actions: React.ReactNode;
-  showDividers: boolean;
+  actions?: React.ReactNode;
+  showDividers?: boolean;
+  transition?: boolean;
+  maxWidth?: Breakpoint | false;
+  minHeight?: number;
 }
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<any, any>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export const GenericDialog: React.FC<GenericDialogProps> = ({
   open,
@@ -28,14 +43,20 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
   subtitle,
   content,
   actions,
-  showDividers,
+  showDividers = false,
+  transition = false,
+  maxWidth,
+  minHeight,
 }) => {
   return (
     <Dialog
       open={open}
       onClose={onClose}
       fullWidth
-      PaperProps={{ sx: { borderRadius: 1 } }}
+      TransitionComponent={Transition}
+      // TransitionComponent={transition & Transition}
+      PaperProps={{ sx: { borderRadius: 1, minHeight: { minHeight } } }}
+      maxWidth={maxWidth}
     >
       <DialogTitle sx={{ pt: 2, pb: 2, pl: 3, pr: 3 }}>
         <Box>
@@ -60,7 +81,7 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
       {showDividers && <Divider />}
       <DialogContent>{content}</DialogContent>
       {showDividers && <Divider />}
-      <DialogActions>{actions}</DialogActions>
+      {actions && <DialogActions>{actions}</DialogActions>}
     </Dialog>
   );
 };

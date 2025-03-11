@@ -1,0 +1,23 @@
+{
+  "name": "Milk Sample Data",
+  "type": "Quality Analysis",
+  "description": "Milk sample collected for bacterial testing",
+  "date": "2025-02-13",
+  "url_db": "http://database-url.com",
+  "user_db": "admin",
+  "pass_db": "securepassword",
+  "project": 17,
+  "data_schema": {
+    "name": "Milk Data Schema",
+    "description": "Schema for milk quality analysis",
+    "tables": [
+      {
+        "name": "Milk Tests",
+        "attributes": [
+          { "name": "Bacteria Count", "data_type": "Integer" },
+          { "name": "Fat Percentage", "data_type": "Float" }
+        ]
+      }
+    ]
+  }
+}

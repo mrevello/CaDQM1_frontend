@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { FormDialog, TextFieldConfig, SelectOption } from "../FormDialog";
-import { ContextComponentType } from "../../types/contextComponent";
+import {
+  ContextComponentErrorsType,
+  ContextComponentType,
+} from "../../types/contextComponent";
 import { useTranslation } from "react-i18next";
 
 interface NewContextComponentDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (formData: Record<string, any>) => void;
+  errors?: ContextComponentErrorsType;
 }
 
 export const NewContextComponentDialog: React.FC<
   NewContextComponentDialogProps
-> = ({ open, onClose, onSubmit }) => {
+> = ({ open, onClose, onSubmit, errors }) => {
   const { t } = useTranslation();
 
   const [selectedType, setSelectedType] = useState<ContextComponentType>(
@@ -106,7 +110,7 @@ export const NewContextComponentDialog: React.FC<
       onSubmit={(formData) => {
         onSubmit(formData);
       }}
-      title="New Context Component"
+      title="Context Component"
       dialogContentText="Select a type and define the context component details."
       textFieldConfigs={textFieldConfigs}
       onFieldChange={(name, value) => {

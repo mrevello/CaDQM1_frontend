@@ -22,7 +22,6 @@ import {
   TablePagination,
   TableRow,
   CircularProgress,
-  styled,
   Tooltip,
   Link,
 } from "@mui/material";
@@ -33,7 +32,7 @@ import { useTranslation } from "react-i18next";
 import { projects } from "../../api/projects.api";
 import {
   getStageActivities,
-  getStageName,
+  getStageLabel,
   getStageTitle,
   Stage,
 } from "../../types/stage";
@@ -45,17 +44,8 @@ import { useNotification } from "../../context/notification.context";
 import * as yup from "yup";
 import { AlertDialog } from "../../components/AlertDialog";
 import { useNavigate } from "react-router-dom";
-import { Opacity } from "@mui/icons-material";
-
-const Title = styled(Typography)({
-  margin: "1.5rem 0rem",
-});
-
-const ChipBoxContainer = styled(Box)({
-  display: "flex",
-  gap: 0.5,
-  flexWrap: "wrap",
-});
+import { Label } from "../../components/Label";
+import { Add } from "@mui/icons-material";
 
 interface Column {
   id: string;
@@ -275,12 +265,12 @@ export const Home: React.FC = () => {
 
   return (
     <Container maxWidth="xl">
-      <Title variant="h4">{t("home:projects")}</Title>
+      <Typography mt={4} mb={4} fontWeight={500} variant="h5">
+        {t("home:projects")}
+      </Typography>
 
-      <Card
-        sx={{ display: "flex", flexDirection: "column", minHeight: 600, p: 2 }}
-      >
-        <Grid mt={2} mb={4} display="flex">
+      <Card sx={{ display: "flex", flexDirection: "column", minHeight: 600 }}>
+        <Grid m={2} mt={3} mb={4} display="flex">
           <Grid container spacing={2} alignItems="center" flex={1}>
             <TextField
               name="search"
@@ -308,16 +298,17 @@ export const Home: React.FC = () => {
                       Object.values(Stage).indexOf(b)
                   );
                   return (
-                    <ChipBoxContainer>
+                    <Box display="flex" gap={0.5}>
                       {sortedStages.map((stage) => (
                         <Chip
                           key={stage}
-                          label={t(getStageName(stage))}
+                          label={t(getStageLabel(stage))}
                           onDelete={() => handleDeleteChip(stage)}
                           onMouseDown={(event) => event.stopPropagation()}
+                          sx={{ fontSize: 12, fontWeight: 500 }}
                         />
                       ))}
-                    </ChipBoxContainer>
+                    </Box>
                   );
                 }}
               >
@@ -330,8 +321,8 @@ export const Home: React.FC = () => {
             </FormControl>
           </Grid>
 
-          <Button variant="contained" onClick={handleOpenNewDialog}>
-            {t("common:add")}
+          <Button startIcon={<Add />} onClick={handleOpenNewDialog}>
+            New
           </Button>
         </Grid>
 
@@ -378,12 +369,8 @@ export const Home: React.FC = () => {
                 <TableHead>
                   <TableRow>
                     {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        sx={{ width: column.width, opacity: 0.8, fontSize: 14 }}
-                      >
-                        {column.label}
+                      <TableCell key={column.id} align={column.align}>
+                        <Label text={column.label} />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -394,7 +381,7 @@ export const Home: React.FC = () => {
                     .map((project) => {
                       const activities = getStageActivities(project.stage);
                       const firstActivity = activities[0];
-                      const linkTo = `/projects/${project.id}/${project.stage.toLowerCase()}/${firstActivity.toLowerCase()}`;
+                      const linkTo = `/projects/${project.id}/${project.stage.toLowerCase()}/${firstActivity}`;
 
                       return (
                         <TableRow

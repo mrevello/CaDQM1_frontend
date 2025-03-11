@@ -49,20 +49,24 @@ export const ActivityHeader: React.FC<HeaderProps> = ({
 
           <Breadcrumbs separator=">" aria-label="breadcrumb" sx={{ ml: 1 }}>
             {activities.map((activity, index) => (
-              <Link
-                component="button"
-                key={activity}
-                onClick={() => onSelectActivity?.(activity)}
-              >
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  component="span"
-                  fontWeight={activity === selectedActivity ? "bold" : "normal"}
+              <Tooltip key={index} title={t(getActivityTitle(activity))}>
+                <Link
+                  component="button"
+                  key={activity}
+                  onClick={() => onSelectActivity?.(activity)}
                 >
-                  {t(getActivityName(activity))}
-                </Typography>
-              </Link>
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    component="span"
+                    fontWeight={
+                      activity === selectedActivity ? "bold" : "normal"
+                    }
+                  >
+                    {t(getActivityName(activity))}
+                  </Typography>
+                </Link>
+              </Tooltip>
             ))}
           </Breadcrumbs>
         </Box>

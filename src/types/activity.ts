@@ -1,12 +1,14 @@
+// Activities: To carry out each stage, a set of activities is executed. Some activities
+// are executed at more than one stage.
+
 export enum Activity {
-  A01 = "A01",
-  A02 = "A02",
-  A03 = "A03",
-  A04 = "A04",
-  A05 = "A05",
-  A06 = "A06",
-  A07 = "A07",
-  A08 = "A08",
+  A01 = "a01",
+  A02 = "a02",
+  A03A04 = "a03a04",
+  A05 = "a05",
+  A06 = "a06",
+  A07 = "a07",
+  A08 = "a08",
 }
 
 interface ActivityInfo {
@@ -26,15 +28,10 @@ const ACTIVITY_INFO: Record<Activity, ActivityInfo> = {
     title: "activity-2-title",
     description: "activity-2-description",
   },
-  [Activity.A03]: {
-    name: "activity-3-name",
-    title: "activity-3-title",
-    description: "activity-3-description",
-  },
-  [Activity.A04]: {
-    name: "activity-4-name",
-    title: "activity-4-title",
-    description: "activity-4-description",
+  [Activity.A03A04]: {
+    name: "activity-3-4-name",
+    title: "activity-3-4-title",
+    description: "activity-3-4-description",
   },
   [Activity.A05]: {
     name: "activity-5-name",

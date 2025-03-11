@@ -46,6 +46,14 @@ const theme = createTheme({
         },
       },
     },
+    MuiCard: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          boxShadow: "none",
+          border: `0.1px solid ${theme.palette.divider}`,
+        }),
+      },
+    },
     MuiLink: {
       styleOverrides: {
         root: {

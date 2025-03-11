@@ -1,6 +1,6 @@
 import { useDropzone } from "react-dropzone";
 import { FileUploadItem, UploadStatus } from "../FileUploadItem";
-import { alpha, Link, List, Paper, Typography } from "@mui/material";
+import { alpha, Box, Link, List, Paper, Typography } from "@mui/material";
 import { UploadFileOutlined } from "@mui/icons-material";
 
 export interface FileItem {
@@ -15,12 +15,14 @@ export interface FileUploadProps {
   dropzoneProps: ReturnType<typeof useDropzone>;
   fileItems: FileItem[];
   onDelete: (id: string) => void;
+  error?: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   dropzoneProps,
   fileItems,
   onDelete,
+  error,
 }) => {
   const {
     getRootProps,
@@ -31,37 +33,48 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
   return (
     <>
-      <Paper
-        variant="outlined"
-        sx={(theme) => ({
-          p: 1,
-          textAlign: "center",
-          borderStyle: "dashed",
-          backgroundColor: isDragActive
-            ? alpha(theme.palette.primary.main, 0.08)
-            : "transparent",
-          borderColor: isDragActive ? theme.palette.primary.main : "grey.400",
-        })}
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} />
-        <UploadFileOutlined color="primary" sx={{ mt: 2, mb: 1 }} />
-        <Typography variant="body1">
-          <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openFileDialog();
-            }}
-          >
-            Click here
-          </Link>{" "}
-          to upload your file or drag and drop.
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          SVG or xlsx
-        </Typography>
-      </Paper>
+      <Box>
+        <Paper
+          variant="outlined"
+          sx={(theme) => ({
+            p: 1,
+            textAlign: "center",
+            borderStyle: "dashed",
+            backgroundColor: isDragActive
+              ? alpha(theme.palette.primary.main, 0.08)
+              : "transparent",
+            borderColor: isDragActive
+              ? theme.palette.primary.main
+              : error
+                ? theme.palette.error.main
+                : "grey.400",
+          })}
+          {...getRootProps()}
+        >
+          <input {...getInputProps()} />
+          <UploadFileOutlined color="primary" sx={{ mt: 2, mb: 1 }} />
+          <Typography variant="body1">
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                openFileDialog();
+              }}
+            >
+              Click here
+            </Link>{" "}
+            to upload your file or drag and drop.
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            SVG or xlsx
+          </Typography>
+        </Paper>
+        {error && (
+          <Typography variant="caption" color="error" ml={1.75}>
+            {error}
+          </Typography>
+        )}
+      </Box>
 
       {fileItems.length > 0 && (
         <>
