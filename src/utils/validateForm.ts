@@ -1,4 +1,3 @@
-import { text } from "stream/consumers";
 import * as yup from "yup";
 
 export const LoginValidate = yup.object().shape({
@@ -40,6 +39,6 @@ export const a08Validate = yup.object().shape({
 });
 
 export const ProblemValidate = yup.object().shape({
-  name: yup.string().trim().required("This field is mandatory"),
-  description: yup.string().trim().required("This field is mandatory"),
+  name: yup.string().trim().required("Name is required"),
+  description: yup.string().trim().required("Description is required"),
 });

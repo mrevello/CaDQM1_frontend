@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { a02Validate } from "../../../../utils/validateForm";
 import { Review } from "../../../../components/Review";
+import { useParams } from "react-router-dom";
 
 type A02Type = {
   text: string;
@@ -13,6 +14,9 @@ type A02ErrorsType = {
 
 export const A02: React.FC = () => {
   const { t } = useTranslation();
+
+  const { projectId } = useParams<{ projectId: string }>();
+
   // const { activityRef } = useOutletContext<{
   //   activityRef: React.MutableRefObject<ActivityHandle | null>;
   // }>();
@@ -49,7 +53,9 @@ export const A02: React.FC = () => {
   return (
     <Review
       label={t("organization-elements")}
+      type="organization_elements"
       validationSchema={a02Validate}
+      projectId={Number(projectId)}
     />
     // <Box component="form" display="flex" flexDirection="column" gap={2}>
     //   <Typography variant="subtitle2">{t("organization-elements")}</Typography>

@@ -28,36 +28,17 @@ interface ContextComponentItemProps {
 interface ContextComponentsProps {
   projectId: number;
   showNew?: boolean;
+  contextComponents: ContextComponentsType | null;
   onCreate: () => void;
 }
 
 export const ContextComponents: React.FC<ContextComponentsProps> = ({
   projectId,
   showNew = false,
+  contextComponents,
   onCreate,
 }) => {
   const { t } = useTranslation();
-
-  const [contextComponents, setContextComponents] =
-    useState<ContextComponentsType>(emptyContextComponentsType);
-
-  useEffect(() => {
-    console.log("project id", projectId);
-    if (!projectId) return;
-
-    const fetchProblems = async () => {
-      try {
-        const contextFromApi =
-          await contextApi.listContextComponents(projectId);
-        console.log("context components", contextFromApi);
-        setContextComponents(contextFromApi ?? []);
-      } catch (err) {
-        console.error("Error fetching problems:", err);
-      }
-    };
-
-    fetchProblems();
-  }, [projectId]);
 
   return (
     <>
@@ -70,7 +51,7 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
           </Box>
         )}
         <SimpleTreeView>
-          {Object.values(contextComponents).length > 0 ? (
+          {contextComponents ? (
             Object.values(contextComponents).map(
               (component, index) =>
                 component && (
@@ -83,8 +64,8 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
             )
           ) : (
             <Placeholder
-              description={t("No context components identified yet.")}
-              linkText={t("Identify component")}
+              description={t("context-component-placeholder")}
+              linkText={t("identify-component")}
               onClick={onCreate}
             />
           )}

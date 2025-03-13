@@ -8,17 +8,18 @@ import {
   Tooltip,
   Button,
 } from "@mui/material";
-import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ContextcomponentItem } from "../../../../components/ContextComponentItem";
 import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { ProblemErrorsType, Problem } from "../../../../types/problem";
 import { ProblemItem } from "../../../../components/ProblemItem";
 import { NewProblemDialog } from "../../../../components/NewProblemDialog";
 import { NewContextComponentDialog } from "../../../../components/NewContextComponentDialog";
-import { ContextComponentErrorsType } from "../../../../types/contextComponent";
+import {
+  ContextComponentErrorsType,
+  ContextComponentsType,
+} from "../../../../types/contextComponent";
 import { Placeholder } from "../../../../components/Placeholder";
 import { ProblemBody, problemsApi } from "../../../../api/problem.api";
 import { ProblemValidate } from "../../../../utils/validateForm";
@@ -27,16 +28,17 @@ import * as yup from "yup";
 import { Add } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { ContextComponents } from "../../../../components/ContextComponents";
+import { reviewApi } from "../../../../api/review.api";
+import { contextApi } from "../../../../api/context.api";
 
 export const A03A04: React.FC = () => {
+  const { t } = useTranslation();
+  const { getError } = useNotification();
+  const [loading, setLoading] = useState(true);
+
   const { projectId } = useParams<{ projectId: string }>();
 
-  const { t } = useTranslation();
-  const { getSuccess, getError } = useNotification();
-
-  const [text, setText] = useState(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-  );
+  const [text, setText] = useState("Texto de prueba");
   const [tabValue, setTabValue] = useState(0);
   const [selectedText, setSelectedText] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -51,6 +53,29 @@ export const A03A04: React.FC = () => {
     useState<ContextComponentErrorsType>({});
 
   const [problemList, setProblemList] = useState<Problem[]>([]);
+  const [contextComponents, setContextComponents] =
+    useState<ContextComponentsType | null>(null);
+
+  useEffect(() => {
+    const fetchReview = async () => {
+      try {
+        setLoading(true);
+        const review = await reviewApi.getReview(
+          Number(projectId),
+          "organization_elements"
+        );
+        if (review) {
+          setText(review.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch review:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReview();
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
@@ -106,7 +131,7 @@ export const A03A04: React.FC = () => {
       const newProblemData: ProblemBody = {
         name: formData.name,
         description: formData.description,
-        project: Number(projectId),
+        project_id: Number(projectId),
       };
 
       const createdProblem = await problemsApi.createProblem(newProblemData);
@@ -130,15 +155,48 @@ export const A03A04: React.FC = () => {
     setNewContextComponentDialogOpen(false);
   };
 
+  const fetchContextComponents = async () => {
+    try {
+      const contextFromApi = await contextApi.listContextComponents(
+        Number(projectId)
+      );
+      setContextComponents(contextFromApi);
+    } catch (err) {
+      console.error("Error fetching context components:", err);
+    }
+  };
+
   const handleNewContextComponentSubmit = async (
     formData: Record<string, any>
   ) => {
     try {
-      // Handle new context component submission here
+      const { type, ...data } = formData;
+
+      if (!type) {
+        console.error("No type provided for context component.");
+        return;
+      }
+
+      const response = await contextApi.createContextComponent(
+        type,
+        data,
+        Number(projectId)
+      );
+
+      if (response) {
+        fetchContextComponents();
+        handleCloseNewContextComponentDialog(); // Close dialog after success
+      }
     } catch (error) {
       console.error("Error creating context component:", error);
     }
   };
+
+  useEffect(() => {
+    if (!projectId) return;
+
+    fetchContextComponents();
+  }, [projectId]);
 
   return (
     <>
@@ -147,6 +205,7 @@ export const A03A04: React.FC = () => {
           <Typography variant="subtitle2" sx={{ pt: 1.5, pb: 1.5 }}>
             Organization elements
           </Typography>
+
           <Box
             ref={textFieldRef}
             sx={{ position: "relative" }}
@@ -225,6 +284,7 @@ export const A03A04: React.FC = () => {
               <ContextComponents
                 projectId={Number(projectId)}
                 showNew={true}
+                contextComponents={contextComponents}
                 onCreate={handleCreateContextComponent}
               />
             )}
@@ -250,8 +310,8 @@ export const A03A04: React.FC = () => {
                     <ProblemItem
                       key={index}
                       problem={problem}
-                      onUpdate={(problemId) => {}}
-                      onDelete={(problemId) => {}}
+                      onUpdate={() => {}}
+                      onDelete={() => {}}
                     />
                   ))
                 ) : (

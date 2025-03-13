@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GenericDialog } from "../Dialog";
 import { useTranslation } from "react-i18next";
 import { ContextComponents } from "../ContextComponents";
 import { NewContextComponentDialog } from "../NewContextComponentDialog";
-import { ContextComponentErrorsType } from "../../types/contextComponent";
+import {
+  ContextComponentErrorsType,
+  ContextComponentsType,
+} from "../../types/contextComponent";
+import { contextApi } from "../../api/context.api";
 
 interface ContextComponentDialogProps {
   projectId: number;
@@ -22,6 +26,8 @@ export const ContextDialog: React.FC<ContextComponentDialogProps> = ({
     useState(false);
   const [contextComponentErrors, setContextComponentErrors] =
     useState<ContextComponentErrorsType>({});
+  const [contextComponents, setContextComponents] =
+    useState<ContextComponentsType | null>(null);
 
   const handleCreateContextComponent = () => {
     setNewContextComponentDialogOpen(true);
@@ -36,11 +42,44 @@ export const ContextDialog: React.FC<ContextComponentDialogProps> = ({
     formData: Record<string, any>
   ) => {
     try {
-      // Handle new context component submission here
+      const { type, ...data } = formData;
+
+      if (!type) {
+        console.error("No type provided for context component.");
+        return;
+      }
+
+      const response = await contextApi.createContextComponent(
+        type,
+        data,
+        projectId
+      );
+
+      if (response) {
+        handleCloseNewContextComponentDialog(); // Close dialog after success
+      }
     } catch (error) {
       console.error("Error creating context component:", error);
     }
   };
+
+  useEffect(() => {
+    console.log("project id", projectId);
+    if (!projectId) return;
+
+    const fetchContextComponents = async () => {
+      try {
+        const contextFromApi = await contextApi.listContextComponents(
+          Number(projectId)
+        );
+        setContextComponents(contextFromApi);
+      } catch (err) {
+        console.error("Error fetching problems:", err);
+      }
+    };
+
+    fetchContextComponents();
+  }, [projectId]);
 
   return (
     <>
@@ -52,11 +91,12 @@ export const ContextDialog: React.FC<ContextComponentDialogProps> = ({
           <ContextComponents
             projectId={projectId}
             onCreate={handleCreateContextComponent}
+            contextComponents={contextComponents}
           />
         }
         transition={true}
         maxWidth="lg"
-        minHeight={300}
+        minHeight={500}
       />
 
       <NewContextComponentDialog

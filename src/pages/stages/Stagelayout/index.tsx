@@ -74,6 +74,11 @@ export const StageLayout: React.FC = () => {
     setStagesDialogOpen(false);
   };
 
+  const handleSkip = () => {
+    navigate("/")
+    setStagesDialogOpen(false);
+  };
+
   const actions = [
     {
       icon: <AddOutlinedIcon />,
@@ -94,6 +99,7 @@ export const StageLayout: React.FC = () => {
         open={stagesDialogOpen}
         onClose={() => setStagesDialogOpen(false)}
         onStageSelect={handleStageSelect}
+        onSkip={handleSkip}
       />
 
       <ContextDialog

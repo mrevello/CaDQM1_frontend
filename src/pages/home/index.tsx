@@ -131,7 +131,8 @@ export const Home: React.FC = () => {
     console.log(`Edit project with ID: ${id}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevents the row click event
     const project = projectsList.find((p) => p.id === id);
     if (project) {
       setProjectToDelete(project);
@@ -254,8 +255,8 @@ export const Home: React.FC = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title={t("common:delete")}>
-            <IconButton onClick={() => handleDelete(project.id)}>
-              <DeleteIcon />
+          <IconButton onClick={(event) => handleDelete(project.id, event)}>
+          <DeleteIcon />
             </IconButton>
           </Tooltip>
         </Box>

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { FormDialog, TextFieldConfig } from "../FormDialog";
 import { ProblemErrorsType } from "../../types/problem";
+import { useTranslation } from "react-i18next";
 
 interface NewProblemDialogProps {
   open: boolean;
@@ -17,6 +18,8 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
   onSubmit,
   errors,
 }) => {
+  const { t } = useTranslation();
+
   const descriptionRef = useRef<HTMLInputElement | null>(null);
 
   const textFieldConfigs: TextFieldConfig[] = [
@@ -60,8 +63,8 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
       open={open}
       onClose={onClose}
       onSubmit={onSubmit}
-      title="Problem"
-      dialogContentText="Identify DQ problem"
+      title={t("problem")}
+      dialogContentText={t("identify-problem")}
       textFieldConfigs={textFieldConfigs}
     />
   );

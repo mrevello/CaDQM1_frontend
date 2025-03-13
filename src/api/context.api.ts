@@ -38,26 +38,34 @@ const requiredFields: Record<keyof typeof ContextComponentType, string[]> = {
 };
 
 export const contextApi = {
-  // createProblem: async (data: ProblemBody) => {
-  //   try {
-  //     data.priority = data.priority ?? 1;
-  //     data.date = data.date ?? new Date().toISOString()//.split("T")[0]; // remove the split
-  //     const response = await instance.post(endpoint, data);
-  //     const problemData = response.data;
-  //     const problem: Problem = {
-  //       id: problemData.id,
-  //       name: problemData.name || `Problem ${problemData.id}`,
-  //       description: problemData.description,
-  //     };
-  //     return problem;
-  //   } catch (error: any) {
-  //     handleApiError(error);
-  //   }
-  // },
+  createContextComponent: async function (
+    type: ContextComponentType,
+    data: Record<string, any>,
+    projectId: number
+  ): Promise<any> {
+    try {
+      const typeKey = Object.keys(ContextComponentType).find(
+        (key) =>
+          ContextComponentType[key as keyof typeof ContextComponentType] ===
+          type
+      ) as keyof typeof ContextComponentType;
+
+      if (!typeKey || !endpoints[typeKey]) {
+        throw new Error(`Invalid type: ${type}`);
+      }
+
+      data.project = projectId;
+      const response = await instance.post(endpoints[typeKey], data);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+      return null;
+    }
+  },
 
   listContextComponents: async function (
     projectId: number
-  ): Promise<ContextComponentsType> {
+  ): Promise<ContextComponentsType | null> {
     try {
       const keys = Object.keys(
         endpoints
@@ -78,16 +86,24 @@ export const contextApi = {
               return selectedFields;
             });
 
-          return {
-            type: ContextComponentType[key],
-            data: filteredData,
-          };
+          if (filteredData.length > 0) {
+            return {
+              type: ContextComponentType[key],
+              data: filteredData,
+            };
+          } else {
+            return null;
+          }
         } catch (error) {
           return null;
         }
       });
 
       const results = await Promise.all(requests);
+
+      if (results.every((result) => result === null)) {
+        return null;
+      }
 
       const contextComponents: ContextComponentsType = keys.reduce(
         (acc, key, index) => {
@@ -102,18 +118,7 @@ export const contextApi = {
       return contextComponents;
     } catch (error) {
       handleApiError(error);
-      return {
-        applicationDomain: null,
-        businessRule: null,
-        dataFiltering: null,
-        dqMetadata: null,
-        dqRequirement: null,
-        otherData: null,
-        otherMetadata: null,
-        systemRequirement: null,
-        taskAtHand: null,
-        userType: null,
-      };
+      return null;
     }
   },
 };

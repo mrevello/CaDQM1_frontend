@@ -5,9 +5,10 @@ import {
   CardActionArea,
   CardContent,
   Box,
+  Button,
 } from "@mui/material";
 import { GenericDialog } from "../Dialog";
-import { getStageDescription, getStageLabel, getStageTitle, Stage } from "../../types/stage";
+import { getStageDescription, getStageTitle, Stage } from "../../types/stage";
 import { useTranslation } from "react-i18next";
 
 interface StageDialogProps {
@@ -16,6 +17,7 @@ interface StageDialogProps {
   title: string;
   dialogContentText?: string;
   onStageSelect: (stage: Stage) => void;
+  onSkip: () => void;
 }
 
 interface StageItemProps {
@@ -61,16 +63,20 @@ export const StageDialog: React.FC<StageDialogProps> = ({
   title,
   dialogContentText,
   onStageSelect,
+  onSkip,
 }) => {
+  const { t } = useTranslation();
   const stages = [Stage.ST2, Stage.ST3];
 
   const dialogContent = (
-    <Box display="flex" flexDirection="column" gap={2} mt={2} mb={2}>
+    <Box display="flex" flexDirection="column" gap={2} mt={2}>
       {stages.map((stage) => (
         <StageItem key={stage} stage={stage} onSelect={onStageSelect} />
       ))}
     </Box>
   );
+
+  const dialogActions = <Button onClick={onSkip}>{t("skip")}</Button>;
 
   return (
     <GenericDialog
@@ -79,6 +85,7 @@ export const StageDialog: React.FC<StageDialogProps> = ({
       title={title}
       subtitle={dialogContentText}
       content={dialogContent}
+      actions={dialogActions}
     />
   );
 };

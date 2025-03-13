@@ -108,7 +108,7 @@ export const NewContextComponentDialog: React.FC<
       open={open}
       onClose={onClose}
       onSubmit={(formData) => {
-        onSubmit(formData);
+        onSubmit({ ...formData, type: selectedType });
       }}
       title="Context Component"
       dialogContentText="Select a type and define the context component details."

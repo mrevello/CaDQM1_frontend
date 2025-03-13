@@ -5,6 +5,7 @@ export interface Problem {
 }
 
 export type ProblemErrorsType = {
+  id?: string;
   name?: string;
   description?: string;
 };

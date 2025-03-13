@@ -9,14 +9,14 @@ export type ProblemBody = {
   description: string;
   priority?: number;
   date?: string;
-  project: number;
+  project_id: number;
 };
 
 export const problemsApi = {
   createProblem: async (data: ProblemBody) => {
     try {
       data.priority = data.priority ?? 1;
-      data.date = data.date ?? new Date().toISOString()//.split("T")[0]; // remove the split
+      data.date = data.date ?? new Date().toISOString().split("T")[0]; // remove the split
       const response = await instance.post(endpoint, data);
       const problemData = response.data;
       const problem: Problem = {
