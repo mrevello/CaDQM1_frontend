@@ -15,3 +15,8 @@ export const RegisterValidate = yup.object().shape({
 export const ProjectValidate = yup.object().shape({
   name: yup.string().trim().required("This field is mandatory"),
 });
+
+export const ProblemValidate = yup.object().shape({
+  name: yup.string().trim().required("Name is required"),
+  description: yup.string().trim().required("Description is required"),
+});
