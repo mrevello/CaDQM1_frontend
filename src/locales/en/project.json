@@ -4,9 +4,8 @@
   "no-projects-found": "No projects found.",
   "delete-project-alert-title": "Delete Project?",
   "delete-project-alert-description": "Are you sure you want to delete \"{{name}}\"?",
-  "delete-success": "\"{{name}}\" was deleted successfully!",
+  "delete-success": "The project \"{{name}}\" was deleted successfully!",
   "error-fetching-projects": "Error fetching projects.",
   "error-creating-project": "Error creating project: {{error}}",
-  "error-deleting-project": "Error deleting project: {{message}}",
-  "create-context": "Create context"
+  "error-deleting-project": "Error deleting project: {{message}}"
 }

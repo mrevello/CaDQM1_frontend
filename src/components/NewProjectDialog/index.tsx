@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import { FormDialog, TextFieldConfig } from "../FormDialog";
 import { ProjectErrorsType } from "../../types/project";
+import { useTranslation } from "react-i18next";
 
 interface NewProjectDialogProps {
   open: boolean;
@@ -15,20 +16,40 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
   onSubmit,
   errors,
 }) => {
+  const { t } = useTranslation();
+
+  const descriptionRef = useRef<HTMLInputElement | null>(null);
+
   const textFieldConfigs: TextFieldConfig[] = [
     {
       id: "name",
       name: "name",
-      label: "Project Name",
+      label: t("name"),
       error: !!errors?.name,
       helperText: errors?.name,
+      onKeyDown: (event: React.KeyboardEvent) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          descriptionRef.current?.focus();
+        }
+      },
     },
     {
       id: "description",
       name: "description",
-      label: "Project Description",
+      label: t("description"),
       multiline: true,
       rows: 3,
+      inputRef: descriptionRef,
+      onKeyDown: (event: React.KeyboardEvent) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          const form = (event.currentTarget as HTMLInputElement).form;
+          if (form) {
+            form.requestSubmit();
+          }
+        }
+      },
     },
   ];
 
@@ -37,7 +58,8 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
       open={open}
       onClose={onClose}
       onSubmit={onSubmit}
-      title="New project"
+      title={t("new-project")}
+      dialogContentText={t("create-project")}
       textFieldConfigs={textFieldConfigs}
     />
   );

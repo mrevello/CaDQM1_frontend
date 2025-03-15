@@ -1,4 +1,5 @@
 import { ContextType } from "./context";
+import { DQModel } from "./model";
 import { Stage } from "./stage";
 import { State } from "./state";
 
@@ -11,6 +12,7 @@ export interface ProjectType {
   state: State;
   stage: Stage;
   context: ContextType;
+  dqModel: DQModel;
 }
 
 export type ProjectErrorsType = {
