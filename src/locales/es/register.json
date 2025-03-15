@@ -1,0 +1,6 @@
+{
+  "register": "Registrarse",
+  "registration-failed": "El registro falló. Por favor, inténtalo de nuevo.",
+  "registration-successful": "¡Registro exitoso!",
+  "username-already-exists": "El nombre de usuario ya existe"
+}

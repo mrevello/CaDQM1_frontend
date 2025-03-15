@@ -1,0 +1,6 @@
+{
+  "login": "Log in",
+  "login-failed": "Login failed. Please check your username and password.",
+  "login-successful": "Login successful!",
+  "logout": "Log out"
+}

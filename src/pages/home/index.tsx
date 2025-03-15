@@ -59,7 +59,7 @@ interface Column {
 }
 
 export const Home: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["home", "common"]);
   const { getSuccess, getError } = useNotification();
 
   const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
@@ -87,7 +87,7 @@ export const Home: React.FC = () => {
       setProjectsList(data);
     } catch (err: any) {
       console.error("Error fetching projects:", err);
-      setError(t("error-fetching-projects"));
+      setError(t("home:error-fetching-projects"));
     } finally {
       setLoading(false);
     }
@@ -144,10 +144,10 @@ export const Home: React.FC = () => {
     if (!projectToDelete) return;
     try {
       await projects.deleteProject(projectToDelete.id);
-      getSuccess(t("delete-success", { name: projectToDelete.name }));
+      getSuccess(t("home:delete-success", { name: projectToDelete.name }));
       await fetchProjects();
     } catch (err: any) {
-      getError(t("error-deleting-project", { message: err.message }));
+      getError(t("home:error-deleting-project", { message: err.message }));
       console.error("Error deleting project:", err);
     } finally {
       setDeleteDialogOpen(false);
@@ -187,7 +187,7 @@ export const Home: React.FC = () => {
         // Set form errors
         setProjectErrors({ name: error.errors[0] });
       } else {
-        getError(t("error-creating-project", { error }));
+        getError(t("home:error-creating-project", { error }));
       }
     }
   };
@@ -196,7 +196,7 @@ export const Home: React.FC = () => {
   const columns: Column[] = [
     {
       id: "name",
-      label: t("name"),
+      label: t("common:name"),
       width: "25%",
       render: (project: ProjectType) => (
         <Tooltip title={project.name} placement="bottom-start">
@@ -206,7 +206,7 @@ export const Home: React.FC = () => {
     },
     {
       id: "description",
-      label: t("description"),
+      label: t("common:description"),
       width: "20%",
       render: (project: ProjectType) => (
         <Tooltip title={project.description} placement="bottom-start">
@@ -216,19 +216,19 @@ export const Home: React.FC = () => {
     },
     {
       id: "context-version",
-      label: t("context-version"),
+      label: t("common:context-version"),
       width: "25%",
       render: (project: ProjectType) =>
         project.context ? (
           <span>{project.context.version}</span>
         ) : (
-          <Link>{t("create-context")}</Link>
+          <Link>{t("home:create-context")}</Link>
         ),
     },
     {
       id: "stage",
-      label: t("stage"),
-      width: "20%",
+      label: t("common:stage"),
+      width: "15%",
       render: (project: ProjectType) => (
         <Tooltip title={t(getTitle(project.stage))}>
           <span>{t(getTitle(project.stage))}</span>
@@ -237,22 +237,22 @@ export const Home: React.FC = () => {
     },
     {
       id: "state",
-      label: t("state"),
-      width: "10%",
+      label: t("common:state"),
+      width: "15%",
       render: (project: ProjectType) => <StateChip state={project.state} />,
     },
     {
       id: "actions",
-      label: t("actions"),
+      label: t("common:actions"),
       width: "10%",
       render: (project: ProjectType) => (
         <Box display="flex" justifyContent="flex-end">
-          <Tooltip title={t("edit")}>
+          <Tooltip title={t("common:edit")}>
             <IconButton onClick={() => handleEdit(project.id)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title={t("delete")}>
+          <Tooltip title={t("common:delete")}>
             <IconButton onClick={() => handleDelete(project.id)}>
               <DeleteIcon />
             </IconButton>
@@ -264,7 +264,7 @@ export const Home: React.FC = () => {
 
   return (
     <Container maxWidth="xl">
-      <Title variant="h4">{t("projects")}</Title>
+      <Title variant="h4">{t("home:projects")}</Title>
 
       <Card
         sx={{ display: "flex", flexDirection: "column", minHeight: 600, p: 2 }}
@@ -273,14 +273,16 @@ export const Home: React.FC = () => {
           <Grid container spacing={2} alignItems="center" flex={1}>
             <TextField
               name="search"
-              label={t("search")}
-              placeholder={t("search-placeholder")}
+              label={t("common:search")}
+              placeholder={t("common:search-placeholder")}
               value={search}
               onChange={handleSearchChange}
               sx={{ width: "30%" }}
             />
             <FormControl sx={{ minWidth: 300 }} size="small">
-              <InputLabel id="stage-select-label">{t("stage")}</InputLabel>
+              <InputLabel id="stage-select-label">
+                {t("common:stage")}
+              </InputLabel>
               <Select
                 multiple
                 name="stage"
@@ -318,7 +320,7 @@ export const Home: React.FC = () => {
           </Grid>
 
           <Button variant="contained" onClick={handleOpenNewDialog}>
-            {t("add")}
+            {t("common:add")}
           </Button>
         </Grid>
 
@@ -349,7 +351,7 @@ export const Home: React.FC = () => {
             p={2}
           >
             <Typography variant="body1" color="textSecondary">
-              {t("no-projects-found")}
+              {t("home:no-projects-found")}
             </Typography>
           </Box>
         ) : (
@@ -421,16 +423,16 @@ export const Home: React.FC = () => {
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("delete-project-alert-title")}
+        title={t("home:delete-project-alert-title")}
         description={
           projectToDelete
-            ? t("delete-project-alert-description", {
+            ? t("home:delete-project-alert-description", {
                 name: projectToDelete.name,
               })
             : ""
         }
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmText={t("common:confirm")}
+        cancelText={t("common:cancel")}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />

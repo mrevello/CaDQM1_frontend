@@ -10,34 +10,34 @@ export enum Stage {
 export const getName = (stage: Stage) => {
   switch (stage) {
     case Stage.ST1:
-      return "stage-1-name";
+      return "common:stage-1-name";
     case Stage.ST2:
-      return "stage-2-name";
+      return "common:stage-2-name";
     case Stage.ST3:
-      return "stage-3-name";
+      return "common:stage-3-name";
     case Stage.ST4:
-      return "stage-4-name";
+      return "common:stage-4-name";
     case Stage.ST5:
-      return "stage-5-name";
+      return "common:stage-5-name";
     case Stage.ST6:
-      return "stage-6-name";
+      return "common:stage-6-name";
   }
 };
 
 export const getTitle = (stage: Stage) => {
   switch (stage) {
     case Stage.ST1:
-      return "stage-1-title";
+      return "common:stage-1-title";
     case Stage.ST2:
-      return "stage-2-title";
+      return "common:stage-2-title";
     case Stage.ST3:
-      return "stage-3-title";
+      return "common:stage-3-title";
     case Stage.ST4:
-      return "stage-4-title";
+      return "common:stage-4-title";
     case Stage.ST5:
-      return "stage-5-title";
+      return "common:stage-5-title";
     case Stage.ST6:
-      return "stage-6-title";
+      return "common:stage-6-title";
   }
 };
 

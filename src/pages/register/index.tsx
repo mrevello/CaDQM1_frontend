@@ -32,7 +32,7 @@ type RegisterErrorsType = {
 };
 
 export const Register: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['register', 'common']);
 
   const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
