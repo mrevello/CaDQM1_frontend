@@ -1,12 +1,14 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import commonEN from "./locales/en/translation.json";
+import contextEN from "./locales/en/context.json";
 import languageEN from "./locales/en/language.json";
 import loginEN from "./locales/en/login.json";
 import problemEN from "./locales/en/problem.json";
 import projectEN from "./locales/en/project.json";
 import registerEN from "./locales/en/register.json";
 import commonES from "./locales/es/translation.json";
+import contextES from "./locales/es/context.json";
 import languageES from "./locales/es/language.json";
 import loginES from "./locales/es/login.json";
 import problemES from "./locales/es/problem.json";
@@ -26,6 +28,7 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       common: commonEN,
+      context: contextEN,
       language: languageEN,
       login: loginEN,
       problem: problemEN,
@@ -34,6 +37,7 @@ i18n.use(initReactI18next).init({
     },
     es: {
       common: commonES,
+      context: contextES,
       language: languageES,
       login: loginES,
       problem: problemES,
