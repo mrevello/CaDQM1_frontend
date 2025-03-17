@@ -1,0 +1,17 @@
+{
+  "context-component": "Componente de contexto",
+  "new-context-component-description": "Seleccione un tipo y defina los detalles del componente de contexto.",
+  "description": "Descripción",
+  "statement": "Declaración",
+  "semantic": "Semántica",
+  "task_at_hand": "Tarea en cuestión",
+  "measurement": "Medición",
+  "user_type": "Tipo de usuario",
+  "path": "Ruta",
+  "owner": "Propietario",
+  "author": "Autor",
+  "name": "Nombre",
+  "purpose": "Propósito",
+  "characteristics": "Características",
+  "type": "Tipo"
+}
