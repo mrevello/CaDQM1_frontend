@@ -22,16 +22,19 @@ import {
   TablePagination,
   TableRow,
   CircularProgress,
-  styled,
   Tooltip,
-  Link,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
 import { projects } from "../../api/projects.api";
-import { getName, getTitle, Stage } from "../../types/stage";
+import {
+  getStageActivities,
+  getStageLabel,
+  getStageTitle,
+  Stage,
+} from "../../types/stage";
 import { StateChip } from "../../components/StateChip";
 import { NewProjectDialog } from "../../components/NewProjectDialog";
 import { ProjectErrorsType, ProjectType } from "../../types/project";
@@ -39,27 +42,22 @@ import { ProjectValidate } from "../../utils/validateForm";
 import { useNotification } from "../../context/notification.context";
 import * as yup from "yup";
 import { AlertDialog } from "../../components/AlertDialog";
-
-const Title = styled(Typography)({
-  margin: "1.5rem 0rem",
-});
-
-const ChipBoxContainer = styled(Box)({
-  display: "flex",
-  gap: 0.5,
-  flexWrap: "wrap",
-});
+import { useNavigate } from "react-router-dom";
+import { Label } from "../../components/Label";
+import { Add } from "@mui/icons-material";
 
 interface Column {
   id: string;
   label: string;
   width?: string;
+  pr?: number;
   align?: "right" | "left" | "center";
   render: (project: ProjectType) => React.ReactNode;
 }
 
-export const Home: React.FC = () => {
-  const { t } = useTranslation(["home", "common"]);
+export const ProjectList: React.FC = () => {
+  const { t } = useTranslation(["project", "common"]);
+  const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
 
   const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
@@ -87,7 +85,7 @@ export const Home: React.FC = () => {
       setProjectsList(data);
     } catch (err: any) {
       console.error("Error fetching projects:", err);
-      setError(t("home:error-fetching-projects"));
+      setError(t("project:error-fetching-projects"));
     } finally {
       setLoading(false);
     }
@@ -128,11 +126,13 @@ export const Home: React.FC = () => {
     );
   };
 
-  const handleEdit = (id: string) => {
+  const handleEdit = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     console.log(`Edit project with ID: ${id}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     const project = projectsList.find((p) => p.id === id);
     if (project) {
       setProjectToDelete(project);
@@ -144,10 +144,10 @@ export const Home: React.FC = () => {
     if (!projectToDelete) return;
     try {
       await projects.deleteProject(projectToDelete.id);
-      getSuccess(t("home:delete-success", { name: projectToDelete.name }));
+      getSuccess(t("project:delete-success", { name: projectToDelete.name }));
       await fetchProjects();
     } catch (err: any) {
-      getError(t("home:error-deleting-project", { message: err.message }));
+      getError(t("project:error-deleting-project", { message: err.message }));
       console.error("Error deleting project:", err);
     } finally {
       setDeleteDialogOpen(false);
@@ -187,7 +187,7 @@ export const Home: React.FC = () => {
         // Set form errors
         setProjectErrors({ name: error.errors[0] });
       } else {
-        getError(t("home:error-creating-project", { error }));
+        getError(t("project:error-creating-project", { error }));
       }
     }
   };
@@ -217,21 +217,32 @@ export const Home: React.FC = () => {
     {
       id: "context-version",
       label: t("common:context-version"),
-      width: "25%",
+      width: "20%",
       render: (project: ProjectType) =>
         project.context ? (
           <span>{project.context.version}</span>
         ) : (
-          <Link>{t("home:create-context")}</Link>
+          <span>-</span>
+        ),
+    },
+    {
+      id: "dq-model-version",
+      label: t("common:dq-model-version"),
+      width: "20%",
+      render: (project: ProjectType) =>
+        project.dqModel ? (
+          <span>{project.dqModel.version}</span>
+        ) : (
+          <span>-</span>
         ),
     },
     {
       id: "stage",
       label: t("common:stage"),
-      width: "15%",
+      width: "20%",
       render: (project: ProjectType) => (
-        <Tooltip title={t(getTitle(project.stage))}>
-          <span>{t(getTitle(project.stage))}</span>
+        <Tooltip title={t(getStageTitle(project.stage))}>
+          <span>{t(getStageTitle(project.stage))}</span>
         </Tooltip>
       ),
     },
@@ -245,15 +256,17 @@ export const Home: React.FC = () => {
       id: "actions",
       label: t("common:actions"),
       width: "10%",
+      align: "right",
+      pr: 0,
       render: (project: ProjectType) => (
-        <Box display="flex" justifyContent="flex-end">
+        <Box>
           <Tooltip title={t("common:edit")}>
-            <IconButton onClick={() => handleEdit(project.id)}>
+            <IconButton onClick={(event) => handleEdit(project.id, event)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
           <Tooltip title={t("common:delete")}>
-            <IconButton onClick={() => handleDelete(project.id)}>
+            <IconButton onClick={(event) => handleDelete(project.id, event)}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -264,12 +277,12 @@ export const Home: React.FC = () => {
 
   return (
     <Container maxWidth="xl">
-      <Title variant="h4">{t("home:projects")}</Title>
+      <Typography mt={4} mb={4} fontWeight={500} variant="h5">
+        {t("project:projects")}
+      </Typography>
 
-      <Card
-        sx={{ display: "flex", flexDirection: "column", minHeight: 600, p: 2 }}
-      >
-        <Grid mt={2} mb={4} display="flex">
+      <Card sx={{ display: "flex", flexDirection: "column", minHeight: 600 }}>
+        <Grid m={2} mt={3} mb={4} display="flex">
           <Grid container spacing={2} alignItems="center" flex={1}>
             <TextField
               name="search"
@@ -297,30 +310,31 @@ export const Home: React.FC = () => {
                       Object.values(Stage).indexOf(b)
                   );
                   return (
-                    <ChipBoxContainer>
+                    <Box display="flex" gap={0.5}>
                       {sortedStages.map((stage) => (
                         <Chip
                           key={stage}
-                          label={t(getName(stage))}
+                          label={t(getStageLabel(stage))}
                           onDelete={() => handleDeleteChip(stage)}
                           onMouseDown={(event) => event.stopPropagation()}
+                          sx={{ fontSize: 12, fontWeight: 500 }}
                         />
                       ))}
-                    </ChipBoxContainer>
+                    </Box>
                   );
                 }}
               >
                 {Object.values(Stage).map((stage) => (
                   <MenuItem key={stage} value={stage}>
-                    {t(getTitle(stage))}
+                    {t(getStageTitle(stage))}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
 
-          <Button variant="contained" onClick={handleOpenNewDialog}>
-            {t("common:add")}
+          <Button startIcon={<Add />} onClick={handleOpenNewDialog}>
+            {t("common:new")}
           </Button>
         </Grid>
 
@@ -351,7 +365,7 @@ export const Home: React.FC = () => {
             p={2}
           >
             <Typography variant="body1" color="textSecondary">
-              {t("home:no-projects-found")}
+              {t("project:no-projects-found")}
             </Typography>
           </Box>
         ) : (
@@ -367,12 +381,8 @@ export const Home: React.FC = () => {
                 <TableHead>
                   <TableRow>
                     {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ width: column.width }}
-                      >
-                        {column.label}
+                      <TableCell key={column.id} align={column.align}>
+                        <Label text={column.label} />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -380,24 +390,31 @@ export const Home: React.FC = () => {
                 <TableBody>
                   {filteredProjects
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((project) => (
-                      <TableRow hover tabIndex={-1} key={project.id}>
-                        {columns.map((column) => (
-                          <TableCell
-                            key={column.id}
-                            align={column.align}
-                            style={{
-                              width: column.width,
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {column.render(project)}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    .map((project) => {
+                      const activities = getStageActivities(project.stage);
+                      const firstActivity = activities[0];
+                      const linkTo = `/projects/${project.id}/${project.stage.toLowerCase()}/${firstActivity}`;
+
+                      return (
+                        <TableRow
+                          hover
+                          tabIndex={-1}
+                          key={project.id}
+                          style={{ cursor: "pointer" }}
+                          onClick={() => navigate(linkTo)}
+                        >
+                          {columns.map((column) => (
+                            <TableCell
+                              key={column.id}
+                              align={column.align}
+                              sx={{ pr: column.pr }}
+                            >
+                              {column.render(project)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -423,16 +440,14 @@ export const Home: React.FC = () => {
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("home:delete-project-alert-title")}
+        title={t("project:delete-project-alert-title")}
         description={
           projectToDelete
-            ? t("home:delete-project-alert-description", {
+            ? t("project:delete-project-alert-description", {
                 name: projectToDelete.name,
               })
             : ""
         }
-        confirmText={t("common:confirm")}
-        cancelText={t("common:cancel")}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />

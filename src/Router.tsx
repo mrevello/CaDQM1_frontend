@@ -1,20 +1,25 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Login } from "./pages/login";
-import { RouterLayout } from "./common/RouterLayout";
 import { Register } from "./pages/register";
-import { Home } from "./pages/home";
+import { ProjectList } from "./pages/projectList";
 import { ProtectedRoute } from "./common/ProtectedRoute";
+import { RouterLayout } from "./common/RouterLayout";
+import { ServerError } from "./components/ServerError";
 
-export const AppRouter: React.FC<{}> = () => {
+export const AppRouter: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<RouterLayout />}>
-          <Route path="/" element={<Home />} />
+        <Route element={<RouterLayout />}>
+          <Route path="/server-error" element={<ServerError />} />
+          <Route path="/projects" element={<ProjectList />} />
+          <Route path="*" element={<Navigate to="/projects" />} />
+
+  
         </Route>
       </Route>
     </Routes>

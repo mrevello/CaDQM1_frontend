@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from "@mui/material";
+import { DialogContentText, Button, Box } from "@mui/material";
+import { GenericDialog } from "../Dialog";
+import { useTranslation } from "react-i18next";
 
 interface AlertDialogProps {
   open: boolean;
@@ -14,8 +9,8 @@ interface AlertDialogProps {
   description: string;
   onClose: () => void;
   onConfirm: () => void;
-  confirmText?: string;
-  cancelText?: string;
+  confirmTextResource?: string;
+  cancelTextResource?: string;
 }
 
 export const AlertDialog: React.FC<AlertDialogProps> = ({
@@ -24,28 +19,36 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
   description,
   onClose,
   onConfirm,
-  confirmText = "Agree",
-  cancelText = "Disagree",
+  confirmTextResource = "confirm",
+  cancelTextResource = "cancel",
 }) => {
+  const { t } = useTranslation();
+
   return (
-    <Dialog
+    <GenericDialog
       open={open}
       onClose={onClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-      <DialogContent>
+      title={title}
+      content={
         <DialogContentText id="alert-dialog-description">
           {description}
         </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{cancelText}</Button>
-        <Button onClick={onConfirm} autoFocus variant="contained">
-          {confirmText}
-        </Button>
-      </DialogActions>
-    </Dialog>
+      }
+      actions={
+        <Box display="flex" justifyContent="flex-end" mt={2}>
+          <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }}>
+            {t(cancelTextResource)}
+          </Button>
+          <Button
+            type="submit"
+            autoFocus
+            variant="contained"
+            onClick={onConfirm}
+          >
+            {t(confirmTextResource)}
+          </Button>
+        </Box>
+      }
+    />
   );
 };

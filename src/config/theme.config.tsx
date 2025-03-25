@@ -32,7 +32,10 @@ const theme = createTheme({
       fontWeight: 700,
     },
     allVariants: {
-      color: themePalette.TEXT
+      color: themePalette.TEXT,
+    },
+    caption: {
+      opacity: 0.8,
     },
   },
   components: {
@@ -41,6 +44,14 @@ const theme = createTheme({
         root: {
           textTransform: "none",
         },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          boxShadow: "none",
+          border: `0.1px solid ${theme.palette.divider}`,
+        }),
       },
     },
     MuiLink: {
@@ -59,10 +70,42 @@ const theme = createTheme({
       defaultProps: {
         size: "small",
       },
+      styleOverrides: {
+        root: {
+          "& .MuiInputBase-root": {
+            fontSize: "1rem",
+          },
+          "& .MuiInputLabel-root": {
+            fontSize: "1rem",
+          },
+          "& .MuiInputBase-input::placeholder": {
+            fontSize: "0.9rem",
+            opacity: 0.7,
+          },
+        },
+      },
     },
     MuiSelect: {
       defaultProps: {
         size: "small",
+      },
+      styleOverrides: {
+        root: {
+          fontSize: 1,
+          "& .MuiInputBase-root": {
+            fontSize: "1rem",
+          },
+          "& .MuiInputBase-input::placeholder": {
+            fontSize: "0.9rem",
+            opacity: 0.7,
+          },
+          "& .MuiInputLabel-root": {
+            fontSize: "1rem",
+          },
+          "& .MuiSelect-select": {
+            fontSize: "1rem",
+          },
+        },
       },
     },
     MuiAppBar: {
@@ -72,6 +115,13 @@ const theme = createTheme({
           backgroundColor: "white",
           boxShadow: "none",
           color: themePalette.TEXT,
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          alignItems: "center",
         },
       },
     },
@@ -91,6 +141,20 @@ const theme = createTheme({
         },
       },
     },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: "32px 24px 40px",
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: "16px 16px 0px 24px",
+        },
+      },
+    },
     MuiTableHead: {
       styleOverrides: {
         root: {
@@ -103,6 +167,25 @@ const theme = createTheme({
         root: {
           backgroundColor: "white",
           padding: "4px 16px",
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: 16,
+          "&.Mui-disabled": {
+            fontSize: 14,
+            fontWeight: 500,
+          },
+          "& .MuiListItemText-root .MuiTypography-root": {
+            fontSize: "inherit",
+            fontWeight: "inherit",
+          },
+          "&.Mui-disabled .MuiListItemText-root .MuiTypography-root": {
+            fontSize: "inherit",
+            fontWeight: "inherit",
+          },
         },
       },
     },
