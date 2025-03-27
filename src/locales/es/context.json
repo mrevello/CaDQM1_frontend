@@ -1,5 +1,6 @@
 {
   "context-component": "Componente de contexto",
+  "context-components": "Componentes de contexto",
   "new-context-component-description": "Seleccione un tipo y defina los detalles del componente de contexto.",
   "description": "Descripción",
   "statement": "Declaración",
@@ -13,5 +14,6 @@
   "name": "Nombre",
   "purpose": "Propósito",
   "characteristics": "Características",
-  "type": "Tipo"
+  "type": "Tipo",
+  "identify-component": "Identificar componente de contexto"
 }

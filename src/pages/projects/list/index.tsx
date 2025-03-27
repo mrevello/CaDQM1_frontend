@@ -28,23 +28,23 @@ import Grid from "@mui/material/Grid2";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTranslation } from "react-i18next";
-import { projects } from "../../api/projects.api";
-import {
-  getStageActivities,
-  getStageLabel,
-  getStageTitle,
-  Stage,
-} from "../../types/stage";
-import { StateChip } from "../../components/StateChip";
-import { NewProjectDialog } from "../../components/NewProjectDialog";
-import { ProjectErrorsType, ProjectType } from "../../types/project";
-import { ProjectValidate } from "../../utils/validateForm";
-import { useNotification } from "../../context/notification.context";
-import * as yup from "yup";
-import { AlertDialog } from "../../components/AlertDialog";
-import { useNavigate } from "react-router-dom";
-import { Label } from "../../components/Label";
 import { Add } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { projects } from "../../../api/projects.api";
+import { AlertDialog } from "../../../components/AlertDialog";
+import { NewProjectDialog } from "../../../components/NewProjectDialog";
+import { StateChip } from "../../../components/StateChip";
+import { useNotification } from "../../../context/notification.context";
+import { ProjectType, ProjectErrorsType } from "../../../types/project";
+import {
+  Stage,
+  getStageTitle,
+  getStageLabel,
+  getStageActivities,
+} from "../../../types/stage";
+import { ProjectValidate } from "../../../utils/validateForm";
+import * as yup from "yup";
+import { Label } from "../../../components/Label";
 
 interface Column {
   id: string;
@@ -66,6 +66,11 @@ export const ProjectList: React.FC = () => {
   const [search, setSearch] = useState("");
 
   const [projectsList, setProjectsList] = useState<ProjectType[]>([]);
+  const [selecredProject, setSelecredProject] = useState<
+    ProjectType | undefined
+  >();
+  const [projectDialogOpen, setProjectDialogOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

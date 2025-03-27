@@ -3,18 +3,21 @@ import {
   AppBar,
   Box,
   IconButton,
+  Link,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
   Avatar,
   Divider,
+  Breadcrumbs,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ACCESS_TOKEN } from "../utils/constants";
 import { useTranslation } from "react-i18next";
 import { styled } from "@mui/system";
 import i18n, { availableLanguages } from "../i18n";
+import { getPhaseTitle, Phase, phases } from "../types/phase";
 
 const StyledToolbar = styled(Toolbar)({
   display: "flex",
@@ -23,7 +26,8 @@ const StyledToolbar = styled(Toolbar)({
 });
 
 export const NavBar: React.FC = () => {
-  const { t } = useTranslation(["language", "login"]);
+  const { t } = useTranslation(["language", "login", "phase"]);
+  const { projectId } = useParams<{ projectId: string }>();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const navigate = useNavigate();
@@ -42,20 +46,42 @@ export const NavBar: React.FC = () => {
     handleClose();
   };
 
+  const selectedPhase = Phase.P1;
+  const showBreadcrumbs = projectId != undefined;
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="sticky">
         <StyledToolbar>
-          <Typography
-            variant="h6"
-            noWrap
-            sx={{ cursor: "pointer" }}
-            onClick={() => {
-              navigate("/");
-            }}
-          >
-            CaDQM
-          </Typography>
+          <Box display="flex" flexDirection="row" gap={2} alignItems="center">
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{ cursor: "pointer" }}
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              CaDQM
+            </Typography>
+
+            {showBreadcrumbs && (
+              <Breadcrumbs separator=">" aria-label="breadcrumb" sx={{ ml: 1 }}>
+                {phases.map((phase, index) => (
+                  <Link component="button" key={phase} onClick={() => {}}>
+                    <Typography
+                      variant="subtitle2"
+                      color="textSecondary"
+                      component="span"
+                      fontWeight={phase === selectedPhase ? "bold" : "normal"}
+                    >
+                      {t(getPhaseTitle(phase))}
+                    </Typography>
+                  </Link>
+                ))}
+              </Breadcrumbs>
+            )}
+          </Box>
 
           <IconButton aria-controls="menu-appbar" onClick={handleMenu}>
             <Avatar />

@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Login } from "./pages/login";
 import { Register } from "./pages/register";
-import { ProjectList } from "./pages/projectList";
+import { ProjectList } from "./pages/projects/list";
 import { ProtectedRoute } from "./common/ProtectedRoute";
 import { RouterLayout } from "./common/RouterLayout";
 import { ServerError } from "./components/ServerError";
@@ -18,8 +18,6 @@ export const AppRouter: React.FC = () => {
           <Route path="/server-error" element={<ServerError />} />
           <Route path="/projects" element={<ProjectList />} />
           <Route path="*" element={<Navigate to="/projects" />} />
-
-  
         </Route>
       </Route>
     </Routes>
