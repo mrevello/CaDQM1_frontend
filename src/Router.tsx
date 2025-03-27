@@ -6,6 +6,8 @@ import { ProjectList } from "./pages/projects/list";
 import { ProtectedRoute } from "./common/ProtectedRoute";
 import { RouterLayout } from "./common/RouterLayout";
 import { ServerError } from "./components/ServerError";
+import { StageLayout } from "./pages/stages/Stagelayout";
+import { A01 } from "./pages/stages/st1/A01";
 
 export const AppRouter: React.FC = () => {
   return (
@@ -18,6 +20,11 @@ export const AppRouter: React.FC = () => {
           <Route path="/server-error" element={<ServerError />} />
           <Route path="/projects" element={<ProjectList />} />
           <Route path="*" element={<Navigate to="/projects" />} />
+
+          {/* ST1 */}
+          <Route path="/projects/:projectId/st1" element={<StageLayout />}>
+            <Route path="a01" element={<A01 />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
