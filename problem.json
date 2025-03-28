@@ -1,0 +1,7 @@
+{
+  "description": "Detected contamination in milk sample.",
+  "priority": 1,
+  "date": "2025-02-13",
+  "project": 1,
+  "context_components": []
+}

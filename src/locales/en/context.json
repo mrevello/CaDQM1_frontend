@@ -1,0 +1,17 @@
+{
+  "context-component": "Context component",
+  "new-context-component-description": "Select a type and define the context component details.",
+  "description": "Description",
+  "statement": "Statement",
+  "semantic": "Semantic",
+  "task_at_hand": "Task At Hand",
+  "measurement": "Measurement",
+  "user_type": "User Type",
+  "path": "Path",
+  "owner": "Owner",
+  "author": "Author",
+  "name": "Name",
+  "purpose": "Purpose",
+  "characteristics": "Characteristics",
+  "type": "Type"
+}
