@@ -1,4 +1,5 @@
 {
+  "add-files": "Add files",
   "actions": "Actions",
   "activity-1-name": "A01",
   "activity-1-title": "Selection of the data at hand",
@@ -39,6 +40,11 @@
   "complete-stage": "Complete Stage",
   "create-project": "Create a new project",
   "data-filtering": "Data Filtering",
+  "database-url": "Database url",
+  "database-user": "Database user",
+  "database-password": "Database password",
+  "dataset-description": "Dataset description",
+  "dataset-name": "Dataset name",
   "delete": "Delete",
   "description": "Description",
   "done": "Done",
@@ -50,6 +56,7 @@
   "edit": "Edit",
   "email": "Email",
   "in-progress": "In progress",
+  "mandatory-field": "This field is mandatory",
   "name": "Name",
   "new": "New",
   "new-project": "New project",
@@ -91,5 +98,12 @@
   "user": "User",
   "user-type": "User Type",
   "user-types": "User Types",
-  "username": "Username"
+  "username": "Username",
+
+  "click-here": "Click here",
+  "upload-or-drag-and-drop": "to upload your file or drag and drop.",
+  "file-type": "SVG or xlsx",
+  "upload-failed": "Upload failed.",
+  "loading": "Loading",
+  "complete": "Complete"
 }

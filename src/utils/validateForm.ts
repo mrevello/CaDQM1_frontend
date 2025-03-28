@@ -28,3 +28,5 @@ export const a01Validate = yup.object().shape({
   user: yup.string().trim().required("This field is mandatory"),
   password: yup.string().trim().required("This field is mandatory"),
 });
+
+export const a02Validate = yup.object().shape({});
