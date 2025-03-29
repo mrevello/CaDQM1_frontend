@@ -1,6 +1,6 @@
 {
   "delete-problem-alert-title": "¿Eliminar problema?",
-  "delete-problem-alert-description": "¿Estás seguro de que deseas eliminar \"{{name}}\"?",
+  "delete-problem-alert-description": "¿Estás seguro de que deseas eliminarlo?",
   "identify-problem": "Identificar problema de calidad",
   "problem": "Problema de calidad",
   "problems": "Problemas de calidad",

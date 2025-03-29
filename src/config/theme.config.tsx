@@ -10,12 +10,15 @@ export enum themePalette {
   BACKGROUND_GRAY = "#091E420F",
   BACKGROUND_INFO = "#e9f2ff",
   BACKGROUND_SUCCESS = "#dcfff1",
+  BACKGROUND_WARNING = "#fdedd3",
+  BACKGROUND_PURPLE = "#331c283c",
   ERROR = "#ff0055",
   GRAY = "#44546F",
   INFO = "#0055cc",
   SUCCESS = "#216e4e",
   TEXT = "#353036",
   WARNING = "#ff8a00",
+  PURPLE = "#6717b1",
 }
 
 const theme = createTheme({

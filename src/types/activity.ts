@@ -4,7 +4,8 @@
 export enum Activity {
   A01 = "a01",
   A02 = "a02",
-  A03A04 = "a03a04",
+  A03 = "a03",
+  A04 = "a04",
   A05 = "a05",
   A06 = "a06",
   A07 = "a07",
@@ -28,10 +29,15 @@ const ACTIVITY_INFO: Record<Activity, ActivityInfo> = {
     title: "activity-2-title",
     description: "activity-2-description",
   },
-  [Activity.A03A04]: {
-    name: "activity-3-4-name",
-    title: "activity-3-4-title",
-    description: "activity-3-4-description",
+  [Activity.A03]: {
+    name: "activity-3-name",
+    title: "activity-3-title",
+    description: "activity-3-description",
+  },
+  [Activity.A04]: {
+    name: "activity-4-name",
+    title: "activity-4-title",
+    description: "activity-4-description",
   },
   [Activity.A05]: {
     name: "activity-5-name",

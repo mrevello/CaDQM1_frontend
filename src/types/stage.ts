@@ -24,19 +24,19 @@ export const STAGE_INFO: Record<Stage, StageInfo> = {
     name: "common:stage-1-name",
     title: "common:stage-1-title",
     description: "common:stage-1-description",
-    activities: [Activity.A01, Activity.A02, Activity.A03A04],
+    activities: [Activity.A01, Activity.A02, Activity.A03, Activity.A04],
   },
   [Stage.ST2]: {
     name: "common:stage-2-name",
     title: "common:stage-2-title",
     description: "common:stage-2-description",
-    activities: [Activity.A05, Activity.A03A04, Activity.A06],
+    activities: [Activity.A05, Activity.A03, Activity.A06, Activity.A07],
   },
   [Stage.ST3]: {
     name: "common:stage-3-name",
     title: "common:stage-3-title",
     description: "common:stage-3-description",
-    activities: [Activity.A08, Activity.A03A04],
+    activities: [Activity.A08, Activity.A03, Activity.A07],
   },
   [Stage.ST4]: {
     name: "common:stage-4-name",

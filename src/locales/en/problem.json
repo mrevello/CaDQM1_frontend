@@ -1,6 +1,6 @@
 {
   "delete-problem-alert-title": "Delete Problem?",
-  "delete-problem-alert-description": "Are you sure you want to delete \"{{name}}\"?",
+  "delete-problem-alert-description": "Are you sure you want to delete it?",
   "identify-problem": "Identify DQ problem",
   "problem": "DQ Problem",
   "problems": "DQ Problems",
