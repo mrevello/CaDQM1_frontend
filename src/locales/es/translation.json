@@ -1,4 +1,5 @@
 {
+  "add-files": "Agregar archivos",
   "actions": "Acciones",
   "activity-1-name": "A01",
   "activity-1-title": "Selección de los datos en cuestión",
@@ -35,6 +36,11 @@
   "complete-stage": "Completar Etapa",
   "create-project": "Crear un proyecto nuevo",
   "data-filtering": "Filtrado de datos",
+  "database-url": "Url de la base de datos",
+  "database-user": "Usuario de la base de datos",
+  "database-password": "Contraseña de la base de datos",
+  "dataset-description": "Descripción del dataset",
+  "dataset-name": "Nombre del dataset",
   "delete": "Eliminar",
   "description": "Descripción",
   "done": "Hecho",
@@ -46,6 +52,7 @@
   "edit": "Editar",
   "email": "Correo electrónico",
   "in-progress": "En progreso",
+  "mandatory-field": "El campo es obligatorio",
   "name": "Nombre",
   "new": "Nuevo",
   "new-project": "Nuevo proyecto",
@@ -86,5 +93,11 @@
   "user": "Usuario",
   "user-type": "Tipo de usuario",
   "user-types": "Tipos de usuario",
-  "username": "Nombre de usuario"
+  "username": "Nombre de usuario",
+  "click-here": "Haz clic aquí",
+  "upload-or-drag-and-drop": "para subir tu archivo o arrástralo y suéltalo.",
+  "file-type": "SVG o xlsx",
+  "upload-failed": "La carga ha fallado.",
+  "loading": "Cargando",
+  "complete": "Completado"
 }
