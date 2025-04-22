@@ -1,25 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  TextField,
-  FormControl,
-  Select,
-  MenuItem,
-  Box,
-} from "@mui/material";
+import { Button, TextField, MenuItem, Box } from "@mui/material";
 import { GenericDialog } from "../Dialog";
 import { useTranslation } from "react-i18next";
 
 export interface SelectOption {
-  value: string | number;
+  value: string;
   label: string;
+  isAddOption?: boolean;
 }
 
-export interface TextFieldConfig {
+type InputType = "text" | "number" | "select" | "date" | "email";
+
+export type TextFieldConfig = {
   id: string;
   name: string;
-  label: string;
-  type?: "text" | "number" | "select" | "date" | "email";
+  label?: string;
+  type?: InputType;
   defaultValue?: string | number;
   multiline?: boolean;
   rows?: number;
@@ -30,7 +26,7 @@ export interface TextFieldConfig {
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   inputRef?: React.Ref<HTMLInputElement>;
-}
+};
 
 interface FormDialogProps {
   open: boolean;
@@ -94,32 +90,42 @@ export const FormDialog: React.FC<FormDialogProps> = ({
       flexDirection="column"
       gap={2.5}
     >
-      {textFieldConfigs.map((field) =>
-        field.type === "select" ? (
-          <FormControl fullWidth key={field.id}>
-            <Select
-              value={formData[field.name] || ""}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-              fullWidth
-              sx={{ fontSize: 16 }}
-            >
-              {field.options?.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
+      {textFieldConfigs.map((field) => (
+        <Box key={field.id}>
+          <TextField
+            fullWidth
+            select={field.type === "select"}
+            value={formData[field.name] || ""}
+            onChange={(e) => handleChange(field.name, e.target.value)}
+            SelectProps={{ native: false }}
+            id={field.id}
+            name={field.name}
+            label={field.label}
+            type={field.type}
+            multiline={field.multiline}
+            rows={field.rows}
+            error={field.error}
+            helperText={field.helperText}
+            placeholder={field.placeholder}
+            inputRef={field.inputRef}
+          >
+            {field.type === "select" &&
+              field.options?.map((option) => (
+                <MenuItem
+                  key={option.value}
+                  value={option.value}
+                  sx={
+                    option.isAddOption
+                      ? { color: "primary.main", fontWeight: 500 }
+                      : undefined
+                  }
+                >
                   {option.label}
                 </MenuItem>
               ))}
-            </Select>
-          </FormControl>
-        ) : (
-          <Box key={field.id}>
-            <TextField
-              fullWidth
-              {...field}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-            />
-          </Box>
-        )
-      )}
+          </TextField>
+        </Box>
+      ))}
     </Box>
   );
 

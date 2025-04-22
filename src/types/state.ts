@@ -9,11 +9,11 @@ export enum State {
 export const getName = (state: State) => {
   switch (state) {
     case State.TO_DO:
-      return "to-do";
+      return "state:to-do";
     case State.IN_PROGRESS:
-      return "in-progress";
+      return "state:in-progress";
     case State.DONE:
-      return "done";
+      return "state:done";
   }
 };
 
@@ -33,11 +33,37 @@ export const getBackgroundColor = (state: State) => {
 export const getTextColor = (state: State) => {
   switch (state) {
     case State.TO_DO:
-      return themePalette.GRAY;
+      return themePalette.GRAY_TEXT;
     case State.IN_PROGRESS:
       return themePalette.INFO;
     case State.DONE:
       return themePalette.SUCCESS;
+    default:
+      return "transparent";
+  }
+};
+
+export const getStateColor = (state: State) => {
+  switch (state) {
+    case State.TO_DO:
+      return "grey";
+    case State.IN_PROGRESS:
+      return "info";
+    case State.DONE:
+      return "success";
+    default:
+      return "grey";
+  }
+};
+
+export const getStateIndicatorColor = (state: State) => {
+  switch (state) {
+    case State.TO_DO:
+      return "#8f9fb3";
+    case State.IN_PROGRESS:
+      return "#0c66e4";
+    case State.DONE:
+      return "#216E4E";
     default:
       return "transparent";
   }

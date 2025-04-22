@@ -1,5 +1,5 @@
 import React from "react";
-import { DialogContentText, Button, Box } from "@mui/material";
+import { DialogContentText, Button, Box, DialogContent } from "@mui/material";
 import { GenericDialog } from "../Dialog";
 import { useTranslation } from "react-i18next";
 

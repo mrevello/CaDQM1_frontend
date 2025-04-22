@@ -9,17 +9,21 @@ import {
 
 type StateChipProps = {
   state: State;
+  textResource?: string;
 };
 
 const CustomChip = styled(Chip)<{ state: State }>(({ state }) => ({
   backgroundColor: getBackgroundColor(state),
   color: getTextColor(state),
   fontWeight: 600,
-  textTransform: "uppercase",
-  fontSize: 14,
+  textTransform: "capitalize",
+  fontSize: 12,
 }));
 
-export const StateChip: React.FC<StateChipProps> = ({ state }) => {
+export const StateChip: React.FC<StateChipProps> = ({
+  state,
+  textResource = getName(state),
+}) => {
   const { t } = useTranslation();
-  return <CustomChip label={t(getName(state))} state={state} />;
+  return <CustomChip label={t(textResource)} state={state} />;
 };

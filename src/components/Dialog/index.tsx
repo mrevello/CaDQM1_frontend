@@ -24,6 +24,7 @@ export interface GenericDialogProps {
   showDividers?: boolean;
   maxWidth?: Breakpoint | false;
   minHeight?: number;
+  additionalTitleButtons?: React.ReactNode;
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -45,6 +46,7 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
   showDividers = false,
   maxWidth,
   minHeight,
+  additionalTitleButtons,
 }) => {
   return (
     <Dialog
@@ -62,11 +64,16 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">{title}</Typography>
+            <Box display="flex" alignItems="center">
+              <Typography variant="h6">{title}</Typography>
+            </Box>
 
-            <IconButton onClick={onClose} sx={{ p: 0 }}>
-              <Close />
-            </IconButton>
+            <Box display="flex" alignItems="center">
+              {additionalTitleButtons}
+              <IconButton onClick={onClose} sx={{ p: 0 }}>
+                <Close />
+              </IconButton>
+            </Box>
           </Box>
           {subtitle && (
             <Typography variant="caption" display="block">
@@ -75,9 +82,13 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
           )}
         </Box>
       </DialogTitle>
+
       {showDividers && <Divider />}
+
       <DialogContent>{content}</DialogContent>
+
       {showDividers && <Divider />}
+
       {actions && <DialogActions>{actions}</DialogActions>}
     </Dialog>
   );

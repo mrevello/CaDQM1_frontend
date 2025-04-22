@@ -9,16 +9,20 @@ export enum themePalette {
   BACKGROUND = "#f8f9fa",
   BACKGROUND_GRAY = "#091E420F",
   BACKGROUND_INFO = "#e9f2ff",
-  BACKGROUND_SUCCESS = "#dcfff1",
-  BACKGROUND_WARNING = "#fdedd3",
-  BACKGROUND_PURPLE = "#331c283c",
-  ERROR = "#ff0055",
-  GRAY = "#44546F",
+  BACKGROUND_SUCCESS = "#C6F6D5",
+  BACKGROUND_WARNING = "#FEEBC8",
+  BACKGROUND_PURPLE = "#E5DEFF",
+  BACKGROUND_PRIMARY = "#F7FAFC",
+  BACKGROUND_SECONDARY = "#EDF2F7",
+  BACKGROUND_ERROR = "#FED7D7",
+  ERROR = "#E53E3E",
+  GRAY = "#6b7280",
+  GRAY_TEXT = "#44546F",
   INFO = "#0055cc",
   SUCCESS = "#216e4e",
   TEXT = "#353036",
-  WARNING = "#ff8a00",
-  PURPLE = "#6717b1",
+  WARNING = "#F59E0B",
+  PURPLE = "#9B87F5",
 }
 
 const theme = createTheme({
@@ -54,7 +58,15 @@ const theme = createTheme({
         root: ({ theme }) => ({
           boxShadow: "none",
           border: `0.1px solid ${theme.palette.divider}`,
+          background: themePalette.BACKGROUND,
         }),
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          height: 22,
+        },
       },
     },
     MuiLink: {
@@ -77,6 +89,7 @@ const theme = createTheme({
         root: {
           "& .MuiInputBase-root": {
             fontSize: "1rem",
+            paddingRight: "8px",
           },
           "& .MuiInputLabel-root": {
             fontSize: "1rem",
@@ -96,17 +109,18 @@ const theme = createTheme({
         root: {
           fontSize: 1,
           "& .MuiInputBase-root": {
-            fontSize: "1rem",
+            fontSize: 16,
+            paddingRight: "8px",
+          },
+          "& .MuiInputLabel-root": {
+            fontSize: 16,
           },
           "& .MuiInputBase-input::placeholder": {
             fontSize: "0.9rem",
             opacity: 0.7,
           },
-          "& .MuiInputLabel-root": {
-            fontSize: "1rem",
-          },
           "& .MuiSelect-select": {
-            fontSize: "1rem",
+            fontSize: 16,
           },
         },
       },
@@ -158,18 +172,11 @@ const theme = createTheme({
         },
       },
     },
-    MuiTableHead: {
-      styleOverrides: {
-        root: {
-          backgroundColor: "transparent",
-        },
-      },
-    },
     MuiTableCell: {
       styleOverrides: {
         root: {
           backgroundColor: "white",
-          padding: "4px 16px",
+          padding: "12px 16px",
         },
       },
     },
@@ -189,6 +196,13 @@ const theme = createTheme({
             fontSize: "inherit",
             fontWeight: "inherit",
           },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
         },
       },
     },

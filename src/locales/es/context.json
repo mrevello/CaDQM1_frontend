@@ -1,6 +1,7 @@
 {
   "context-component": "Componente de contexto",
   "context-components": "Componentes de contexto",
+  "context-component-placeholder": "Aún no se han identificado componentes de contexto.",
   "new-context-component-description": "Seleccione un tipo y defina los detalles del componente de contexto.",
   "description": "Descripción",
   "statement": "Declaración",
@@ -15,5 +16,9 @@
   "purpose": "Propósito",
   "characteristics": "Características",
   "type": "Tipo",
-  "identify-component": "Identificar componente de contexto"
+  "identify-component": "Identificar componente de contexto",
+  "delete-context-component-alert-title": "¿Eliminar {{type}}?",
+  "delete-context-component-alert-description": "¿Está seguro de que desea eliminarlo?",
+  "add-task-at-hand": "Agregar tarea en cuestión",
+  "add-user-type": "Agregar tipo de usuario"
 }

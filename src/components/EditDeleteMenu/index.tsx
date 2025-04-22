@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next";
 interface EditDeleteMenuProps {
   anchorEl: HTMLElement | null;
   onClose: () => void;
-  onEditClicked: () => void;
-  onDeleteClicked: () => void;
+  onEditClicked: (event: React.MouseEvent<HTMLElement>) => void;
+  onDeleteClicked: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export const EditDeleteMenu: React.FC<EditDeleteMenuProps> = ({
@@ -32,13 +32,13 @@ export const EditDeleteMenu: React.FC<EditDeleteMenuProps> = ({
         horizontal: "right",
       }}
     >
-      <MenuItem onClick={onEditClicked}>
+      <MenuItem onClick={(event) => onEditClicked(event)}>
         <ListItemIcon>
           <EditIcon fontSize="small" />
         </ListItemIcon>
         {t("edit")}
       </MenuItem>
-      <MenuItem onClick={onDeleteClicked}>
+      <MenuItem onClick={(event) => onDeleteClicked(event)}>
         <ListItemIcon>
           <Delete fontSize="small" />
         </ListItemIcon>
