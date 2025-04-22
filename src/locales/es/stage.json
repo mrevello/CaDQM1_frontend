@@ -1,0 +1,23 @@
+{
+  "continue-stage": "Continuar paso",
+  "reopen-stage": "Reabrir paso",
+  "start-stage": "Comenzar paso",
+  "complete-stage": "Completar Etapa",
+  "start-stage-error": "Debes completar las etapas anteriores antes de comenzar esta etapa.",
+  "stage": "Etapa",
+  "stage-1-name": "ST1",
+  "stage-1-title": "Etapa 1: Elicitación",
+  "stage-1-description": "Seleccione el conjunto de datos, reúna la información organizacional, identifique problemas de calidad y defina el modelo de contexto.",
+  "stage-2-name": "ST2",
+  "stage-2-title": "Etapa 2: Análisis de datos",
+  "stage-2-description": "Data profiling para descubrir características, refinar los requerimientos de calidad y actualizar el modelo de contexto si es necesario.",
+  "stage-3-name": "ST3",
+  "stage-3-title": "Etapa 3: Análisis de requerimientos del usuario",
+  "stage-3-description": "Interacción con los usuarios de datos para recopilar comentarios, detectar problemas adicionales y ajustar el modelo de contexto.",
+  "stage-4-name": "ST4",
+  "stage-4-title": "Etapa 4: Definición del modelo DQ",
+  "stage-5-name": "ST5",
+  "stage-5-title": "Etapa 5: Medición DQ",
+  "stage-6-name": "ST6",
+  "stage-6-title": "Etapa 6: Evaluación DQ"
+}

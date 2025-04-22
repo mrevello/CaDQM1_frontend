@@ -1,7 +1,20 @@
 import {
+  ApplicationDomain,
+  BusinessRule,
+  ContextComponent,
+  ContextComponentData,
   ContextComponentsType,
   ContextComponentType,
+  DataFiltering,
+  DQMetadata,
+  DQRequirement,
+  OtherData,
+  OtherMetadata,
+  SystemRequirement,
+  TaskAtHand,
+  UserType,
 } from "../types/contextComponent";
+import { Stage } from "../types/stage";
 import { instance } from "./base.api";
 import { handleApiError } from "./errorHandler";
 
@@ -41,7 +54,8 @@ export const contextApi = {
   createContextComponent: async function (
     type: ContextComponentType,
     data: Record<string, any>,
-    projectId: number
+    projectId: number,
+    stage?: Stage
   ): Promise<any> {
     try {
       const typeKey = Object.keys(ContextComponentType).find(
@@ -55,10 +69,155 @@ export const contextApi = {
       }
 
       data.project = projectId;
+      data.stage = stage;
       const response = await instance.post(endpoints[typeKey], data);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      console.log("Error creating context component", error);
+      return null;
+    }
+  },
+
+  updateContextComponent: async (
+    contextComponentId: number,
+    type: ContextComponentType,
+    data: Partial<Record<string, any>>,
+    projectId: number
+  ) => {
+    try {
+      const typeKey = Object.keys(ContextComponentType).find(
+        (key) =>
+          ContextComponentType[key as keyof typeof ContextComponentType] ===
+          type
+      ) as keyof typeof ContextComponentType;
+
+      if (!typeKey || !endpoints[typeKey]) {
+        throw new Error(`Invalid type: ${type}`);
+      }
+
+      data.project = projectId;
+      const response = await instance.put(
+        `${endpoints[typeKey]}${contextComponentId}/`,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      // handleApiError(error);
+    }
+  },
+
+  getContextComponentByType: async function (
+    type: ContextComponentType,
+    projectId: number
+  ): Promise<ContextComponentData<ContextComponent> | null> {
+    try {
+      const typeKey = Object.keys(ContextComponentType).find(
+        (key) =>
+          ContextComponentType[key as keyof typeof ContextComponentType] ===
+          type
+      ) as keyof typeof ContextComponentType;
+
+      if (!typeKey || !endpoints[typeKey]) {
+        throw new Error(`Invalid type: ${type}`);
+      }
+
+      const res = await instance.get(endpoints[typeKey]);
+      const filteredData = res.data
+        .filter((item: any) => item.project === projectId)
+        .map((item: any) => {
+          const base = {
+            id: item.id,
+            stage: item.project_stage?.stage || Stage.ST1,
+          };
+
+          switch (type) {
+            case ContextComponentType.APPLICATION_DOMAIN:
+              return {
+                ...base,
+                description: item.description,
+              } as ApplicationDomain;
+
+            case ContextComponentType.BUSINESS_RULE:
+              return {
+                ...base,
+                statement: item.statement,
+                semantic: item.semantic,
+              } as BusinessRule;
+
+            case ContextComponentType.DATA_FILTERING:
+              return {
+                ...base,
+                statement: item.statement,
+                description: item.description,
+                task_at_hand: item.task_at_hand,
+              } as DataFiltering;
+
+            case ContextComponentType.DQ_METADATA:
+              return {
+                ...base,
+                path: item.path,
+                description: item.description,
+                measurement: item.measurement,
+              } as DQMetadata;
+
+            case ContextComponentType.DQ_REQUIREMENT:
+              return {
+                ...base,
+                statement: item.statement,
+                description: item.description,
+                data_filtering: item.data_filtering,
+                user_type: item.user_type,
+              } as DQRequirement;
+
+            case ContextComponentType.OTHER_DATA:
+              return {
+                ...base,
+                path: item.path,
+                description: item.description,
+                owner: item.owner,
+              } as OtherData;
+
+            case ContextComponentType.OTHER_METADATA:
+              return {
+                ...base,
+                path: item.path,
+                description: item.description,
+                author: item.author,
+              } as OtherMetadata;
+
+            case ContextComponentType.SYSTEM_REQUIREMENT:
+              return {
+                ...base,
+                statement: item.statement,
+                description: item.description,
+              } as SystemRequirement;
+
+            case ContextComponentType.TASK_AT_HAND:
+              return {
+                ...base,
+                name: item.name,
+                purpose: item.purpose,
+              } as TaskAtHand;
+
+            case ContextComponentType.USER_TYPE:
+              return {
+                ...base,
+                name: item.name,
+                characteristics: item.characteristics,
+              } as UserType;
+
+            default:
+              return base;
+          }
+        });
+
+      return filteredData.length
+        ? {
+            type: type,
+            data: filteredData,
+          }
+        : null;
+    } catch (error) {
       return null;
     }
   },
@@ -68,38 +227,19 @@ export const contextApi = {
   ): Promise<ContextComponentsType | null> {
     try {
       const keys = Object.keys(
-        endpoints
+        ContextComponentType
       ) as (keyof typeof ContextComponentType)[];
 
-      const requests = keys.map(async (key) => {
-        try {
-          const res = await instance.get(endpoints[key]);
-          const filteredData = res.data
-            .filter((item: any) => item.project === projectId)
-            .map((item: any) => {
-              const selectedFields: Partial<typeof item> = {};
-              requiredFields[key].forEach((field) => {
-                if (field in item) {
-                  selectedFields[field] = item[field];
-                }
-              });
-              return selectedFields;
-            });
-
-          if (filteredData.length > 0) {
-            return {
-              type: ContextComponentType[key],
-              data: filteredData,
-            };
-          } else {
-            return null;
-          }
-        } catch (error) {
-          return null;
-        }
-      });
-
-      const results = await Promise.all(requests);
+      const results = await Promise.all(
+        keys.map(async (key) => {
+          const type = ContextComponentType[key];
+          const data = await contextApi.getContextComponentByType(
+            type,
+            projectId
+          );
+          return data;
+        })
+      );
 
       if (results.every((result) => result === null)) {
         return null;
@@ -117,8 +257,25 @@ export const contextApi = {
 
       return contextComponents;
     } catch (error) {
-      handleApiError(error);
       return null;
+    }
+  },
+
+  deleteComponent: async (id: number, type: ContextComponentType) => {
+    try {
+      const typeKey = Object.keys(ContextComponentType).find(
+        (key) =>
+          ContextComponentType[key as keyof typeof ContextComponentType] ===
+          type
+      ) as keyof typeof ContextComponentType;
+
+      if (!typeKey || !endpoints[typeKey]) {
+        throw new Error(`Invalid type: ${type}`);
+      }
+      await instance.delete(`${endpoints[typeKey]}${id}/`);
+      return { success: true, id };
+    } catch (error: any) {
+      handleApiError(error);
     }
   },
 };

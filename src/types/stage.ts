@@ -1,4 +1,6 @@
 import { Activity } from "./activity";
+import { ProjectStage } from "./project";
+import { State } from "./state";
 
 export enum Stage {
   ST1 = "ST1",
@@ -11,6 +13,18 @@ export enum Stage {
   ST8 = "ST8",
   ST9 = "ST9",
 }
+
+export const stageOrder: Stage[] = [
+  Stage.ST1,
+  Stage.ST2,
+  Stage.ST3,
+  Stage.ST4,
+  Stage.ST5,
+  Stage.ST6,
+  Stage.ST7,
+  Stage.ST8,
+  Stage.ST9,
+];
 
 interface StageInfo {
   name: string;
@@ -100,3 +114,27 @@ export function getNextStage(stage: Stage): Stage {
   }
   return stages[currentIndex + 1];
 }
+
+export const canContinueToStage = (
+  stage: Stage,
+  state: State,
+  projectStages: ProjectStage[]
+): Boolean => {
+  if (stage === Stage.ST1) {
+    return state === State.TO_DO || state === State.IN_PROGRESS;
+  } else if (stage === Stage.ST2 || stage === Stage.ST3) {
+    if (state === State.IN_PROGRESS || state === State.DONE) {
+      return true;
+    } else if (state === State.TO_DO) {
+      const st1 = projectStages.find((ps) => ps.stage === Stage.ST1);
+      if (
+        st1 &&
+        (st1.status === State.TO_DO || st1.status === State.IN_PROGRESS)
+      ) {
+        return false;
+      }
+      return true;
+    }
+  }
+  return false;
+};

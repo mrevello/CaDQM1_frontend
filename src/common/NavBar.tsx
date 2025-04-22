@@ -26,7 +26,7 @@ const StyledToolbar = styled(Toolbar)({
 });
 
 export const NavBar: React.FC = () => {
-  const { t } = useTranslation(["language", "login", "phase"]);
+  const { t } = useTranslation(["common", "language", "phase"]);
   const { projectId } = useParams<{ projectId: string }>();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -128,7 +128,7 @@ export const NavBar: React.FC = () => {
               );
             })}
             <Divider />
-            <MenuItem onClick={handleLogout}>{t("login:logout")}</MenuItem>
+            <MenuItem onClick={handleLogout}>{t("common:logout")}</MenuItem>
           </Menu>
         </StyledToolbar>
       </AppBar>

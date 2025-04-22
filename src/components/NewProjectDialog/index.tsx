@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { FormDialog, TextFieldConfig } from "../FormDialog";
-import { ProjectErrorsType } from "../../types/project";
+import { Project, ProjectErrorsType } from "../../types/project";
 import { useTranslation } from "react-i18next";
 
 interface NewProjectDialogProps {
@@ -8,6 +8,8 @@ interface NewProjectDialogProps {
   onClose: () => void;
   onSubmit: (formData: Record<string, any>) => void;
   errors?: ProjectErrorsType;
+  project?: Project | null;
+  isEdit?: boolean;
 }
 
 export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
@@ -15,8 +17,9 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
   onClose,
   onSubmit,
   errors,
+  project = null,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common", "project"]);
 
   const descriptionRef = useRef<HTMLInputElement | null>(null);
 
@@ -24,7 +27,8 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
     {
       id: "name",
       name: "name",
-      label: t("name"),
+      label: t("common:name"),
+      defaultValue: project?.name ?? "",
       error: !!errors?.name,
       helperText: errors?.name,
       onKeyDown: (event: React.KeyboardEvent) => {
@@ -37,7 +41,8 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
     {
       id: "description",
       name: "description",
-      label: t("description"),
+      label: t("common:description"),
+      defaultValue: project?.description ?? "",
       multiline: true,
       rows: 3,
       inputRef: descriptionRef,
@@ -53,13 +58,18 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
     },
   ];
 
+  const dialogTitle = project
+    ? t("project:edit-project")
+    : t("project:new-project");
+  const dialogContentText = project ? "" : t("project:create-project");
+
   return (
     <FormDialog
       open={open}
       onClose={onClose}
       onSubmit={onSubmit}
-      title={t("new-project")}
-      dialogContentText={t("create-project")}
+      title={dialogTitle}
+      dialogContentText={dialogContentText}
       textFieldConfigs={textFieldConfigs}
     />
   );

@@ -1,11 +1,22 @@
 {
   "projects": "Projects",
   "new-project": "New project",
+  "edit-project": "Edit project",
+  "create-project": "Create a new project",
   "no-projects-found": "No projects found.",
   "delete-project-alert-title": "Delete Project?",
   "delete-project-alert-description": "Are you sure you want to delete \"{{name}}\"?",
   "delete-success": "The project \"{{name}}\" was deleted successfully!",
   "error-fetching-projects": "Error fetching projects.",
   "error-creating-project": "Error creating project: {{error}}",
-  "error-deleting-project": "Error deleting project: {{message}}"
+  "error-deleting-project": "Error deleting project: {{message}}",
+
+  "data-at-hand": "Data at hand",
+  "last-update": "Last update",
+  "created": "Created",
+  "progress": "Progress",
+
+  "no-projects-yet": "No projects yet",
+  "no-projects-placeholder": "Create your first project to start your data quality management process.",
+  "create-new-project": "Create New Project"
 }
