@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Container, SpeedDial, SpeedDialAction } from "@mui/material";
 import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { ActivityHeader } from "../../../components/ActivityHeader";
@@ -9,21 +9,24 @@ import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { KeyboardArrowUpOutlined } from "@mui/icons-material";
 import { StageDialog } from "../../../components/StagesDialog";
-import { ContextDialog } from "../../../components/ContextDialog";
+import { ContextDialog } from "../../../components/Context/ContextDialog";
 import { ProblemsDialog } from "../../../components/ProblemsDialog";
+import { link, ProjectStage, Project } from "../../../types/project";
+import { projectsApi } from "../../../api/projects.api";
+import { State } from "../../../types/state";
+import { useTranslation } from "react-i18next";
 
 export interface ActivityHandle {
   validateForm: () => Promise<boolean>;
 }
 
 export const StageLayout: React.FC = () => {
-  const { projectId, stage: stageParam } = useParams<{
-    projectId: string;
-    stage: string;
-  }>();
+  const { projectId } = useParams<{ projectId: string }>();
 
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation(["common", "stage"]);
+
   const activityRef = useRef<ActivityHandle>(null);
 
   const stageFromPath = location.pathname.split("/")[3].toUpperCase() as Stage;
@@ -42,14 +45,45 @@ export const StageLayout: React.FC = () => {
   const [contextDialogOpen, setContextDialogOpen] = useState(false);
   const [problemsDialogOpen, setProblemsDialogOpen] = useState(false);
 
+  const [project, setProject] = useState<Project | null>(null);
+
+  useEffect(() => {
+    const fetchAndUpdate = async () => {
+      try {
+        const project = await projectsApi.getProject(Number(projectId));
+        if (!project) {
+          console.warn("No project data returned");
+          return;
+        }
+        setProject(project);
+
+        const hasStage =
+          project.stages?.some(
+            (ps: ProjectStage) =>
+              ps.stage === stage && ps.status === State.IN_PROGRESS
+          ) ?? false;
+
+        if (projectId && stage && !hasStage) {
+          await projectsApi.updateStage(
+            Number(projectId),
+            stage,
+            State.IN_PROGRESS
+          );
+        }
+      } catch (error) {
+        console.error("Error during project fetch or stage update:", error);
+      }
+    };
+
+    fetchAndUpdate();
+  }, [projectId, stage]);
+
   const continueToStage = (nextStage: Stage) => {
     setStage(nextStage);
     const newActivities = getStageActivities(nextStage);
 
     if (newActivities.length > 0) {
-      navigate(
-        `/projects/${projectId}/${nextStage.toLowerCase()}/${newActivities[0].toLowerCase()}`
-      );
+      navigate(link(projectId!!, nextStage, newActivities[0]));
     } else {
       navigate("/");
     }
@@ -72,19 +106,27 @@ export const StageLayout: React.FC = () => {
       }
       setStagesDialogOpen(true);
     } else {
-      navigate(
-        `/projects/${projectId}/${stage.toLowerCase()}/${next.toLowerCase()}`
-      );
+      navigate(link(projectId!!, stage, next));
     }
   };
 
-  const handleStageSelect = (stage: Stage) => {
-    continueToStage(stage);
+  const handleStageSelect = async (nextStage: Stage) => {
+    try {
+      await projectsApi.updateStage(Number(projectId), stage, State.DONE);
+      continueToStage(nextStage);
+    } catch (error) {
+      console.error("Error updating stage:", error);
+    }
     setStagesDialogOpen(false);
   };
 
-  const handleSkip = () => {
-    navigate("/");
+  const handleSkip = async () => {
+    try {
+      await projectsApi.updateStage(Number(projectId), stage, State.DONE);
+      navigate("/");
+    } catch (error) {
+      console.error("Error updating stage on skip:", error);
+    }
     setStagesDialogOpen(false);
   };
 
@@ -150,7 +192,7 @@ export const StageLayout: React.FC = () => {
 
       <StageDialog
         stages={nextAvailableStages}
-        title="Choose next stage"
+        title={t("stage:choose-next-stage")}
         open={stagesDialogOpen}
         onClose={() => setStagesDialogOpen(false)}
         onStageSelect={handleStageSelect}
@@ -159,6 +201,8 @@ export const StageLayout: React.FC = () => {
 
       <ContextDialog
         projectId={Number(projectId)}
+        version={project?.context?.version}
+        stage={stage}
         open={contextDialogOpen}
         onClose={() => setContextDialogOpen(false)}
       />

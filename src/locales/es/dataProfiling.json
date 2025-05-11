@@ -1,4 +1,6 @@
 {
   "alerts": "Alertas",
-  "summary": "Resumen"
+  "summary": "Resumen",
+  "run-query": "Ejecutar",
+  "sql-query": "Consulta SQL"
 }

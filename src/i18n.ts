@@ -1,6 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import activityEN from "./locales/en/translation.json";
+import activityEN from "./locales/en/activity.json";
 import commonEN from "./locales/en/translation.json";
 import contextEN from "./locales/en/context.json";
 import dataProfilingEN from "./locales/en/dataProfiling.json";
@@ -10,7 +10,7 @@ import problemEN from "./locales/en/problem.json";
 import projectEN from "./locales/en/project.json";
 import stageEN from "./locales/en/stage.json";
 import stateEN from "./locales/en/state.json";
-import activityES from "./locales/es/translation.json";
+import activityES from "./locales/es/activity.json";
 import commonES from "./locales/es/translation.json";
 import contextES from "./locales/es/context.json";
 import dataProfilingES from "./locales/es/dataProfiling.json";

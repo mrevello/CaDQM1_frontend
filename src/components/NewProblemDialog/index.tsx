@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { FormDialog, TextFieldConfig } from "../FormDialog";
-import { ProblemErrorsType } from "../../types/problem";
+import { ProblemErrorsType, Problem } from "../../types/problem";
 import { useTranslation } from "react-i18next";
 
 interface NewProblemDialogProps {
@@ -9,6 +9,7 @@ interface NewProblemDialogProps {
   onClose: () => void;
   onSubmit: (formData: Record<string, any>) => void;
   errors?: ProblemErrorsType;
+  problem?: Problem | null;
 }
 
 export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
@@ -17,6 +18,7 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
   onClose,
   onSubmit,
   errors,
+  problem = null,
 }) => {
   const { t } = useTranslation(["common", "problem"]);
 
@@ -24,23 +26,10 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
 
   const textFieldConfigs: TextFieldConfig[] = [
     {
-      id: "name",
-      name: "name",
-      label: t("common:name"),
-      error: !!errors?.name,
-      helperText: errors?.name,
-      onKeyDown: (event: React.KeyboardEvent) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          descriptionRef.current?.focus();
-        }
-      },
-    },
-    {
       id: "description",
       name: "description",
-      label: t("common:description"),
-      defaultValue: description,
+      label: t("description"),
+      defaultValue: problem?.description ?? description,
       multiline: true,
       rows: 3,
       error: !!errors?.description,
@@ -58,13 +47,20 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
     },
   ];
 
+  const dialogTitle = problem
+    ? t("problem:edit-problem")
+    : t("problem:problem");
+  const dialogContentText = problem
+    ? t("problem:edit-problem-description")
+    : t("problem:identify-problem");
+
   return (
     <FormDialog
       open={open}
       onClose={onClose}
       onSubmit={onSubmit}
-      title={t("problem:problem")}
-      dialogContentText={t("problem:identify-problem")}
+      title={dialogTitle}
+      dialogContentText={dialogContentText}
       textFieldConfigs={textFieldConfigs}
     />
   );

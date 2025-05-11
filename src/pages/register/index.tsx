@@ -6,7 +6,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import React, { useState } from "react";
 import { useNotification } from "../../context/notification.context";
 import { RegisterValidate } from "../../utils/validateForm";
@@ -16,6 +16,7 @@ import { register } from "../../api/register.api";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
 import { StyledGrid, StyledFormPaper, StyledBottomGrid } from "../login";
+import { login } from "../../api/login.api";
 
 type RegisterType = {
   username: string;
@@ -32,7 +33,7 @@ type RegisterErrorsType = {
 };
 
 export const Register: React.FC = () => {
-  const { t } = useTranslation(['register', 'common']);
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
@@ -67,7 +68,10 @@ export const Register: React.FC = () => {
       );
 
       getSuccess(t("registration-successful"));
-      navigate("/login");
+
+      await login.login(registerData.username, registerData.password);
+      getSuccess(t("login-successful"));
+      navigate("/");
     } catch (error: any) {
       if (error instanceof yup.ValidationError) {
         const errors: RegisterErrorsType = {};

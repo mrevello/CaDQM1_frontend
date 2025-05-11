@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import React, { useState } from "react";
 import { useNotification } from "../../context/notification.context";
 import { LoginValidate } from "../../utils/validateForm";
@@ -46,7 +46,7 @@ export const StyledBottomGrid = styled(Grid)({
 });
 
 export const Login: React.FC = () => {
-  const { t } = useTranslation(['login', 'register', 'common']);
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const { getSuccess, getError } = useNotification();
@@ -71,11 +71,8 @@ export const Login: React.FC = () => {
 
       setLoginErrors({});
 
-      await login.login(
-        loginData.username,
-        loginData.password
-      );
-      getSuccess(t("login:login-successful"));
+      await login.login(loginData.username, loginData.password);
+      getSuccess(t("login-successful"));
       navigate("/");
     } catch (error) {
       if (error instanceof yup.ValidationError) {
@@ -87,7 +84,7 @@ export const Login: React.FC = () => {
         setLoginErrors(errors);
       } else {
         // Server error
-        getError(t("login:login-failed"));
+        getError(t("login-failed"));
       }
     }
   };
@@ -102,7 +99,7 @@ export const Login: React.FC = () => {
         <StyledFormPaper>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Typography variant="h5">{t("login:login")}</Typography>
+              <Typography variant="h5">{t("login")}</Typography>
               <TextField
                 name="username"
                 label={t("common:username")}
@@ -123,14 +120,16 @@ export const Login: React.FC = () => {
                 helperText={loginErrors.password}
               />
               <Button fullWidth type="submit" variant="contained">
-                {t("login:login")}
+                {t("login")}
               </Button>
             </Grid>
           </Box>
           <StyledBottomGrid container spacing={1}>
-            <Typography variant="body1">{t("common:dont-have-account")}</Typography>
+            <Typography variant="body1">
+              {t("common:dont-have-account")}
+            </Typography>
             <Link component="button" onClick={handleRegisterClicked}>
-              {t("register:register")}
+              {t("register")}
             </Link>
           </StyledBottomGrid>
         </StyledFormPaper>

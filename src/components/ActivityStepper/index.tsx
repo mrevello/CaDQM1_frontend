@@ -17,7 +17,7 @@ export const ActivityStepper: React.FC<ActivityStepperProps> = ({
   selectedActivity,
   onSelectActivity,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common", "stage"]);
 
   const activeStep = activities.indexOf(selectedActivity);
 
@@ -41,8 +41,8 @@ export const ActivityStepper: React.FC<ActivityStepperProps> = ({
       nextButton={
         <Button size="small" onClick={handleNext}>
           {activeStep === activities.length - 1
-            ? t("complete-stage")
-            : t("next")}
+            ? t("stage:complete-stage")
+            : t("common:next")}
           <KeyboardArrowRight />
         </Button>
       }

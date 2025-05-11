@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   ApplicationDomain,
   BusinessRule,
@@ -74,7 +75,22 @@ export const contextApi = {
       return response.data;
     } catch (error) {
       console.log("Error creating context component", error);
-      return null;
+
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          if (error.response.data) {
+            throw new Error(error.response.data);
+          }
+        } else if (error.request) {
+          throw new Error(
+            "No response received from server. Please check your network connection."
+          );
+        } else {
+          throw new Error("An unexpected error occurred. Please try again.");
+        }
+      } else {
+        throw new Error("An unexpected error occurred. Please try again.");
+      }
     }
   },
 

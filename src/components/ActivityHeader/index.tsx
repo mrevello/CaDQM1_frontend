@@ -31,7 +31,7 @@ export const ActivityHeader: React.FC<HeaderProps> = ({
   onSelectActivity,
   children,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["activity", "stage"]);
   const activities = getStageActivities(stage);
 
   return (

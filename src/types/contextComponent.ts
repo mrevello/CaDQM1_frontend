@@ -1,3 +1,5 @@
+import { Stage } from "./stage";
+
 export enum ContextComponentType {
   APPLICATION_DOMAIN = "application-domain",
   BUSINESS_RULE = "business-rule",
@@ -13,59 +15,60 @@ export enum ContextComponentType {
 
 export interface ContextComponent {
   id: number;
+  stage: Stage;
 }
 
-interface ApplicationDomain extends ContextComponent {
+export interface ApplicationDomain extends ContextComponent {
   description: string;
 }
 
-interface BusinessRule extends ContextComponent {
+export interface BusinessRule extends ContextComponent {
   statement: string;
   semantic: string;
 }
 
-interface DataFiltering extends ContextComponent {
+export interface DataFiltering extends ContextComponent {
   statement: string;
   description: string;
   task_at_hand: number;
 }
 
-interface DQMetadata extends ContextComponent {
+export interface DQMetadata extends ContextComponent {
   path: string;
   description: string;
   measurement: string;
 }
 
-interface DQRequirement extends ContextComponent {
+export interface DQRequirement extends ContextComponent {
   statement: string;
   description: string;
   data_filtering: DataFiltering[];
   user_type: number;
 }
 
-interface OtherData extends ContextComponent {
+export interface OtherData extends ContextComponent {
   path: string;
   description: string;
   owner: string;
 }
 
-interface OtherMetadata extends ContextComponent {
+export interface OtherMetadata extends ContextComponent {
   path: string;
   description: string;
   author: string;
 }
 
-interface SystemRequirement extends ContextComponent {
+export interface SystemRequirement extends ContextComponent {
   statement: string;
   description: string;
 }
 
-interface TaskAtHand extends ContextComponent {
+export interface TaskAtHand extends ContextComponent {
   name: string;
   purpose: string;
 }
 
-interface UserType extends ContextComponent {
+export interface UserType extends ContextComponent {
   name: string;
   characteristics: string;
 }

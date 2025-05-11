@@ -57,7 +57,7 @@ export const GenericDialog: React.FC<GenericDialogProps> = ({
       PaperProps={{ sx: { borderRadius: 1, minHeight: { minHeight } } }}
       maxWidth={maxWidth}
     >
-      <DialogTitle sx={{ pb: 2, pt: 2, pl: 3, pr: 3 }}>
+      <DialogTitle sx={{ py: 2, px: 3 }}>
         <Box>
           <Box
             display="flex"

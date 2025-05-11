@@ -13,6 +13,7 @@ import {
   Close,
 } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import { themePalette } from "../../config/theme.config";
 
 export type UploadStatus = "loading" | "complete" | "error";
 
@@ -44,8 +45,10 @@ export const FileUploadItem: React.FC<FileUploadItemProps> = ({
       p={2}
       gap={3}
       border={1}
-      borderColor="divider"
       borderRadius={1}
+      sx={(theme) => ({
+        borderColor: status === "error" ? theme.palette.error.main : "divider",
+      })}
     >
       <UploadFileOutlined color="primary" sx={{ ml: 1 }} />
 
@@ -65,11 +68,14 @@ export const FileUploadItem: React.FC<FileUploadItemProps> = ({
         )}
 
         {status === "error" ? (
-          <Box color="error.main" mt={0.5}>
-            <Typography variant="body2" fontWeight="bold">
+          <Box display="flex" gap={1}>
+            <Typography fontSize={14} fontWeight="bold" color="error.main">
               {t("upload-failed")}
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="caption" color="error.main">
+              •
+            </Typography>
+            <Typography fontSize={14} color="error.main">
               {errorMessage || "Unknown error"}
             </Typography>
           </Box>

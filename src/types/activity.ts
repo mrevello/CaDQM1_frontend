@@ -20,44 +20,44 @@ interface ActivityInfo {
 
 const ACTIVITY_INFO: Record<Activity, ActivityInfo> = {
   [Activity.A01]: {
-    name: "activity-1-name",
-    title: "activity-1-title",
-    description: "activity-1-description",
+    name: "activity:activity-1-name",
+    title: "activity:activity-1-title",
+    description: "activity:activity-1-description",
   },
   [Activity.A02]: {
-    name: "activity-2-name",
-    title: "activity-2-title",
-    description: "activity-2-description",
+    name: "activity:activity-2-name",
+    title: "activity:activity-2-title",
+    description: "activity:activity-2-description",
   },
   [Activity.A03]: {
-    name: "activity-3-name",
-    title: "activity-3-title",
-    description: "activity-3-description",
+    name: "activity:activity-3-name",
+    title: "activity:activity-3-title",
+    description: "activity:activity-3-description",
   },
   [Activity.A04]: {
-    name: "activity-4-name",
-    title: "activity-4-title",
-    description: "activity-4-description",
+    name: "activity:activity-4-name",
+    title: "activity:activity-4-title",
+    description: "activity:activity-4-description",
   },
   [Activity.A05]: {
-    name: "activity-5-name",
-    title: "activity-5-title",
-    description: "activity-5-description",
+    name: "activity:activity-5-name",
+    title: "activity:activity-5-title",
+    description: "activity:activity-5-description",
   },
   [Activity.A06]: {
-    name: "activity-6-name",
-    title: "activity-6-title",
-    description: "activity-6-description",
+    name: "activity:activity-6-name",
+    title: "activity:activity-6-title",
+    description: "activity:activity-6-description",
   },
   [Activity.A07]: {
-    name: "activity-7-name",
-    title: "activity-7-title",
-    description: "activity-7-description",
+    name: "activity:activity-7-name",
+    title: "activity:activity-7-title",
+    description: "activity:activity-7-description",
   },
   [Activity.A08]: {
-    name: "activity-8-name",
-    title: "activity-8-title",
-    description: "activity-8-description",
+    name: "activity:activity-8-name",
+    title: "activity:activity-8-title",
+    description: "activity:activity-8-description",
   },
 };
 

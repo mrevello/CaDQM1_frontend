@@ -1,5 +1,6 @@
 import { styled } from "@mui/material/styles";
 import CardContent from "@mui/material/CardContent";
+import { Card } from "@mui/material";
 
 export const StyledCardContent = styled(CardContent)(({ theme }) => ({
   display: "flex",
@@ -9,4 +10,8 @@ export const StyledCardContent = styled(CardContent)(({ theme }) => ({
     paddingBottom: 0,
   },
   padding: "16px !important",
+}));
+
+export const WhiteCard = styled(Card)(({ theme }) => ({
+  background: "white",
 }));

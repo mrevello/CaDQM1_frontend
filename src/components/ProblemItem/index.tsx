@@ -1,15 +1,25 @@
 import { useState } from "react";
-import { IconButton, useTheme, Card } from "@mui/material";
+import {
+  IconButton,
+  useTheme,
+  Card,
+  Tooltip,
+  Typography,
+  Box,
+  Button,
+} from "@mui/material";
 import { Problem } from "../../types/problem";
 import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
-import { StyledCardContent } from "../../StyledComponents/StyledComponents";
-import { ItemInfo } from "../ItemInfo";
+import {
+  StyledCardContent,
+  WhiteCard,
+} from "../../StyledComponents/StyledComponents";
 import { EditDeleteMenu } from "../EditDeleteMenu";
 
 interface ProblemItemProps {
   problem: Problem;
-  onUpdate: (itemId: number) => void;
-  onDelete: (itemId: number) => void;
+  onUpdate: (problem: Problem) => void;
+  onDelete: (problem: Problem) => void;
 }
 
 export const ProblemItem: React.FC<ProblemItemProps> = ({
@@ -31,29 +41,39 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({
   return (
     <Card
       sx={{
-        background: "transparent",
         borderLeft: `4px solid ${theme.palette.info.main}`,
       }}
     >
       <StyledCardContent>
-        <ItemInfo label={problem.name} info={problem.description} />
+        <Tooltip title={problem.description} placement="bottom-start">
+          <Typography
+            variant="body2"
+            fontSize="14px"
+            // fontWeight="bold"
+            flex={1}
+          >
+            {problem.description}
+          </Typography>
+        </Tooltip>
 
-        <IconButton size="small" onClick={handleMenuOpen} sx={{ p: 0 }}>
-          <MoreHorizOutlinedIcon fontSize="small" />
-        </IconButton>
+        <>
+          <IconButton size="small" onClick={handleMenuOpen} sx={{ p: 0 }}>
+            <MoreHorizOutlinedIcon fontSize="small" />
+          </IconButton>
 
-        <EditDeleteMenu
-          anchorEl={anchorEl}
-          onClose={handleMenuClose}
-          onEditClicked={() => {
-            onUpdate(problem.id);
-            handleMenuClose();
-          }}
-          onDeleteClicked={() => {
-            onDelete(problem.id);
-            handleMenuClose();
-          }}
-        />
+          <EditDeleteMenu
+            anchorEl={anchorEl}
+            onClose={handleMenuClose}
+            onEditClicked={() => {
+              onUpdate(problem);
+              handleMenuClose();
+            }}
+            onDeleteClicked={() => {
+              onDelete(problem);
+              handleMenuClose();
+            }}
+          />
+        </>
       </StyledCardContent>
     </Card>
   );
