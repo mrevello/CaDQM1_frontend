@@ -1,11 +1,11 @@
 export interface Problem {
   id: number;
-  name: string;
   description: string;
+  date: Date;
 }
 
 export type ProblemErrorsType = {
   id?: string;
-  name?: string;
   description?: string;
+  date?: string;
 };

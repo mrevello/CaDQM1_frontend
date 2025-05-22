@@ -1,3 +1,4 @@
+import { DataAtHand, toDataAtHand } from "../types/dataAtHand";
 import { instance } from "./base.api";
 import { handleApiError } from "./errorHandler";
 
@@ -13,15 +14,6 @@ export type DataAtHandBody = {
   date?: string;
 };
 
-export type DataAtHandApiResponse = {
-  id: number;
-  name: string;
-  description: string;
-  url_db: string;
-  user_db: string;
-  pass_db: string;
-};
-
 export const dataAtHandApi = {
   createDataAtHand: async (data: DataAtHandBody) => {
     try {
@@ -33,10 +25,12 @@ export const dataAtHandApi = {
     }
   },
 
-  getDataAtHand: async (id: number) => {
+  getDataAtHand: async (id: number): Promise<DataAtHand | undefined> => {
     try {
       const response = await instance.get(`${endpoint}${id}/`);
-      return response.data;
+      const resp = response.data;
+
+      return toDataAtHand(resp);
     } catch (error: any) {
       console.log("Error fectching data at hand:", error);
     }

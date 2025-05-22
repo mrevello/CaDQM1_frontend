@@ -19,5 +19,8 @@
   "stage-5-name": "ST5",
   "stage-5-title": "Etapa 5: Medición DQ",
   "stage-6-name": "ST6",
-  "stage-6-title": "Etapa 6: Evaluación DQ"
+  "stage-6-title": "Etapa 6: Evaluación DQ",
+
+  "all-stages": "Todas las etapas",
+  "choose-next-stage": "Elige la próxima etapa"
 }

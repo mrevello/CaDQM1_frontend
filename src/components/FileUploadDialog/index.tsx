@@ -64,9 +64,17 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     <GenericDialog
       open={open}
       onClose={onClose}
-      title={t("add-files")}
+      title={t("add-file")}
       content={
         <Box display="flex" flexDirection="column" gap={2}>
+          {selectedFile ? (
+            <UploadedFilesList
+              fileItems={[selectedFile]}
+              onDelete={() => setSelectedFile(null)}
+            />
+          ) : (
+            <FileUploader onFilesSelected={handleDrop} error={errors.files} />
+          )}
           <TextField
             name="description"
             label={t("description")}
@@ -78,15 +86,6 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
               setDescription(e.target.value);
             }}
           />
-
-          {selectedFile ? (
-            <UploadedFilesList
-              fileItems={[selectedFile]}
-              onDelete={() => setSelectedFile(null)}
-            />
-          ) : (
-            <FileUploader onFilesSelected={handleDrop} error={errors.files} />
-          )}
         </Box>
       }
       showDividers

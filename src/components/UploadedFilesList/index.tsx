@@ -4,7 +4,7 @@ import { FileItem } from "../FileUploader";
 
 interface UploadedFilesListProps {
   fileItems: FileItem[];
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   flex?: number;
 }
 
@@ -26,7 +26,7 @@ export const UploadedFilesList: React.FC<UploadedFilesListProps> = ({
           status={item.status}
           progress={item.progress}
           errorMessage={item.errorMessage}
-          onDelete={() => onDelete(item.id)}
+          onDelete={onDelete ? () => onDelete(item.id) : undefined}
         />
       ))}
     </Box>

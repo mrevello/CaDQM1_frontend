@@ -5,33 +5,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import React, { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ActivityHandle } from "../../pages/stages/Stagelayout";
-import { reviewApi } from "../../api/review.api";
+import { reviewApi, ReviewBody } from "../../api/review.api";
 import { FileUploadDialog } from "../FileUploadDialog";
 import { Add } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { UploadedFilesList } from "../UploadedFilesList";
 import { FileItem } from "../FileUploader";
+import { Review, ReviewType } from "../../types/review";
 
 interface ReviewData {
-  text: string;
+  review: Review;
   files: FileItem[];
 }
 
 export interface ReviewProps {
   label: string;
-  type: "interaction" | "organization_elements";
-  validationSchema: any;
+  type: ReviewType;
   projectId: number;
 }
 
-export const Review: React.FC<ReviewProps> = ({
+export const ReviewScreen: React.FC<ReviewProps> = ({
   label,
   type,
-  validationSchema,
   projectId,
 }) => {
   const { t } = useTranslation();
@@ -40,7 +39,14 @@ export const Review: React.FC<ReviewProps> = ({
     activityRef: React.MutableRefObject<ActivityHandle | null>;
   }>();
 
-  const [formData, setFormData] = useState<ReviewData>({ text: "", files: [] });
+  const [formData, setFormData] = useState<ReviewData>({
+    review: {
+      id: 0,
+      data: "",
+      type: type,
+    },
+    files: [],
+  });
   const [errors, setErrors] = useState<{ text?: string }>({});
   const [loading, setLoading] = useState(true);
   const [fileUploadDialogOpen, setFileUploadDialogOpen] = useState(false);
@@ -59,16 +65,19 @@ export const Review: React.FC<ReviewProps> = ({
 
   const validateForm = useCallback(async () => {
     try {
-      await validationSchema.validate(formData, { abortEarly: false });
-      setErrors({});
-
-      const reviewBody = {
-        data: formData.text,
+      const reviewBody: ReviewBody = {
+        data: formData.review.data,
         type: type,
         project: projectId,
       };
-      await reviewApi.createReview(reviewBody);
 
+      if (reviewBody.data) {
+        if (formData.review.id !== 0) {
+          await reviewApi.updateReview(formData.review.id, reviewBody);
+        } else {
+          await reviewApi.createReview(reviewBody);
+        }
+      }
       return true;
     } catch (err: any) {
       if (err.inner) {
@@ -80,7 +89,7 @@ export const Review: React.FC<ReviewProps> = ({
       }
       return false;
     }
-  }, [formData, validationSchema]);
+  }, [formData]);
 
   useEffect(() => {
     if (activityRef) {
@@ -94,7 +103,7 @@ export const Review: React.FC<ReviewProps> = ({
         setLoading(true);
         const review = await reviewApi.getReview(projectId, type);
         if (review) {
-          setFormData((prev) => ({ ...prev, text: review.data }));
+          setFormData((prev) => ({ ...prev, review: review }));
         }
       } catch (error) {
         console.error("Failed to fetch review:", error);
@@ -116,7 +125,7 @@ export const Review: React.FC<ReviewProps> = ({
             onClick={() => setFileUploadDialogOpen(true)}
             sx={{ p: 0 }}
           >
-            {t("common:add-files")}
+            {t("common:add-file")}
           </Button>
         </Box>
 
@@ -127,14 +136,18 @@ export const Review: React.FC<ReviewProps> = ({
             <Grid size={formData.files.length > 0 ? 7 : 12}>
               <TextField
                 variant="outlined"
-                value={formData.text}
+                value={formData.review.data}
                 multiline
                 fullWidth
                 rows={20}
                 onChange={(e) => {
-                  setFormData((prev) => ({ ...prev, text: e.target.value }));
+                  const newData = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    review: { ...prev.review, data: newData },
+                  }));
                   if (errors.text) {
-                    setErrors((prev) => ({ ...prev, text: undefined }));
+                    setErrors((prev) => ({ ...prev, data: undefined }));
                   }
                 }}
                 error={!!errors.text}

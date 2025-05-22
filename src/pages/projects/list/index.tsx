@@ -3,14 +3,9 @@ import {
   Box,
   Button,
   Card,
-  Chip,
   Container,
-  FormControl,
   IconButton,
-  InputLabel,
   MenuItem,
-  OutlinedInput,
-  Select,
   SelectChangeEvent,
   TextField,
   Typography,
@@ -19,56 +14,60 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   CircularProgress,
   Tooltip,
+  Pagination,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import Grid from "@mui/material/Grid";
+import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import { useTranslation } from "react-i18next";
 import { Add } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { projects } from "../../../api/projects.api";
+import { projectsApi } from "../../../api/projects.api";
 import { AlertDialog } from "../../../components/AlertDialog";
 import { NewProjectDialog } from "../../../components/NewProjectDialog";
-import { StateChip } from "../../../components/StateChip";
 import { useNotification } from "../../../context/notification.context";
-import { ProjectType, ProjectErrorsType } from "../../../types/project";
 import {
-  Stage,
-  getStageTitle,
-  getStageLabel,
-  getStageActivities,
-} from "../../../types/stage";
+  Project,
+  ProjectBody,
+  ProjectErrorsType,
+  projectLink,
+} from "../../../types/project";
+import { Stage, getStageLabel, getStageTitle } from "../../../types/stage";
 import { ProjectValidate } from "../../../utils/validateForm";
 import * as yup from "yup";
 import { Label } from "../../../components/Label";
+import { ProjectDetail } from "../detail";
+import { EmptyProjectState } from "../../../components/EmptyProjectState";
+import { StateChip } from "../../../components/StateChip";
+import { EditDeleteMenu } from "../../../components/EditDeleteMenu";
+import { getName, State } from "../../../types/state";
+import { WhiteCard } from "../../../StyledComponents/StyledComponents";
+import { useNavigate } from "react-router-dom";
 
 interface Column {
   id: string;
   label: string;
+  labelInfo?: React.ReactNode;
   width?: string;
   pr?: number;
   align?: "right" | "left" | "center";
-  render: (project: ProjectType) => React.ReactNode;
+  render: (project: Project) => React.ReactNode;
 }
 
-export const ProjectList: React.FC = () => {
-  const { t } = useTranslation(["project", "common"]);
-  const navigate = useNavigate();
+export const ProjectsList: React.FC = () => {
+  const { t } = useTranslation(["project", "common", "stage"]);
   const { getSuccess, getError } = useNotification();
+  const navigate = useNavigate();
 
-  const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
-  const [page, setPage] = useState(0);
+  const [selectedStage, setSelectedStage] = useState<Stage | "all">("all");
+
+  const [page, setPage] = useState(1);
   const rowsPerPage = 10;
   const [search, setSearch] = useState("");
 
-  const [projectsList, setProjectsList] = useState<ProjectType[]>([]);
-  const [selecredProject, setSelecredProject] = useState<
-    ProjectType | undefined
-  >();
+  const [projectsList, setProjectsList] = useState<Project[]>([]);
+  const [selecredProject, setSelecredProject] = useState<Project | undefined>();
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -78,16 +77,33 @@ export const ProjectList: React.FC = () => {
   const [projectErrors, setProjectErrors] = useState<ProjectErrorsType>({});
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState<ProjectType | null>(
-    null
-  );
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    project: Project
+  ) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedProject(project);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedProject(null);
+  };
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const data = await projects.listProjects();
-      setProjectsList(data);
+      const projects = await projectsApi.listProjects();
+      setProjectsList(projects || []);
     } catch (err: any) {
       console.error("Error fetching projects:", err);
       setError(t("project:error-fetching-projects"));
@@ -110,33 +126,36 @@ export const ProjectList: React.FC = () => {
           .includes(search.toLowerCase());
 
       const matchesStages =
-        selectedStages.length === 0 || selectedStages.includes(project.stage);
+        selectedStage === "all" ||
+        project.stages
+          .filter(
+            (ps) => ps.status === State.TO_DO || ps.status === State.IN_PROGRESS
+          )
+          .map((ps) => ps.stage)
+          .includes(selectedStage);
 
       return matchesSearch && matchesStages;
     })
     .sort((a, b) => {
-      return (
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
 
   // Handlers
-  const handleStageChange = (event: SelectChangeEvent<Stage[]>) => {
-    setSelectedStages(event.target.value as Stage[]);
+  const handleStageChange = (event: SelectChangeEvent) => {
+    const newStage = (event.target.value as Stage) || "all";
+    setSelectedStage(newStage);
   };
 
-  const handleDeleteChip = (stageToDelete: Stage) => {
-    setSelectedStages((prev) =>
-      prev.filter((stage) => stage !== stageToDelete)
-    );
-  };
-
-  const handleEdit = (id: string, event: React.MouseEvent) => {
+  const handleEdit = (
+    project: Project,
+    event: React.MouseEvent<HTMLElement>
+  ) => {
     event.stopPropagation();
-    console.log(`Edit project with ID: ${id}`);
+    setProjectToEdit(project);
+    setNewDialogOpen(true);
   };
 
-  const handleDelete = (id: string, event: React.MouseEvent) => {
+  const handleDelete = (id: number, event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
     const project = projectsList.find((p) => p.id === id);
     if (project) {
@@ -148,7 +167,7 @@ export const ProjectList: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (!projectToDelete) return;
     try {
-      await projects.deleteProject(projectToDelete.id);
+      await projectsApi.deleteProject(projectToDelete.id);
       getSuccess(t("project:delete-success", { name: projectToDelete.name }));
       await fetchProjects();
     } catch (err: any) {
@@ -169,22 +188,39 @@ export const ProjectList: React.FC = () => {
   };
 
   const handleOpenNewDialog = () => {
+    setProjectToEdit(null);
     setNewDialogOpen(true);
   };
 
   const handleCloseNewDialog = () => {
+    setProjectToEdit(null);
     setProjectErrors({});
     setNewDialogOpen(false);
   };
 
-  const handleNewProjectSubmit = async (formData: Record<string, any>) => {
+  const handleDialogSubmit = async (formData: Record<string, any>) => {
     try {
       await ProjectValidate.validate(formData);
       setProjectErrors({});
-      await projects.createProject({
-        name: formData.name,
-        description: formData.description,
-      });
+
+      if (projectToEdit) {
+        const updatedData: Partial<ProjectBody> = {
+          name: formData.name,
+          description: formData.description,
+        };
+        await projectsApi.updateProject(projectToEdit.id, updatedData);
+      } else {
+        const newProjectData: ProjectBody = {
+          name: formData.name,
+          description: formData.description,
+        };
+        const project = await projectsApi.createProject(newProjectData);
+        if (!project) {
+          console.warn("No project data returned");
+          return;
+        }
+        navigate(projectLink(project));
+      }
       handleCloseNewDialog();
       await fetchProjects();
     } catch (error) {
@@ -202,8 +238,8 @@ export const ProjectList: React.FC = () => {
     {
       id: "name",
       label: t("common:name"),
-      width: "25%",
-      render: (project: ProjectType) => (
+      width: "20%",
+      render: (project: Project) => (
         <Tooltip title={project.name} placement="bottom-start">
           <span>{project.name}</span>
         </Tooltip>
@@ -212,8 +248,8 @@ export const ProjectList: React.FC = () => {
     {
       id: "description",
       label: t("common:description"),
-      width: "20%",
-      render: (project: ProjectType) => (
+      width: "25%",
+      render: (project: Project) => (
         <Tooltip title={project.description} placement="bottom-start">
           <span>{project.description}</span>
         </Tooltip>
@@ -222,19 +258,19 @@ export const ProjectList: React.FC = () => {
     {
       id: "context-version",
       label: t("common:context-version"),
-      width: "20%",
-      render: (project: ProjectType) =>
+      width: "15%",
+      render: (project: Project) =>
         project.context ? (
           <span>{project.context.version}</span>
         ) : (
-          <span>-</span>
+          <span>v 1.0</span>
         ),
     },
     {
       id: "dq-model-version",
       label: t("common:dq-model-version"),
-      width: "20%",
-      render: (project: ProjectType) =>
+      width: "15%",
+      render: (project: Project) =>
         project.dqModel ? (
           <span>{project.dqModel.version}</span>
         ) : (
@@ -243,204 +279,237 @@ export const ProjectList: React.FC = () => {
     },
     {
       id: "stage",
-      label: t("common:stage"),
+      label: t("stage:stage"),
+      labelInfo: (
+        <Box display="flex" flexDirection="column" gap={1}>
+          <StateChip state={State.TO_DO} />
+          <StateChip state={State.IN_PROGRESS} />
+          <StateChip state={State.DONE} />
+        </Box>
+      ),
       width: "20%",
-      render: (project: ProjectType) => (
-        <Tooltip title={t(getStageTitle(project.stage))}>
-          <span>{t(getStageTitle(project.stage))}</span>
-        </Tooltip>
+      render: (project: Project) => (
+        <Box display="flex" flexWrap="wrap" gap={1}>
+          {project.stages.map((ps, index) => (
+            <Tooltip title={t(getName(ps.status))} key={index}>
+              <span key={index}>
+                <StateChip
+                  key={index}
+                  state={ps.status}
+                  textResource={getStageLabel(ps.stage)}
+                />
+              </span>
+            </Tooltip>
+          ))}
+        </Box>
       ),
     },
     {
-      id: "state",
-      label: t("common:state"),
-      width: "15%",
-      render: (project: ProjectType) => <StateChip state={project.state} />,
-    },
-    {
       id: "actions",
-      label: t("common:actions"),
-      width: "10%",
+      label: "",
+      width: "5%",
       align: "right",
       pr: 0,
-      render: (project: ProjectType) => (
-        <Box>
-          <Tooltip title={t("common:edit")}>
-            <IconButton onClick={(event) => handleEdit(project.id, event)}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t("common:delete")}>
-            <IconButton onClick={(event) => handleDelete(project.id, event)}>
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
+      render: (project: Project) => (
+        <>
+          <IconButton
+            size="small"
+            onClick={(event) => handleMenuOpen(event, project)}
+            sx={{ p: 0 }}
+          >
+            <MoreHorizOutlinedIcon fontSize="small" />
+          </IconButton>
+
+          {selectedProject?.id === project.id && (
+            <EditDeleteMenu
+              anchorEl={anchorEl}
+              onClose={handleMenuClose}
+              onEditClicked={(event) => {
+                handleEdit(project, event);
+                handleMenuClose();
+              }}
+              onDeleteClicked={(event) => {
+                handleDelete(project.id, event);
+                handleMenuClose();
+              }}
+            />
+          )}
+        </>
       ),
     },
   ];
 
+  const hasProjects = projectsList.length > 0 && filteredProjects.length > 0;
+
   return (
-    <Container maxWidth="xl">
-      <Typography mt={4} mb={4} fontWeight={500} variant="h5">
+    <Container maxWidth="lg">
+      <Typography my={4} fontWeight={700} variant="h5" fontSize={30}>
         {t("project:projects")}
       </Typography>
 
-      <Card sx={{ display: "flex", flexDirection: "column", minHeight: 600 }}>
-        <Grid m={2} mt={3} mb={4} display="flex">
-          <Grid container spacing={2} alignItems="center" flex={1}>
-            <TextField
-              name="search"
-              label={t("common:search")}
-              placeholder={t("common:search-placeholder")}
-              value={search}
-              onChange={handleSearchChange}
-              sx={{ width: "30%" }}
-            />
-            <FormControl sx={{ minWidth: 300 }} size="small">
-              <InputLabel id="stage-select-label">
-                {t("common:stage")}
-              </InputLabel>
-              <Select
-                multiple
+      <WhiteCard sx={{ p: 3 }}>
+        {projectsList.length === 0 ? (
+          <EmptyProjectState onCreateNew={() => handleOpenNewDialog()} />
+        ) : (
+          <>
+            <Grid display="flex" mb={3} gap={2}>
+              <TextField
+                name="search"
+                label={t("common:search")}
+                placeholder={t("common:search-placeholder")}
+                value={search}
+                onChange={handleSearchChange}
+                sx={{ flex: 1 }}
+              />
+              <TextField
                 name="stage"
-                labelId="stage-select-label"
-                value={selectedStages}
-                onChange={handleStageChange}
-                input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                renderValue={(selected) => {
-                  const sortedStages = (selected as Stage[]).sort(
-                    (a, b) =>
-                      Object.values(Stage).indexOf(a) -
-                      Object.values(Stage).indexOf(b)
-                  );
-                  return (
-                    <Box display="flex" gap={0.5}>
-                      {sortedStages.map((stage) => (
-                        <Chip
-                          key={stage}
-                          label={t(getStageLabel(stage))}
-                          onDelete={() => handleDeleteChip(stage)}
-                          onMouseDown={(event) => event.stopPropagation()}
-                          sx={{ fontSize: 12, fontWeight: 500 }}
-                        />
-                      ))}
-                    </Box>
-                  );
-                }}
+                select
+                label={t("stage:stage")}
+                value={selectedStage}
+                onChange={(e) => handleStageChange(e as SelectChangeEvent)}
+                sx={{ flex: 1 }}
+                size="small"
               >
+                <MenuItem key="all" value="all">
+                  {t("stage:all-stages")}
+                </MenuItem>
                 {Object.values(Stage).map((stage) => (
                   <MenuItem key={stage} value={stage}>
                     {t(getStageTitle(stage))}
                   </MenuItem>
                 ))}
-              </Select>
-            </FormControl>
-          </Grid>
+              </TextField>
 
-          <Button startIcon={<Add />} onClick={handleOpenNewDialog}>
-            {t("common:new")}
-          </Button>
-        </Grid>
+              <Box display="flex" justifyContent="flex-end" flex={1}>
+                <Button startIcon={<Add />} onClick={handleOpenNewDialog}>
+                  {t("common:new")}
+                </Button>
+              </Box>
+            </Grid>
 
-        {loading ? (
-          <Box
-            flex={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Box
-            flex={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Typography color="error">{error}</Typography>
-          </Box>
-        ) : filteredProjects.length === 0 ? (
-          <Box
-            flex={1}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            p={2}
-          >
-            <Typography variant="body1" color="textSecondary">
-              {t("project:no-projects-found")}
-            </Typography>
-          </Box>
-        ) : (
-          <>
-            <TableContainer
-              sx={{
-                flex: 1,
-                overflow: "auto",
-                maxHeight: 440,
-              }}
-            >
-              <Table stickyHeader sx={{ tableLayout: "fixed", width: "100%" }}>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={column.id} align={column.align}>
-                        <Label text={column.label} />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredProjects
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((project) => {
-                      const activities = getStageActivities(project.stage);
-                      const firstActivity = activities[0];
-                      const linkTo = `/projects/${project.id}/${project.stage.toLowerCase()}/${firstActivity}`;
+            {loading ? (
+              <Box
+                flex={1}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Box
+                flex={1}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Typography color="error">{error}</Typography>
+              </Box>
+            ) : (
+              <>
+                <TableContainer
+                  sx={{
+                    flex: 1,
+                    overflow: "auto",
+                    height: 440,
+                  }}
+                >
+                  <Table
+                    stickyHeader
+                    sx={{ tableLayout: "fixed", width: "100%" }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        {columns.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            width={column.width}
+                          >
+                            <Label
+                              text={column.label}
+                              fontWeight={500}
+                              infoMenuContent={column.labelInfo}
+                            />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
 
-                      return (
-                        <TableRow
-                          hover
-                          tabIndex={-1}
-                          key={project.id}
-                          style={{ cursor: "pointer" }}
-                          onClick={() => navigate(linkTo)}
-                        >
-                          {columns.map((column) => (
-                            <TableCell
-                              key={column.id}
-                              align={column.align}
-                              sx={{ pr: column.pr }}
+                    <TableBody>
+                      {hasProjects ? (
+                        filteredProjects
+                          .slice(
+                            page * rowsPerPage - rowsPerPage,
+                            page * rowsPerPage
+                          )
+                          .map((project) => (
+                            <TableRow
+                              hover
+                              tabIndex={-1}
+                              key={project.id}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => {
+                                setSelecredProject(project);
+                                setProjectDialogOpen(true);
+                              }}
                             >
-                              {column.render(project)}
-                            </TableCell>
-                          ))}
+                              {columns.map((column) => (
+                                <TableCell
+                                  key={column.id}
+                                  align={column.align}
+                                  width={column.width}
+                                  sx={{
+                                    pr: column.pr,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {column.render(project)}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            sx={{ borderBottom: 0 }}
+                          >
+                            <Typography
+                              my={4}
+                              color="textSecondary"
+                              textAlign="center"
+                            >
+                              {t("project:no-projects-found")}
+                            </Typography>
+                          </TableCell>
                         </TableRow>
-                      );
-                    })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
-            <TablePagination
-              rowsPerPageOptions={[-1]}
-              component="div"
-              count={projectsList.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-            />
+                <Pagination
+                  page={page}
+                  shape="rounded"
+                  count={Math.ceil(projectsList.length / rowsPerPage)}
+                  onChange={handleChangePage}
+                  sx={{ display: "flex", justifyContent: "center", mt: 3 }}
+                />
+              </>
+            )}
           </>
         )}
-      </Card>
+      </WhiteCard>
 
       <NewProjectDialog
         open={newDialogOpen}
         onClose={handleCloseNewDialog}
-        onSubmit={handleNewProjectSubmit}
+        onSubmit={handleDialogSubmit}
         errors={projectErrors}
+        project={projectToEdit}
       />
 
       <AlertDialog
@@ -456,6 +525,14 @@ export const ProjectList: React.FC = () => {
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />
+
+      {selecredProject && (
+        <ProjectDetail
+          project={selecredProject}
+          open={projectDialogOpen}
+          onClose={() => setProjectDialogOpen(false)}
+        />
+      )}
     </Container>
   );
 };

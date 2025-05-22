@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Placeholder } from "../Placeholder";
 import { ProblemBody, problemsApi } from "../../api/problem.api";
@@ -10,85 +10,106 @@ import { useNotification } from "../../context/notification.context";
 import * as yup from "yup";
 import { NewProblemDialog } from "../NewProblemDialog";
 import { AlertDialog } from "../AlertDialog";
-import { Add } from "@mui/icons-material";
 
 interface ProblemListProps {
   projectId: number;
-  showNew?: boolean;
   problems: Problem[];
   setProblems: React.Dispatch<React.SetStateAction<Problem[]>>;
 }
 
 export const ProblemList: React.FC<ProblemListProps> = ({
   projectId,
-  showNew = false,
   problems,
   setProblems,
 }) => {
   const { t } = useTranslation(["common", "problem"]);
   const { getError } = useNotification();
 
-  const [newProblemDialogOpen, setNewProblemDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const [selectedEditProblem, setSelectedEditProblem] =
+    useState<Problem | null>(null);
   const [problemErrors, setProblemErrors] = useState<ProblemErrorsType>({});
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [problemToDelete, setProblemToDelete] = useState<Problem | null>(null);
 
   const handleCreateProblem = () => {
-    setNewProblemDialogOpen(true);
+    setSelectedEditProblem(null);
+    setDialogOpen(true);
   };
 
-  const handleCloseNewProblemDialog = () => {
+  const handleEditProblem = (problem: Problem) => {
+    setSelectedEditProblem(problem);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
     setProblemErrors({});
-    setNewProblemDialogOpen(false);
+    setDialogOpen(false);
+    setSelectedEditProblem(null);
   };
 
-  const handleNewProblemSubmit = async (formData: Record<string, any>) => {
+  const handleDialogSubmit = async (formData: Record<string, any>) => {
     try {
       await ProblemValidate.validate(formData, { abortEarly: false });
       setProblemErrors({});
 
-      const newProblemData: ProblemBody = {
-        name: formData.name,
-        description: formData.description,
-        project_id: Number(projectId),
-      };
-
-      const createdProblem = await problemsApi.createProblem(newProblemData);
-      if (createdProblem) {
-        setProblems((prev) => [...prev, createdProblem]);
+      if (selectedEditProblem) {
+        const updatedData: Partial<ProblemBody> = {
+          description: formData.description,
+        };
+        const updatedProblem = await problemsApi.updateProblem(
+          selectedEditProblem.id,
+          updatedData,
+          projectId
+        );
+        if (updatedProblem) {
+          setProblems((prev) =>
+            prev.map((problem) =>
+              problem.id === selectedEditProblem.id
+                ? { ...problem, ...updatedProblem }
+                : problem
+            )
+          );
+        }
+      } else {
+        const newProblemData: ProblemBody = {
+          description: formData.description,
+          project_id: Number(projectId),
+        };
+        const createdProblem = await problemsApi.createProblem(newProblemData);
+        if (createdProblem) {
+          setProblems((prev) => [...prev, createdProblem]);
+        }
       }
-      handleCloseNewProblemDialog();
+      handleCloseDialog();
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const errors: ProblemErrorsType = {};
         error.inner.forEach((validationError) => {
-          errors[validationError.path as keyof Problem] =
-            validationError.message;
+          errors.description = validationError.message;
         });
         setProblemErrors(errors);
       } else {
         getError(String(error));
-        handleCloseNewProblemDialog();
+        handleCloseDialog();
       }
     }
   };
 
-  const handleUpdateProblem = async (
-    id: number,
-    updatedData: Partial<ProblemBody>
-  ) => {
+  const createProblem = async (problem: Problem) => {
     try {
-      const updatedProblem = await problemsApi.updateProblem(id, updatedData);
-      if (updatedProblem) {
-        setProblems((prev) =>
-          prev.map((problem) =>
-            problem.id === id ? { ...problem, ...updatedProblem } : problem
-          )
-        );
+      const newProblemData: ProblemBody = {
+        description: problem.description,
+        project_id: Number(projectId),
+      };
+      const createdProblem = await problemsApi.createProblem(newProblemData);
+      if (createdProblem) {
+        setProblems((prev) => [...prev, createdProblem]);
       }
     } catch (error) {
-      getError("Failed to update problem.");
+      getError(String(error));
     }
   };
 
@@ -129,52 +150,37 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
   return (
     <>
-      <Box display="flex" flexDirection="column" gap={1}>
-        {problems.length > 0 && showNew && (
-          <Box display="flex" justifyContent="flex-end">
-            <Button startIcon={<Add />} onClick={handleCreateProblem}>
-              {t("common:new")}
-            </Button>
-          </Box>
-        )}
-        <Box display="flex" flexDirection="column" gap={1.5}>
-          {problems.length > 0 ? (
-            problems.map((problem) => (
-              <ProblemItem
-                key={problem.id}
-                problem={problem}
-                // onUpdate={(updatedData) =>
-                //   handleUpdateProblem(problem.id, updatedData)
-                // }
-                onUpdate={() => {}}
-                onDelete={() => confirmDeleteProblem(problem)}
-              />
-            ))
-          ) : (
-            <Placeholder
-              description={t("problem:problems-placeholder")}
-              linkText={t("problem:identify-problem")}
-              onClick={handleCreateProblem}
+      <Box display="flex" flexDirection="column" gap={1.5}>
+        {problems.length > 0 ? (
+          problems.map((problem) => (
+            <ProblemItem
+              key={problem.id}
+              problem={problem}
+              onUpdate={() => handleEditProblem(problem)}
+              onDelete={() => confirmDeleteProblem(problem)}
             />
-          )}
-        </Box>
+          ))
+        ) : (
+          <Placeholder
+            description={t("problem:problems-placeholder")}
+            linkText={t("problem:identify-problem")}
+            onClick={handleCreateProblem}
+          />
+        )}
       </Box>
+
       <NewProblemDialog
-        open={newProblemDialogOpen}
-        onClose={handleCloseNewProblemDialog}
-        onSubmit={handleNewProblemSubmit}
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSubmit={handleDialogSubmit}
         errors={problemErrors}
+        problem={selectedEditProblem}
       />
+
       <AlertDialog
         open={deleteDialogOpen}
         title={t("problem:delete-problem-alert-title")}
-        description={
-          problemToDelete
-            ? t("problem:delete-problem-alert-description", {
-                name: problemToDelete.name,
-              })
-            : ""
-        }
+        description={problemToDelete ? problemToDelete.description : ""}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />
