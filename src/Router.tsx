@@ -15,6 +15,7 @@ import { A03 as ST2A03 } from "./pages/stages/st2/A03";
 import { A07 as ST2A07 } from "./pages/stages/st2/A07";
 import { A03 as ST3A03 } from "./pages/stages/st3/A03";
 import { A07 as ST3A07 } from "./pages/stages/st3/A07";
+import { A05 } from "./pages/stages/st2/A05";
 import { A06 } from "./pages/stages/st2/A06";
 import { A08 } from "./pages/stages/st3/A08";
 import { Context } from "./pages/context";
@@ -43,6 +44,7 @@ export const AppRouter: React.FC = () => {
 
           {/* ST2 */}
           <Route path="/projects/:projectId/st2" element={<StageLayout />}>
+            <Route path="a05" element={<A05 />} />
             <Route path="a03" element={<ST2A03 />} />
             <Route path="a06" element={<A06 />} />
             <Route path="a07" element={<ST2A07 />} />
