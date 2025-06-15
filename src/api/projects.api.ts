@@ -10,7 +10,7 @@ import { instance } from "./base.api";
 import { dataAtHandApi } from "./dataAtHand.api";
 import { handleApiError } from "./errorHandler";
 
-const endpoint = "projects/";
+export const endpoint = "projects/";
 
 export const projectsApi = {
   listProjects: async function (): Promise<Project[]> {

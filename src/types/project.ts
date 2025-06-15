@@ -91,7 +91,7 @@ export function toProject(
   }
 
   const orderMap: Record<Stage, number> = stageOrder.reduce(
-    (acc, stage, idx) => {
+    (acc: Record<Stage, number>, stage: Stage, idx: number) => {
       acc[stage] = idx;
       return acc;
     },

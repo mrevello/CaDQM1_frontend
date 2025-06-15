@@ -1,5 +1,6 @@
 let hasRegistered = false;
 let currentTableNames: string[] = [];
+let currentColumnNames: string[] = [];
 
 const SQL_KEYWORDS = [
   "SELECT",
@@ -44,11 +45,22 @@ export function setupSqlProvider(monaco: typeof import("monaco-editor")) {
         range,
       }));
 
-      return { suggestions: [...keywordItems, ...tableItems] };
+      const columnItems = currentColumnNames.map((tbl) => ({
+        label: tbl,
+        kind: monaco.languages.CompletionItemKind.Struct,
+        insertText: tbl,
+        range,
+      }));
+
+      return { suggestions: [...keywordItems, ...tableItems, ...columnItems] };
     },
   });
 }
 
 export function updateSqlTableNames(names: string[]) {
   currentTableNames = names;
+}
+
+export function updateSqlColumnNames(names: string[]) {
+  currentColumnNames = names;
 }

@@ -39,7 +39,7 @@ export const EmptyProjectState: React.FC<EmptyProjectStateProps> = ({
       </Box>
 
       <Typography variant="h6" mb={1} fontWeight={600}>
-        {t("no-projects-yet")}{" "}
+        {t("no-projects-yet")}
       </Typography>
       <Typography
         variant="subtitle2"

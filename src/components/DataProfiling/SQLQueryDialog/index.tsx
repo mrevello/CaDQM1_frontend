@@ -36,12 +36,13 @@ import { ProblemBody, problemsApi } from "../../../api/problem.api";
 import * as yup from "yup";
 import Draggable from "react-draggable";
 import { Close } from "@mui/icons-material";
+import { Schema } from "../../../types/dataProfiling";
 
 interface SQLQueryDialogProps {
   open: boolean;
   onClose: () => void;
   projectId: number;
-  tables: string[];
+  schema?: Schema;
 }
 
 const PaperComponent = (props: PaperProps) => {
@@ -61,7 +62,7 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
   open,
   onClose,
   projectId,
-  tables,
+  schema,
 }) => {
   const { t } = useTranslation("dataProfiling");
   const { getError } = useNotification();
@@ -169,7 +170,7 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
 
         <DialogContent>
           <Box display="flex" flexDirection="column">
-            <SqlEditor value={sql} onChange={setSql} tableNames={tables} />
+            <SqlEditor value={sql} onChange={setSql} schema={schema} />
 
             <Box display="flex" justifyContent="end" mt={1}>
               <Button

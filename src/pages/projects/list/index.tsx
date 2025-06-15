@@ -33,7 +33,7 @@ import {
   ProjectErrorsType,
   projectLink,
 } from "../../../types/project";
-import { Stage, getStageLabel, getStageTitle } from "../../../types/stage";
+import { Stage, StageList, getStageLabel, getStageTitle } from "../../../types/stage";
 import { ProjectValidate } from "../../../utils/validateForm";
 import * as yup from "yup";
 import { Label } from "../../../components/Label";
@@ -56,7 +56,7 @@ interface Column {
 }
 
 export const ProjectsList: React.FC = () => {
-  const { t } = useTranslation(["project", "common", "stage"]);
+  const { t } = useTranslation();
   const { getSuccess, getError } = useNotification();
   const navigate = useNavigate();
 
@@ -106,7 +106,7 @@ export const ProjectsList: React.FC = () => {
       setProjectsList(projects || []);
     } catch (err: any) {
       console.error("Error fetching projects:", err);
-      setError(t("project:error-fetching-projects"));
+      setError(t("error-fetching-projects"));
     } finally {
       setLoading(false);
     }
@@ -168,10 +168,10 @@ export const ProjectsList: React.FC = () => {
     if (!projectToDelete) return;
     try {
       await projectsApi.deleteProject(projectToDelete.id);
-      getSuccess(t("project:delete-success", { name: projectToDelete.name }));
+      getSuccess(t("delete-success", { name: projectToDelete.name }));
       await fetchProjects();
     } catch (err: any) {
-      getError(t("project:error-deleting-project", { message: err.message }));
+      getError(t("error-deleting-project", { message: err.message }));
       console.error("Error deleting project:", err);
     } finally {
       setDeleteDialogOpen(false);
@@ -228,7 +228,7 @@ export const ProjectsList: React.FC = () => {
         // Set form errors
         setProjectErrors({ name: error.errors[0] });
       } else {
-        getError(t("project:error-creating-project", { error }));
+        getError(t("error-creating-project", { error }));
       }
     }
   };
@@ -237,7 +237,7 @@ export const ProjectsList: React.FC = () => {
   const columns: Column[] = [
     {
       id: "name",
-      label: t("common:name"),
+      label: t("name"),
       width: "20%",
       render: (project: Project) => (
         <Tooltip title={project.name} placement="bottom-start">
@@ -247,7 +247,7 @@ export const ProjectsList: React.FC = () => {
     },
     {
       id: "description",
-      label: t("common:description"),
+      label: t("description"),
       width: "25%",
       render: (project: Project) => (
         <Tooltip title={project.description} placement="bottom-start">
@@ -257,7 +257,7 @@ export const ProjectsList: React.FC = () => {
     },
     {
       id: "context-version",
-      label: t("common:context-version"),
+      label: t("context-version"),
       width: "15%",
       render: (project: Project) =>
         project.context ? (
@@ -268,7 +268,7 @@ export const ProjectsList: React.FC = () => {
     },
     {
       id: "dq-model-version",
-      label: t("common:dq-model-version"),
+      label: t("dq-model-version"),
       width: "15%",
       render: (project: Project) =>
         project.dqModel ? (
@@ -279,7 +279,7 @@ export const ProjectsList: React.FC = () => {
     },
     {
       id: "stage",
-      label: t("stage:stage"),
+      label: t("stage"),
       labelInfo: (
         <Box display="flex" flexDirection="column" gap={1}>
           <StateChip state={State.TO_DO} />
@@ -344,7 +344,7 @@ export const ProjectsList: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <Typography my={4} fontWeight={700} variant="h5" fontSize={30}>
-        {t("project:projects")}
+        {t("projects")}
       </Typography>
 
       <WhiteCard sx={{ p: 3 }}>
@@ -355,8 +355,8 @@ export const ProjectsList: React.FC = () => {
             <Grid display="flex" mb={3} gap={2}>
               <TextField
                 name="search"
-                label={t("common:search")}
-                placeholder={t("common:search-placeholder")}
+                label={t("search")}
+                placeholder={t("search-placeholder")}
                 value={search}
                 onChange={handleSearchChange}
                 sx={{ flex: 1 }}
@@ -364,16 +364,16 @@ export const ProjectsList: React.FC = () => {
               <TextField
                 name="stage"
                 select
-                label={t("stage:stage")}
+                label={t("stage")}
                 value={selectedStage}
                 onChange={(e) => handleStageChange(e as SelectChangeEvent)}
                 sx={{ flex: 1 }}
                 size="small"
               >
                 <MenuItem key="all" value="all">
-                  {t("stage:all-stages")}
+                  {t("all-stages")}
                 </MenuItem>
-                {Object.values(Stage).map((stage) => (
+                {StageList.map((stage) => (
                   <MenuItem key={stage} value={stage}>
                     {t(getStageTitle(stage))}
                   </MenuItem>
@@ -382,7 +382,7 @@ export const ProjectsList: React.FC = () => {
 
               <Box display="flex" justifyContent="flex-end" flex={1}>
                 <Button startIcon={<Add />} onClick={handleOpenNewDialog}>
-                  {t("common:new")}
+                  {t("new")}
                 </Button>
               </Box>
             </Grid>
@@ -482,7 +482,7 @@ export const ProjectsList: React.FC = () => {
                               color="textSecondary"
                               textAlign="center"
                             >
-                              {t("project:no-projects-found")}
+                              {t("no-projects-found")}
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -514,10 +514,10 @@ export const ProjectsList: React.FC = () => {
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("project:delete-project-alert-title")}
+        title={t("delete-project-alert-title")}
         description={
           projectToDelete
-            ? t("project:delete-project-alert-description", {
+            ? t("delete-project-alert-description", {
                 name: projectToDelete.name,
               })
             : ""
