@@ -3,27 +3,36 @@ import MonacoEditor, { BeforeMount, OnMount } from "@monaco-editor/react";
 import { Card } from "@mui/material";
 import {
   setupSqlProvider,
+  updateSqlColumnNames,
   updateSqlTableNames,
 } from "../../../utils/monacoSqlProvider";
+import { ColumnSchema, Schema } from "../../../types/dataProfiling";
 
 export interface SqlEditorProps {
   value: string;
   onChange: (newSql: string) => void;
-  tableNames?: string[];
+  schema?: Schema;
 }
 
 export const SqlEditor: React.FC<SqlEditorProps> = ({
   value,
   onChange,
-  tableNames = [],
+  schema,
 }) => {
   const handleBeforeMount: BeforeMount = (monacoInstance) => {
     setupSqlProvider(monacoInstance);
   };
 
   useEffect(() => {
-    updateSqlTableNames(tableNames);
-  }, [tableNames]);
+    if (schema) {
+      updateSqlTableNames(Object.keys(schema));
+
+      const columnNames = Object.values(schema).flatMap((colsArr) =>
+        colsArr.map((column: ColumnSchema) => column.column)
+      );
+      updateSqlColumnNames(columnNames);
+    }
+  }, [schema]);
 
   const handleOnMount: OnMount = (editor) => {
     editor.updateOptions({

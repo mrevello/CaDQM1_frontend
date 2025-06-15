@@ -331,7 +331,7 @@ export const A05: React.FC = () => {
         open={sqlDialogOpen}
         onClose={() => setSqlDialogOpen(false)}
         projectId={Number(projectId)}
-        tables={schema ? Object.keys(schema.schema) : []}
+        schema={schema?.schema}
       />
     </Box>
   );

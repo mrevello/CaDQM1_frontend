@@ -13,7 +13,7 @@ interface LabelProps {
 export const Label: React.FC<LabelProps> = ({
   text,
   color = themePalette.GRAY,
-  fontWeight = 550,
+  fontWeight = 500,
   infoMenuContent,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

@@ -19,7 +19,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
   errors,
   project = null,
 }) => {
-  const { t } = useTranslation(["common", "project"]);
+  const { t } = useTranslation();
 
   const descriptionRef = useRef<HTMLInputElement | null>(null);
 
@@ -27,7 +27,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
     {
       id: "name",
       name: "name",
-      label: t("common:name"),
+      label: t("name"),
       defaultValue: project?.name ?? "",
       error: !!errors?.name,
       helperText: errors?.name,
@@ -41,7 +41,7 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
     {
       id: "description",
       name: "description",
-      label: t("common:description"),
+      label: t("description"),
       defaultValue: project?.description ?? "",
       multiline: true,
       rows: 3,
@@ -59,9 +59,9 @@ export const NewProjectDialog: React.FC<NewProjectDialogProps> = ({
   ];
 
   const dialogTitle = project
-    ? t("project:edit-project")
-    : t("project:new-project");
-  const dialogContentText = project ? "" : t("project:create-project");
+    ? t("edit-project")
+    : t("new-project");
+  const dialogContentText = project ? "" : t("create-project");
 
   return (
     <FormDialog

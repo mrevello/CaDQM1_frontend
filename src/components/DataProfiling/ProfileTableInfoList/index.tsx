@@ -70,7 +70,7 @@ export const ProfileTableInfoList: React.FC<ProfileTableInfoListProps> = ({
             {item.percentage !== undefined && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  {item.percentage.toFixed()}%
+                  {item.percentage}%
                 </Typography>
 
                 <LinearProgress

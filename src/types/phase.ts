@@ -11,7 +11,7 @@ interface PhaseInfo {
   stages: Stage[];
 }
 
-const PHASE_STAGE_MAP: Record<Phase, PhaseInfo> = {
+export const PHASE_STAGE_MAP: Record<Phase, PhaseInfo> = {
   [Phase.P1]: {
     title: "phase:phase-1-title",
     stages: [Stage.ST1, Stage.ST2, Stage.ST3],

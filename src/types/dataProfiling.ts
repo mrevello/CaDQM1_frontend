@@ -129,10 +129,6 @@ export interface VariableProfileDetails {
   type: ColumnType;
   typeColor: string;
   typeBackgroundColor: string;
-  missingCount: number;
-  totalCount: number;
-  histogram?: { counts: number[]; bin_edges: number[] };
-  valueCountsWithoutNan?: Record<string, number>;
   [key: string]: any;
 }
 
@@ -224,21 +220,15 @@ export function mapRawReports(
     const variables: Record<string, VariableProfileDetails> = {};
     for (const varName in raw.variables) {
       const v = raw.variables[varName];
+
       const typeKey = v.type.toLowerCase() as ColumnType;
-      const type = table.types[typeKey];
+      const typeInfo = table.types[typeKey];
 
       const detail: VariableProfileDetails = {
         type: typeKey,
-        typeColor: type.color,
-        typeBackgroundColor: type.backgroundColor,
-        missingCount: v.n_missing,
-        totalCount: v.n,
-        histogram: v.histogram && {
-          counts: v.histogram.counts,
-          bin_edges: v.histogram.bin_edges,
-        },
-        valueCountsWithoutNan: v.value_counts_without_nan,
-        ...("mean" in v ? { mean: v.mean, std: v.std } : {}),
+        typeColor: typeInfo.color,
+        typeBackgroundColor: typeInfo.backgroundColor,
+        ...v,
       };
 
       variables[varName] = detail;

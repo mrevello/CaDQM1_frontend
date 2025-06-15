@@ -25,7 +25,7 @@ export const StageLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation(["common", "stage"]);
+  const { t } = useTranslation();
 
   const activityRef = useRef<ActivityHandle>(null);
 

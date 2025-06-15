@@ -26,6 +26,15 @@ export const stageOrder: Stage[] = [
   Stage.ST9,
 ];
 
+export const StageList: Stage[] = [
+  Stage.ST1,
+  Stage.ST2,
+  Stage.ST3,
+  Stage.ST4,
+  Stage.ST5,
+  Stage.ST6,
+];
+
 interface StageInfo {
   name: string;
   title: string;
@@ -35,39 +44,39 @@ interface StageInfo {
 
 export const STAGE_INFO: Record<Stage, StageInfo> = {
   [Stage.ST1]: {
-    name: "stage:stage-1-name",
-    title: "stage:stage-1-title",
-    description: "stage:stage-1-description",
+    name: "stage-1-name",
+    title: "stage-1-title",
+    description: "stage-1-description",
     activities: [Activity.A01, Activity.A02, Activity.A03, Activity.A04],
   },
   [Stage.ST2]: {
-    name: "stage:stage-2-name",
-    title: "stage:stage-2-title",
-    description: "stage:stage-2-description",
+    name: "stage-2-name",
+    title: "stage-2-title",
+    description: "stage-2-description",
     activities: [Activity.A05, Activity.A03, Activity.A06, Activity.A07],
   },
   [Stage.ST3]: {
-    name: "stage:stage-3-name",
-    title: "stage:stage-3-title",
-    description: "stage:stage-3-description",
+    name: "stage-3-name",
+    title: "stage-3-title",
+    description: "stage-3-description",
     activities: [Activity.A08, Activity.A03, Activity.A07],
   },
   [Stage.ST4]: {
-    name: "stage:stage-4-name",
-    title: "stage:stage-4-title",
-    description: "stage:stage-4-description",
+    name: "stage-4-name",
+    title: "stage-4-title",
+    description: "stage-4-description",
     activities: [],
   },
   [Stage.ST5]: {
-    name: "stage:stage-5-name",
-    title: "stage:stage-5-title",
-    description: "stage:stage-5-description",
+    name: "stage-5-name",
+    title: "stage-5-title",
+    description: "stage-5-description",
     activities: [],
   },
   [Stage.ST6]: {
-    name: "stage:stage-6-name",
-    title: "stage:stage-6-title",
-    description: "stage:stage-6-description",
+    name: "stage-6-name",
+    title: "stage-6-title",
+    description: "stage-6-description",
     activities: [],
   },
   [Stage.ST7]: {

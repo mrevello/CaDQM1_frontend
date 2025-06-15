@@ -9,11 +9,11 @@ export enum State {
 export const getName = (state: State) => {
   switch (state) {
     case State.TO_DO:
-      return "state:to-do";
+      return "to-do";
     case State.IN_PROGRESS:
-      return "state:in-progress";
+      return "in-progress";
     case State.DONE:
-      return "state:done";
+      return "done";
   }
 };
 

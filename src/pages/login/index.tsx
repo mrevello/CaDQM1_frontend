@@ -102,7 +102,7 @@ export const Login: React.FC = () => {
               <Typography variant="h5">{t("login")}</Typography>
               <TextField
                 name="username"
-                label={t("common:username")}
+                label={t("username")}
                 fullWidth
                 onChange={onChangeLoginData}
                 value={loginData.username}
@@ -111,7 +111,7 @@ export const Login: React.FC = () => {
               />
               <TextField
                 name="password"
-                label={t("common:password")}
+                label={t("password")}
                 type="password"
                 fullWidth
                 onChange={onChangeLoginData}
@@ -126,7 +126,7 @@ export const Login: React.FC = () => {
           </Box>
           <StyledBottomGrid container spacing={1}>
             <Typography variant="body1">
-              {t("common:dont-have-account")}
+              {t("dont-have-account")}
             </Typography>
             <Link component="button" onClick={handleRegisterClicked}>
               {t("register")}
