@@ -20,7 +20,7 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
   errors,
   problem = null,
 }) => {
-  const { t } = useTranslation(["common", "problem"]);
+  const { t } = useTranslation();
 
   const descriptionRef = useRef<HTMLInputElement | null>(null);
 
@@ -48,11 +48,11 @@ export const NewProblemDialog: React.FC<NewProblemDialogProps> = ({
   ];
 
   const dialogTitle = problem
-    ? t("problem:edit-problem")
-    : t("problem:problem");
+    ? t("edit-problem")
+    : t("problem");
   const dialogContentText = problem
-    ? t("problem:edit-problem-description")
-    : t("problem:identify-problem");
+    ? t("edit-problem-description")
+    : t("identify-problem");
 
   return (
     <FormDialog

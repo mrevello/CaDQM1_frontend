@@ -96,7 +96,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
   isClickable,
   onClick,
 }) => {
-  const { t } = useTranslation("state");
+  const { t } = useTranslation();
 
   return (
     <TimelineItem
@@ -125,7 +125,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
           <Box display="flex" alignItems="center" gap={1}>
             <StateChip state={state} />
             {!isClickable && state !== State.DONE && (
-              <Tooltip title={t("stage:start-stage-error")}>
+              <Tooltip title={t("start-stage-error")}>
                 <ReportProblemIcon color="warning" sx={{ fontSize: 18 }} />
               </Tooltip>
             )}
