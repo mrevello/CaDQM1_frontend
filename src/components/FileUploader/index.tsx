@@ -2,10 +2,12 @@ import { useDropzone } from "react-dropzone";
 import { alpha, Box, Link, Paper, Typography } from "@mui/material";
 import { UploadFileOutlined } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import { FileType } from "../../types/file";
 
 export interface FileItem {
   id: string;
   file: File;
+  type?: string;
   description?: string;
   status: "loading" | "complete" | "error";
   progress?: number;

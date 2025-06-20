@@ -6,18 +6,19 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { ActivityHandle } from "../../pages/stages/Stagelayout";
-import { reviewApi, ReviewBody } from "../../api/review.api";
+import { reviewApi, ReviewBody, ReviewFile } from "../../api/review.api";
 import { FileUploadDialog } from "../FileUploadDialog";
 import { Add } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { UploadedFilesList } from "../UploadedFilesList";
 import { FileItem } from "../FileUploader";
 import { Review, ReviewType } from "../../types/review";
+import { AlertDialog } from "../AlertDialog";
 
-interface ReviewData {
+export interface ReviewData {
   review: Review;
   files: FileItem[];
 }
@@ -51,6 +52,9 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
   const [loading, setLoading] = useState(true);
   const [fileUploadDialogOpen, setFileUploadDialogOpen] = useState(false);
 
+  const [deleteFileDialogOpen, setDeleteFileDialogOpen] = useState(false);
+  const [fileIdToDelete, setFileIdToDelete] = useState<string>();
+
   const setFiles: React.Dispatch<React.SetStateAction<FileItem[]>> = (
     update
   ) => {
@@ -62,6 +66,81 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
           : update,
     }));
   };
+
+  const handleFileUpload = useCallback(
+    async (fileItem: FileItem) => {
+      if (!formData.review.id) return;
+
+      try {
+        setFiles((prev) =>
+          prev.map((item) =>
+            item.id === fileItem.id
+              ? { ...item, status: "loading", progress: 0 }
+              : item
+          )
+        );
+
+        const form = new FormData();
+        form.append("file", fileItem.file);
+        if (fileItem.description) {
+          form.append("description", fileItem.description);
+        }
+        if (fileItem.type) {
+          form.append("file_type", fileItem.type);
+        }
+
+        await reviewApi.uploadFile(formData.review.id, form, (progress) => {
+          setFiles((prev) =>
+            prev.map((item) =>
+              item.id === fileItem.id ? { ...item, progress } : item
+            )
+          );
+        });
+
+        setFiles((prev) =>
+          prev.map((item) =>
+            item.id === fileItem.id
+              ? { ...item, status: "complete", progress: 100 }
+              : item
+          )
+        );
+      } catch (error) {
+        setFiles((prev) =>
+          prev.map((item) =>
+            item.id === fileItem.id
+              ? {
+                  ...item,
+                  status: "error",
+                  errorMessage:
+                    error instanceof Error ? error.message : "Upload failed",
+                  progress: 0,
+                }
+              : item
+          )
+        );
+      }
+    },
+    [formData.review.id]
+  );
+
+  const handleFileAdded = useCallback(
+    (newFile: FileItem) => {
+      setFiles((prev) => [...prev, newFile]);
+      handleFileUpload(newFile);
+    },
+    [handleFileUpload]
+  );
+
+  const handleDeleteFile = useCallback(async () => {
+    try {
+      if (formData.review && fileIdToDelete) {
+        await reviewApi.deleteFile(formData.review?.id, fileIdToDelete);
+        setFiles((prev) => prev.filter((f) => f.id !== fileIdToDelete));
+      }
+    } catch (error: any) {
+      // handleApiError(error);
+    }
+  }, [formData.review, setFiles]);
 
   const validateForm = useCallback(async () => {
     try {
@@ -97,22 +176,77 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
     }
   }, [activityRef, formData, validateForm]);
 
-  useEffect(() => {
-    const fetchReview = async () => {
-      try {
-        setLoading(true);
-        const review = await reviewApi.getReview(projectId, type);
-        if (review) {
-          setFormData((prev) => ({ ...prev, review: review }));
-        }
-      } catch (error) {
-        console.error("Failed to fetch review:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const mountedRef = useRef(false);
 
-    fetchReview();
+  useEffect(() => {
+    if (mountedRef.current) {
+      const fetchReview = async () => {
+        try {
+          setLoading(true);
+          let review = await reviewApi.getReview(projectId, type);
+          console.log("review", review);
+
+          if (!review) {
+            const reviewBody: ReviewBody = {
+              data: "",
+              type: type,
+              project: projectId,
+            };
+            review = await reviewApi.createReview(reviewBody);
+          }
+          if (review) {
+            setFormData((prev) => ({ ...prev, review: review }));
+          }
+
+          const filesResponse = await reviewApi.getReviewFiles(
+            Number(projectId),
+            type
+          );
+          const mappedFiles = await Promise.all(
+            filesResponse.map(async (file: ReviewFile) => {
+              try {
+                const byteCharacters = atob(file.base64_content);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                  byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: file.mime_type });
+
+                return {
+                  id: file.id.toString(),
+                  file: new File([blob], file.filename, {
+                    type: file.mime_type,
+                  }),
+                  description: file.description || "",
+                  status: "complete" as const,
+                  type: file.file_type,
+                };
+              } catch (error) {
+                console.error(`Error processing file ${file.filename}:`, error);
+                return {
+                  id: file.id.toString(),
+                  file: new File([""], file.filename, { type: file.mime_type }),
+                  description: file.description || "",
+                  status: "error" as const,
+                  errorMessage: "Failed to process file",
+                };
+              }
+            })
+          );
+
+          console.log(mappedFiles);
+          setFiles(mappedFiles);
+        } catch (error) {
+          console.error("Failed to fetch review:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchReview();
+    }
+    mountedRef.current = true;
   }, [projectId, type]);
 
   return (
@@ -125,7 +259,7 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
             onClick={() => setFileUploadDialogOpen(true)}
             sx={{ p: 0 }}
           >
-            {t("common:add-file")}
+            {t("add-file")}
           </Button>
         </Box>
 
@@ -161,9 +295,10 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
             <Grid size={formData.files.length > 0 ? 5 : 0}>
               <UploadedFilesList
                 fileItems={formData.files}
-                onDelete={(id) =>
-                  setFiles((prev) => prev.filter((item) => item.id !== id))
-                }
+                onDelete={(id: string) => {
+                  setFileIdToDelete(id);
+                  setDeleteFileDialogOpen(true);
+                }}
               />
             </Grid>
           </Grid>
@@ -173,7 +308,15 @@ export const ReviewScreen: React.FC<ReviewProps> = ({
       <FileUploadDialog
         open={fileUploadDialogOpen}
         onClose={() => setFileUploadDialogOpen(false)}
-        onFileAdded={(newFile) => setFiles((prev) => [...prev, newFile])}
+        onFileAdded={handleFileAdded}
+      />
+
+      <AlertDialog
+        open={deleteFileDialogOpen}
+        title="Delete File?"
+        description={"Are you sure you want to delete it?"}
+        onClose={() => setDeleteFileDialogOpen(false)}
+        onConfirm={handleDeleteFile}
       />
     </>
   );

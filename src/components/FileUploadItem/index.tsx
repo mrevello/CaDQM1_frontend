@@ -5,15 +5,16 @@ import {
   LinearProgress,
   Box,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import {
   UploadFileOutlined,
   ErrorOutline,
   CheckCircleRounded,
   Close,
+  Download,
 } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
-import { themePalette } from "../../config/theme.config";
 
 export type UploadStatus = "loading" | "complete" | "error";
 
@@ -24,6 +25,7 @@ interface FileUploadItemProps {
   status: UploadStatus;
   errorMessage?: string;
   onDelete?: () => void;
+  onDownload?: () => void;
   progress?: number;
 }
 
@@ -34,6 +36,7 @@ export const FileUploadItem: React.FC<FileUploadItemProps> = ({
   status,
   errorMessage,
   onDelete,
+  onDownload,
   progress,
 }) => {
   const { t } = useTranslation();
@@ -105,16 +108,27 @@ export const FileUploadItem: React.FC<FileUploadItemProps> = ({
         )}
       </Box>
 
-      <Box display="flex" alignItems="center">
+      <Box display="flex" alignItems="center" gap={1}>
         {status === "loading" && <CircularProgress size={20} />}
         {status === "complete" && (
           <CheckCircleRounded fontSize="small" color="success" />
         )}
         {status === "error" && <ErrorOutline fontSize="small" color="error" />}
+
+        {onDownload && status === "complete" && (
+          <Tooltip title={t("download")}>
+            <IconButton edge="end" onClick={onDownload} aria-label="download">
+              <Download fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+
         {onDelete && (
-          <IconButton edge="end" onClick={onDelete} aria-label="delete">
-            <Close fontSize="small" />
-          </IconButton>
+          <Tooltip title={t("delete")}>
+            <IconButton edge="end" onClick={onDelete} aria-label="delete">
+              <Close fontSize="small" />
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
     </Box>

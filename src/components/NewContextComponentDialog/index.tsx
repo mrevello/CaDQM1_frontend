@@ -34,7 +34,7 @@ interface NewContextComponentDialogProps {
 export const NewContextComponentDialog: React.FC<
   NewContextComponentDialogProps
 > = ({ open, projectId, onClose, onSubmit, errors, item, isEdit = false }) => {
-  const { t } = useTranslation(["common", "context"]);
+  const { t } = useTranslation();
 
   const [selectedType, setSelectedType] = useState<ContextComponentType>();
 
@@ -98,7 +98,7 @@ export const NewContextComponentDialog: React.FC<
     ...taskAtHandOptions,
     {
       value: "__add_task_at_hand__",
-      label: t("context:add-task-at-hand"),
+      label: t("add-task-at-hand"),
       isAddOption: true,
     },
   ];
@@ -107,7 +107,7 @@ export const NewContextComponentDialog: React.FC<
     ...userTypeOptions,
     {
       value: "__add_user_type__",
-      label: t("context:add-user-type"),
+      label: t("add-user-type"),
       isAddOption: true,
     },
   ];
@@ -124,7 +124,7 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "description",
         name: "description",
-        label: t("context:description"),
+        label: t("description"),
         defaultValue: (item?.component as ApplicationDomain)?.description || "",
       },
     ],
@@ -132,13 +132,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "statement",
         name: "statement",
-        label: t("context:statement"),
+        label: t("statement"),
         defaultValue: (item?.component as BusinessRule)?.statement || "",
       },
       {
         id: "semantic",
         name: "semantic",
-        label: t("context:semantic"),
+        label: t("semantic"),
         defaultValue: (item?.component as BusinessRule)?.semantic || "",
       },
     ],
@@ -146,13 +146,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "statement",
         name: "statement",
-        label: t("context:statement"),
+        label: t("statement"),
         defaultValue: (item?.component as DataFiltering)?.statement || "",
       },
       {
         id: "task_at_hand",
         name: "task_at_hand",
-        label: t("context:task_at_hand"),
+        label: t("task_at_hand"),
         type: "select",
         options: taskAtHandDropdownOptions,
         defaultValue: (item?.component as DataFiltering)?.task_at_hand || "",
@@ -162,13 +162,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "path",
         name: "path",
-        label: t("context:path"),
+        label: t("path"),
         defaultValue: (item?.component as DQMetadata)?.path || "",
       },
       {
         id: "measurement",
         name: "measurement",
-        label: t("context:measurement"),
+        label: t("measurement"),
         defaultValue: (item?.component as DQMetadata)?.measurement || "",
       },
     ],
@@ -176,19 +176,19 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "statement",
         name: "statement",
-        label: t("context:statement"),
+        label: t("statement"),
         defaultValue: (item?.component as DQRequirement)?.statement || "",
       },
       {
         id: "description",
         name: "description",
-        label: t("context:description"),
+        label: t("description"),
         defaultValue: (item?.component as DQRequirement)?.description || "",
       },
       {
         id: "user_type",
         name: "user_type",
-        label: t("context:user_type"),
+        label: t("user_type"),
         type: "select",
         options: userTypeDropdownOptions,
         defaultValue: (item?.component as DQRequirement)?.user_type || "",
@@ -198,27 +198,39 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "path",
         name: "path",
-        label: t("context:path"),
+        label: t("path"),
         defaultValue: (item?.component as OtherData)?.path || "",
       },
       {
         id: "owner",
         name: "owner",
-        label: t("context:owner"),
+        label: t("owner"),
         defaultValue: (item?.component as OtherData)?.owner || "",
+      },
+      {
+        id: "description",
+        name: "description",
+        label: t("description"),
+        defaultValue: (item?.component as OtherData)?.description || "",
       },
     ],
     [ContextComponentType.OTHER_METADATA]: [
       {
         id: "path",
         name: "path",
-        label: t("context:path"),
+        label: t("path"),
         defaultValue: (item?.component as OtherMetadata)?.path || "",
+      },
+      {
+        id: "description",
+        name: "description",
+        label: t("description"),
+        defaultValue: (item?.component as OtherMetadata)?.description || "",
       },
       {
         id: "author",
         name: "author",
-        label: t("context:author"),
+        label: t("author"),
         defaultValue: (item?.component as OtherMetadata)?.author || "",
       },
     ],
@@ -226,13 +238,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "statement",
         name: "statement",
-        label: t("context:statement"),
+        label: t("statement"),
         defaultValue: (item?.component as SystemRequirement)?.statement || "",
       },
       {
         id: "description",
         name: "description",
-        label: t("context:description"),
+        label: t("description"),
         defaultValue: (item?.component as SystemRequirement)?.description || "",
       },
     ],
@@ -240,13 +252,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "name",
         name: "name",
-        label: t("context:name"),
+        label: t("name"),
         defaultValue: (item?.component as TaskAtHand)?.name || "",
       },
       {
         id: "purpose",
         name: "purpose",
-        label: t("context:purpose"),
+        label: t("purpose"),
         defaultValue: (item?.component as TaskAtHand)?.purpose || "",
       },
     ],
@@ -254,13 +266,13 @@ export const NewContextComponentDialog: React.FC<
       {
         id: "name",
         name: "name",
-        label: t("context:name"),
+        label: t("name"),
         defaultValue: (item?.component as UserType)?.name || "",
       },
       {
         id: "characteristics",
         name: "characteristics",
-        label: t("context:characteristics"),
+        label: t("characteristics"),
         defaultValue: (item?.component as UserType)?.characteristics || "",
       },
     ],
@@ -284,11 +296,11 @@ export const NewContextComponentDialog: React.FC<
   };
 
   const title = isEdit
-    ? t("context:edit-context-component")
-    : t("context:context-component");
+    ? t("edit-context-component")
+    : t("context-component");
   const dialogContentText = isEdit
-    ? t("context:edit-context-component-description")
-    : t("context:new-context-component-description");
+    ? t("edit-context-component-description")
+    : t("new-context-component-description");
 
   return (
     <FormDialog
