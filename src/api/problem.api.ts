@@ -1,8 +1,10 @@
 import { Problem } from "../types/problem";
 import { instance } from "./base.api";
 import { handleApiError } from "./errorHandler";
+import { Stage } from "../types/stage";
+import { API_ENDPOINTS } from "../constants";
 
-const endpoint = "quality-problems/";
+const endpoint = API_ENDPOINTS.DATA_QUALITY.PROBLEMS;
 
 export type ProblemBody = {
   description: string;
@@ -29,7 +31,7 @@ export const problemsApi = {
     }
   },
 
-  listProblems: async function (projectId: number) {
+  listProblems: async function (projectId: number, stage?: Stage) {
     try {
       const response = await instance.get(
         `${endpoint}by-project/${projectId}/`
@@ -41,7 +43,6 @@ export const problemsApi = {
         date: p.date,
       }));
 
-      console.log(problems);
       return problems;
     } catch (error: any) {
       console.log(`Error fetching problems for project ${projectId}`, error);

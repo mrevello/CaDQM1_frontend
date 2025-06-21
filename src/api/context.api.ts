@@ -1,54 +1,39 @@
-import axios from "axios";
+import axios from 'axios';
 import {
   ApplicationDomain,
   BusinessRule,
+  componentTypeToKey,
   ContextComponent,
   ContextComponentData,
   ContextComponentsType,
   ContextComponentType,
+  createContextComponent,
   DataFiltering,
   DQMetadata,
   DQRequirement,
+  emptyContextComponentsType,
   OtherData,
   OtherMetadata,
   SystemRequirement,
   TaskAtHand,
   UserType,
-} from "../types/contextComponent";
-import { Stage } from "../types/stage";
-import { instance } from "./base.api";
-import { handleApiError } from "./errorHandler";
+} from '../types/contextComponent';
+import { Stage } from '../types/stage';
+import { instance } from './base.api';
+import { handleApiError } from './errorHandler';
+import { API_ENDPOINTS } from '../constants';
 
 const endpoints: Record<keyof typeof ContextComponentType, string> = {
-  APPLICATION_DOMAIN: "application-domains/",
-  BUSINESS_RULE: "business-rules/",
-  DATA_FILTERING: "data-filtering/",
-  DQ_METADATA: "dq-metadata/",
-  DQ_REQUIREMENT: "dq-requirements/",
-  OTHER_DATA: "other-data/",
-  OTHER_METADATA: "other-metadata/",
-  SYSTEM_REQUIREMENT: "system-requirements/",
-  TASK_AT_HAND: "task-at-hand/",
-  USER_TYPE: "user-types/",
-};
-
-const requiredFields: Record<keyof typeof ContextComponentType, string[]> = {
-  APPLICATION_DOMAIN: ["id", "description"],
-  BUSINESS_RULE: ["id", "statement", "semantic"],
-  DATA_FILTERING: ["id", "statement", "description", "task_at_hand"],
-  DQ_METADATA: ["id", "path", "description", "measurement"],
-  DQ_REQUIREMENT: [
-    "id",
-    "statement",
-    "description",
-    "data_filtering",
-    "user_type",
-  ],
-  OTHER_DATA: ["id", "path", "description", "owner"],
-  OTHER_METADATA: ["id", "path", "description", "author"],
-  SYSTEM_REQUIREMENT: ["id", "statement", "description"],
-  TASK_AT_HAND: ["id", "name", "purpose"],
-  USER_TYPE: ["id", "name", "characteristics"],
+  APPLICATION_DOMAIN: API_ENDPOINTS.CONTEXT.APPLICATION_DOMAIN,
+  BUSINESS_RULE: API_ENDPOINTS.CONTEXT.BUSINESS_RULE,
+  DATA_FILTERING: API_ENDPOINTS.CONTEXT.DATA_FILTERING,
+  DQ_METADATA: API_ENDPOINTS.CONTEXT.DQ_METADATA,
+  DQ_REQUIREMENT: API_ENDPOINTS.CONTEXT.DQ_REQUIREMENT,
+  OTHER_DATA: API_ENDPOINTS.CONTEXT.OTHER_DATA,
+  OTHER_METADATA: API_ENDPOINTS.CONTEXT.OTHER_METADATA,
+  SYSTEM_REQUIREMENT: API_ENDPOINTS.CONTEXT.SYSTEM_REQUIREMENT,
+  TASK_AT_HAND: API_ENDPOINTS.CONTEXT.TASK_AT_HAND,
+  USER_TYPE: API_ENDPOINTS.CONTEXT.USER_TYPE,
 };
 
 export const contextApi = {
@@ -57,12 +42,10 @@ export const contextApi = {
     data: Record<string, any>,
     projectId: number,
     stage?: Stage
-  ): Promise<any> {
+  ): Promise<ContextComponent> {
     try {
       const typeKey = Object.keys(ContextComponentType).find(
-        (key) =>
-          ContextComponentType[key as keyof typeof ContextComponentType] ===
-          type
+        key => ContextComponentType[key as keyof typeof ContextComponentType] === type
       ) as keyof typeof ContextComponentType;
 
       if (!typeKey || !endpoints[typeKey]) {
@@ -72,25 +55,18 @@ export const contextApi = {
       data.project = projectId;
       data.stage = stage;
       const response = await instance.post(endpoints[typeKey], data);
-      return response.data;
+      return createContextComponent(response.data.id, type, response.data);
     } catch (error) {
-      console.log("Error creating context component", error);
-
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.data) {
-            throw new Error(error.response.data);
-          }
+        if (error.response?.data) {
+          throw error.response.data;
         } else if (error.request) {
           throw new Error(
-            "No response received from server. Please check your network connection."
+            'No response received from server. Please check your network connection.'
           );
-        } else {
-          throw new Error("An unexpected error occurred. Please try again.");
         }
-      } else {
-        throw new Error("An unexpected error occurred. Please try again.");
       }
+      throw error;
     }
   },
 
@@ -99,12 +75,10 @@ export const contextApi = {
     type: ContextComponentType,
     data: Partial<Record<string, any>>,
     projectId: number
-  ) => {
+  ): Promise<ContextComponent> => {
     try {
       const typeKey = Object.keys(ContextComponentType).find(
-        (key) =>
-          ContextComponentType[key as keyof typeof ContextComponentType] ===
-          type
+        key => ContextComponentType[key as keyof typeof ContextComponentType] === type
       ) as keyof typeof ContextComponentType;
 
       if (!typeKey || !endpoints[typeKey]) {
@@ -112,13 +86,19 @@ export const contextApi = {
       }
 
       data.project = projectId;
-      const response = await instance.put(
-        `${endpoints[typeKey]}${contextComponentId}/`,
-        data
-      );
-      return response.data;
-    } catch (error: any) {
-      // handleApiError(error);
+      const response = await instance.put(`${endpoints[typeKey]}${contextComponentId}/`, data);
+      return createContextComponent(response.data.id, type, response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data) {
+          throw error.response.data;
+        } else if (error.request) {
+          throw new Error(
+            'No response received from server. Please check your network connection.'
+          );
+        }
+      }
+      throw error;
     }
   },
 
@@ -128,9 +108,7 @@ export const contextApi = {
   ): Promise<ContextComponentData<ContextComponent> | null> {
     try {
       const typeKey = Object.keys(ContextComponentType).find(
-        (key) =>
-          ContextComponentType[key as keyof typeof ContextComponentType] ===
-          type
+        key => ContextComponentType[key as keyof typeof ContextComponentType] === type
       ) as keyof typeof ContextComponentType;
 
       if (!typeKey || !endpoints[typeKey]) {
@@ -238,51 +216,30 @@ export const contextApi = {
     }
   },
 
-  listContextComponents: async function (
-    projectId: number
-  ): Promise<ContextComponentsType | null> {
+  listContextComponents: async function (projectId: number): Promise<ContextComponentsType> {
     try {
-      const keys = Object.keys(
-        ContextComponentType
-      ) as (keyof typeof ContextComponentType)[];
-
-      const results = await Promise.all(
-        keys.map(async (key) => {
-          const type = ContextComponentType[key];
-          const data = await contextApi.getContextComponentByType(
-            type,
-            projectId
-          );
-          return data;
-        })
-      );
-
-      if (results.every((result) => result === null)) {
-        return null;
-      }
-
-      const contextComponents: ContextComponentsType = keys.reduce(
-        (acc, key, index) => {
-          acc[key.toLowerCase() as keyof ContextComponentsType] = results[
-            index
-          ] as any;
-          return acc;
-        },
-        {} as ContextComponentsType
-      );
-
-      return contextComponents;
+      const results: ContextComponentsType = Object.fromEntries(
+        await Promise.all(
+          (Object.keys(ContextComponentType) as Array<keyof typeof ContextComponentType>).map(
+            async key => {
+              const type = ContextComponentType[key];
+              const data = await contextApi.getContextComponentByType(type, projectId);
+              const propName = componentTypeToKey[type];
+              return [propName, data];
+            }
+          )
+        )
+      ) as ContextComponentsType;
+      return results;
     } catch (error) {
-      return null;
+      return emptyContextComponentsType;
     }
   },
 
   deleteComponent: async (id: number, type: ContextComponentType) => {
     try {
       const typeKey = Object.keys(ContextComponentType).find(
-        (key) =>
-          ContextComponentType[key as keyof typeof ContextComponentType] ===
-          type
+        key => ContextComponentType[key as keyof typeof ContextComponentType] === type
       ) as keyof typeof ContextComponentType;
 
       if (!typeKey || !endpoints[typeKey]) {

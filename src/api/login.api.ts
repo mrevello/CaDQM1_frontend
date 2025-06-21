@@ -1,7 +1,7 @@
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../utils/constants";
-import { instance } from "./base.api";
+import { API_ENDPOINTS, AUTH_CONFIG } from '../constants';
+import { instance } from './base.api';
 
-const endpoint = "login/";
+const endpoint = API_ENDPOINTS.AUTH.LOGIN;
 
 export const login = {
   login: async function (username: string, password: string) {
@@ -10,13 +10,12 @@ export const login = {
         username: username,
         password: password,
       });
-
       const { access, refresh } = response.data;
 
-      localStorage.setItem(ACCESS_TOKEN, access);
-      localStorage.setItem(REFRESH_TOKEN, refresh);
+      localStorage.setItem(AUTH_CONFIG.TOKEN_KEY, access);
+      localStorage.setItem(AUTH_CONFIG.REFRESH_TOKEN_KEY, refresh);
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error('Login failed:', error);
       throw error;
     }
   },

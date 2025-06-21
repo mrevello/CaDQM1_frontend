@@ -128,7 +128,7 @@ export const canContinueToStage = (
   stage: Stage,
   state: State,
   projectStages: ProjectStage[]
-): Boolean => {
+): boolean => {
   if (stage === Stage.ST1) {
     return state === State.TO_DO || state === State.IN_PROGRESS;
   } else if (stage === Stage.ST2 || stage === Stage.ST3) {

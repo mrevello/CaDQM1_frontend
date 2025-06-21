@@ -1,51 +1,98 @@
-import React, { useContext, useState } from "react";
-import { Notification } from "../components/Notification";
-import { AlertColor } from "@mui/material";
+import React, { useContext, useState, useCallback } from 'react';
+import { Notification } from '../components/Notification';
+import { AlertColor } from '@mui/material';
 
-type ContextProps = {
-    getSuccess: (msg: string) => void
-    getError: (msg: string) => void
+interface NotificationMessage {
+  id: string;
+  message: string;
+  severity: AlertColor;
+  autoHideDuration?: number;
 }
 
-const NotificationContext = React.createContext<ContextProps | null>(null)
-
-export const NotificationProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
-
-    const [msg, setMsg] = useState("")
-    const [open, setOpen] = useState(false)
-    const [severity, setSeverity] = useState<AlertColor>("info")
-
-    const handleClose = () => {
-        setOpen(false)
-    }
-
-    const getSuccess = (msg: string) => {
-        setSeverity("success")
-        setOpen(true)
-        setMsg(msg)
-    }
-
-    const getError = (msg: string) => {
-        setSeverity("error")
-        setOpen(true)
-        setMsg(msg)
-    }
-
-    const value = {
-        getSuccess,
-        getError
-    }
-
-    return (
-        <NotificationContext.Provider value={value}>
-            <Notification handleClose={handleClose} open={open} msg={msg} severity={severity} />
-            {children}
-        </NotificationContext.Provider>
-    )
+interface ContextProps {
+  showNotification: (message: string, severity: AlertColor, autoHideDuration?: number) => void;
+  showSuccess: (message: string, autoHideDuration?: number) => void;
+  showError: (message: string, autoHideDuration?: number) => void;
+  showWarning: (message: string, autoHideDuration?: number) => void;
+  showInfo: (message: string, autoHideDuration?: number) => void;
 }
+
+const NotificationContext = React.createContext<ContextProps | null>(null);
+
+const DEFAULT_AUTO_HIDE_DURATION = 6000; // 6 seconds
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
+
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  }, []);
+
+  const showNotification = useCallback(
+    (message: string, severity: AlertColor, autoHideDuration = DEFAULT_AUTO_HIDE_DURATION) => {
+      const id = Math.random().toString(36).substring(7);
+      setNotifications(prev => [...prev, { id, message, severity, autoHideDuration }]);
+    },
+    []
+  );
+
+  const showSuccess = useCallback(
+    (message: string, autoHideDuration?: number) => {
+      showNotification(message, 'success', autoHideDuration);
+    },
+    [showNotification]
+  );
+
+  const showError = useCallback(
+    (message: string, autoHideDuration?: number) => {
+      showNotification(message, 'error', autoHideDuration);
+    },
+    [showNotification]
+  );
+
+  const showWarning = useCallback(
+    (message: string, autoHideDuration?: number) => {
+      showNotification(message, 'warning', autoHideDuration);
+    },
+    [showNotification]
+  );
+
+  const showInfo = useCallback(
+    (message: string, autoHideDuration?: number) => {
+      showNotification(message, 'info', autoHideDuration);
+    },
+    [showNotification]
+  );
+
+  const value = {
+    showNotification,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+  };
+
+  return (
+    <NotificationContext.Provider value={value}>
+      {notifications.map(notification => (
+        <Notification
+          key={notification.id}
+          handleClose={() => removeNotification(notification.id)}
+          open={true}
+          msg={notification.message}
+          severity={notification.severity}
+          autoHideDuration={notification.autoHideDuration}
+        />
+      ))}
+      {children}
+    </NotificationContext.Provider>
+  );
+};
 
 export const useNotification = () => {
-    const context = useContext(NotificationContext)
-    if (!context) throw new Error("There is no context")
-    return context
-}
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error('useNotification must be used within a NotificationProvider');
+  }
+  return context;
+};

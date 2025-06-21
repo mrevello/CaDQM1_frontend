@@ -1,13 +1,13 @@
-import { Box, TextField, Typography } from "@mui/material";
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { reviewApi } from "../../api/review.api";
-import { useNotification } from "../../context/notification.context";
-import { AddFloatingButton } from "../AddFloatingButton";
-import { Review, ReviewType } from "../../types/review";
-import { UploadedFilesList } from "../UploadedFilesList";
-import { FileItem } from "../FileUploader";
-import { AlertDialog } from "../AlertDialog";
-import { useTranslation } from "react-i18next";
+import { Box, TextField, Typography } from '@mui/material';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { reviewApi } from '../../api/review.api';
+import { useNotification } from '../../context/notification.context';
+import { AddFloatingButton } from '../AddFloatingButton';
+import { Review, ReviewType } from '../../types/review';
+import { UploadedFilesList } from '../UploadedFilesList';
+import { FileItem } from '../FileUploader';
+import { AlertDialog } from '../AlertDialog';
+import { useTranslation } from 'react-i18next';
 
 export interface ReviewProps {
   label: string;
@@ -29,7 +29,7 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
   handleCreate,
 }) => {
   const { t } = useTranslation();
-  const { getError } = useNotification();
+  const { showError } = useNotification();
 
   const [review, setReview] = useState<Review>();
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -53,10 +53,7 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
           }
 
           // Fetch files from API
-          const filesResponse = await reviewApi.getReviewFiles(
-            Number(projectId),
-            type
-          );
+          const filesResponse = await reviewApi.getReviewFiles(Number(projectId), type);
           const mappedFiles = await Promise.all(
             filesResponse.map(async (file: any) => {
               try {
@@ -74,17 +71,17 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
                   file: new File([blob], file.filename, {
                     type: file.mime_type,
                   }),
-                  description: file.description || "",
-                  status: "complete" as const,
+                  description: file.description || '',
+                  status: 'complete' as const,
                 };
               } catch (error) {
                 console.error(`Error processing file ${file.filename}:`, error);
                 return {
                   id: file.id.toString(),
-                  file: new File([""], file.filename, { type: file.mime_type }),
-                  description: file.description || "",
-                  status: "error" as const,
-                  errorMessage: "Failed to process file",
+                  file: new File([''], file.filename, { type: file.mime_type }),
+                  description: file.description || '',
+                  status: 'error' as const,
+                  errorMessage: 'Failed to process file',
                 };
               }
             })
@@ -92,8 +89,8 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
 
           setFiles(mappedFiles);
         } catch (error) {
-          console.error("Failed to fetch review or files:", error);
-          getError("Failed to load review files");
+          console.error('Failed to fetch review or files:', error);
+          showError(t('failed-to-load-review-files'));
         }
       };
 
@@ -116,10 +113,10 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
     try {
       if (review && fileIdToDelete) {
         await reviewApi.deleteFile(review?.id, fileIdToDelete);
-        setFiles((prev) => prev.filter((f) => f.id !== fileIdToDelete));
+        setFiles(prev => prev.filter(f => f.id !== fileIdToDelete));
       }
     } catch (error: any) {
-      console.error("Failed to delete file:", error);
+      console.error('Failed to delete file:', error);
     }
   }, [review, setFiles]);
 
@@ -130,19 +127,9 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
           {label}
         </Typography>
 
-        <Box
-          ref={textFieldRef}
-          sx={{ position: "relative" }}
-          onMouseUp={handleTextSelection}
-        >
+        <Box ref={textFieldRef} sx={{ position: 'relative' }} onMouseUp={handleTextSelection}>
           {review?.data && (
-            <TextField
-              fullWidth
-              variant="outlined"
-              value={review.data}
-              multiline
-              maxRows={20}
-            />
+            <TextField fullWidth variant="outlined" value={review.data} multiline maxRows={20} />
           )}
           {showMenu && textFieldRef.current && (
             <AddFloatingButton tooltip={createTooltip} onAdd={handleCreate} />
@@ -161,8 +148,8 @@ export const ReviewComponent: React.FC<ReviewProps> = ({
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("delete-file")}
-        description={t("are-you-sure-you-want-to-delete-it")}
+        title={t('delete-file')}
+        description={t('are-you-sure-you-want-to-delete-it')}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteFile}
       />

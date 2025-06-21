@@ -53,6 +53,19 @@ const theme = createTheme({
         },
       },
     },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: themePalette.GRAY,
+          "& .MuiSvgIcon-root": {
+            fontSize: 20,
+          },
+          "&.Mui-checked, &.MuiCheckbox-indeterminate": {
+            color: themePalette.INFO,
+          },
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: ({ theme }) => ({

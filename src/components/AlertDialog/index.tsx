@@ -1,7 +1,7 @@
-import React from "react";
-import { DialogContentText, Button, Box, DialogContent } from "@mui/material";
-import { GenericDialog } from "../Dialog";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { DialogContentText, Button, Box, DialogContent } from '@mui/material';
+import { GenericDialog } from '../Dialog';
+import { useTranslation } from 'react-i18next';
 
 interface AlertDialogProps {
   open: boolean;
@@ -19,8 +19,8 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
   description,
   onClose,
   onConfirm,
-  confirmTextResource = "confirm",
-  cancelTextResource = "cancel",
+  confirmTextResource = 'confirm',
+  cancelTextResource = 'cancel',
 }) => {
   const { t } = useTranslation();
 
@@ -29,22 +29,13 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
       open={open}
       onClose={onClose}
       title={title}
-      content={
-        <DialogContentText id="alert-dialog-description">
-          {description}
-        </DialogContentText>
-      }
+      content={<DialogContentText id="alert-dialog-description">{description}</DialogContentText>}
       actions={
         <Box display="flex" justifyContent="flex-end" mt={2}>
           <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }}>
             {t(cancelTextResource)}
           </Button>
-          <Button
-            type="submit"
-            autoFocus
-            variant="contained"
-            onClick={onConfirm}
-          >
+          <Button type="submit" variant="contained" onClick={onConfirm}>
             {t(confirmTextResource)}
           </Button>
         </Box>

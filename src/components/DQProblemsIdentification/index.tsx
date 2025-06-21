@@ -26,7 +26,7 @@ export const DQPRoblemsIdentification: React.FC<
   DQPRoblemsIdentificationProps
 > = ({ label, type, projectId, showReview = true }) => {
   const { t } = useTranslation(["common", "problem"]);
-  const { getError } = useNotification();
+  const { showError } = useNotification();
 
   const [review, setReview] = useState("");
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -51,7 +51,6 @@ export const DQPRoblemsIdentification: React.FC<
         // get files
       } catch (error) {
         console.error("Failed to fetch review:", error);
-      } finally {
       }
     };
 
@@ -97,7 +96,7 @@ export const DQPRoblemsIdentification: React.FC<
       if (error instanceof yup.ValidationError) {
         setProblemErrors({ description: error.errors[0] });
       } else {
-        getError(String(error));
+        showError(String(error));
         handleCloseNewProblemDialog();
       }
     }

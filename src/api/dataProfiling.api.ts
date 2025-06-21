@@ -1,12 +1,13 @@
-import axios from "axios";
-import { instance } from "./base.api";
+import axios from 'axios';
+import { instance } from './base.api';
 import {
   DataProfilingResponse,
   DataProfilingYResponse,
   mapRawReports,
   normalizeSchemaSQL,
   SchemaSQL,
-} from "../types/dataProfiling";
+} from '../types/dataProfiling';
+import { API_ENDPOINTS } from '../constants';
 
 export type SQLQueryBody = {
   projectId: number;
@@ -21,11 +22,9 @@ export interface SQLQueryResponse {
 }
 
 export const dataProfilingApi = {
-  schemaSQL: async function (
-    projectId: number
-  ): Promise<SchemaSQL | undefined> {
+  schemaSQL: async function (projectId: number): Promise<SchemaSQL | undefined> {
     try {
-      const response = await instance.get(`projects/${projectId}/schema-SQL/`);
+      const response = await instance.get(`${API_ENDPOINTS.PROJECTS}${projectId}/schema-SQL/`);
       const resp: SchemaSQL = response.data;
       return normalizeSchemaSQL(resp);
     } catch (error: any) {
@@ -36,16 +35,14 @@ export const dataProfilingApi = {
           }
         }
       }
-      console.log("Error getting schema SQL:", error);
+      console.log('Error getting schema SQL:', error);
     }
   },
 
-  runSQLQuery: async function (
-    data: SQLQueryBody
-  ): Promise<SQLQueryResponse | undefined> {
+  runSQLQuery: async function (data: SQLQueryBody): Promise<SQLQueryResponse | undefined> {
     try {
       const response = await instance.post(
-        `projects/${data.projectId}/profiling-SQL/`,
+        `${API_ENDPOINTS.PROJECTS}${data.projectId}/profiling-SQL/`,
         data
       );
       const resp: SQLQueryResponse = response.data;
@@ -59,29 +56,26 @@ export const dataProfilingApi = {
           }
         }
       }
-      console.log("Error running SQL query:", error);
+      console.log('Error running SQL query:', error);
     }
   },
 
-  dataProfilingR: async function (
-    projectId: number
-  ): Promise<DataProfilingResponse | undefined> {
+  dataProfilingR: async function (projectId: number): Promise<DataProfilingResponse | undefined> {
     try {
-      const response = await instance.post(
-        `data-profiling-r-dataexplorer-full-JSON/`,
-        { project_id: projectId }
-      );
+      const response = await instance.post(`data-profiling-r-dataexplorer-full-JSON/`, {
+        project_id: projectId,
+      });
       if (response && response.data) {
         return response.data;
       }
 
       return undefined;
-    } catch (error: any) {}
+    } catch (error: any) {
+      console.log('Error fetching DataExplorer report:', error);
+    }
   },
 
-  dataProfilingY: async function (
-    projectId: number
-  ): Promise<DataProfilingYResponse | undefined> {
+  dataProfilingY: async function (projectId: number): Promise<DataProfilingYResponse | undefined> {
     const response = await instance.post(`full-db-profiling-per-table/`, {
       project_id: projectId,
     });
@@ -95,14 +89,11 @@ export const dataProfilingApi = {
 
     const reports = mapRawReports(rawReports);
 
-    console.log("mapped reports", reports);
+    console.log('mapped reports', reports);
     return { message, reports };
   },
 
-  dataProfilingYhtml: async function (
-    projectId: number,
-    table: string
-  ): Promise<void> {
+  dataProfilingYhtml: async function (projectId: number, table: string): Promise<void> {
     try {
       const response = await instance.post(
         `/full-db-profiling-per-table-html/`,
@@ -111,18 +102,18 @@ export const dataProfilingApi = {
           table_name: table,
         },
         {
-          responseType: "text",
-          headers: { Accept: "text/html" },
+          responseType: 'text',
+          headers: { Accept: 'text/html' },
         }
       );
 
       const html = response.data;
-      if (!html) return console.warn("Empty profiling HTML");
+      if (!html) return console.warn('Empty profiling HTML');
 
-      const blob = new Blob([html], { type: "text/html" });
+      const blob = new Blob([html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `${table}-Y.html`;
       document.body.appendChild(a);
@@ -131,14 +122,11 @@ export const dataProfilingApi = {
 
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     } catch (err: any) {
-      console.error("Error fetching DataExplorer report:", err);
+      console.error('Error fetching DataExplorer report:', err);
     }
   },
 
-  dataProfilingRhtml: async function (
-    projectId: number,
-    table: string
-  ): Promise<void> {
+  dataProfilingRhtml: async function (projectId: number, table: string): Promise<void> {
     try {
       const response = await instance.post(
         `/data-profiling-r-dataexplorer-full/`,
@@ -147,18 +135,18 @@ export const dataProfilingApi = {
           table_name: table,
         },
         {
-          responseType: "text",
-          headers: { Accept: "text/html" },
+          responseType: 'text',
+          headers: { Accept: 'text/html' },
         }
       );
 
       const html = response.data;
-      if (!html) return console.warn("Empty profiling HTML");
+      if (!html) return console.warn('Empty profiling HTML');
 
-      const blob = new Blob([html], { type: "text/html" });
+      const blob = new Blob([html], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
 
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
       a.download = `${table}-R.html`;
       document.body.appendChild(a);
@@ -167,20 +155,17 @@ export const dataProfilingApi = {
 
       setTimeout(() => URL.revokeObjectURL(url), 5000);
     } catch (err: any) {
-      console.error("Error fetching DataExplorer report:", err);
+      console.error('Error fetching DataExplorer report:', err);
     }
   },
 
-  dataProfilingRhtmlContent: async (
-    projectId: number,
-    table: string
-  ): Promise<string> => {
+  dataProfilingRhtmlContent: async (projectId: number, table: string): Promise<string> => {
     const resp = await instance.post(
       `/data-profiling-r-dataexplorer-full/`,
       { project_id: projectId, table_name: table },
       {
-        responseType: "text",
-        headers: { Accept: "text/html" },
+        responseType: 'text',
+        headers: { Accept: 'text/html' },
       }
     );
     return resp.data;

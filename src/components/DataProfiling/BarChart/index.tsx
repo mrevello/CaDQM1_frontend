@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 import {
   BarChart as RechartBarChart,
   XAxis as RechartXAxis,
@@ -7,23 +7,21 @@ import {
   Legend as RechartLegend,
   Bar,
   ResponsiveContainer,
-  Cell,
-  TooltipProps,
-} from "recharts";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
+} from 'recharts';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 
 const COLORS = {
-  blue: "#3182CE",
-  sky: "#0EA5E9",
-  green: "#10B981",
-  red: "#EF4444",
-  amber: "#F59E0B",
-  purple: "#8B5CF6",
-  violet: "#7C3AED",
-  pink: "#EC4899",
-  gray: "#6B7280",
+  blue: '#3182CE',
+  sky: '#0EA5E9',
+  green: '#10B981',
+  red: '#EF4444',
+  amber: '#F59E0B',
+  purple: '#8B5CF6',
+  violet: '#7C3AED',
+  pink: '#EC4899',
+  gray: '#6B7280',
 };
 
 type ColorKey = keyof typeof COLORS;
@@ -38,22 +36,18 @@ interface BarChartProps {
   className?: string;
 }
 
-export const BarChart = ({
+export const BarChart: React.FC<BarChartProps> = ({
   data,
   index,
   categories,
-  colors = ["blue"],
-  valueFormatter = (value) => `${value}`,
+  colors = ['blue'],
+  valueFormatter = value => `${value}`,
   children,
   className,
-}: BarChartProps) => {
-  console.log("BarChart data", data);
+}) => {
   return (
     <ResponsiveContainer width="100%" height="100%" className={className}>
-      <RechartBarChart
-        data={data}
-        margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-      >
+      <RechartBarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
         {children}
         {categories.map((category, i) => (
           <Bar
@@ -71,8 +65,8 @@ export const BarChart = ({
                   elevation={3}
                   sx={{
                     p: 1,
-                    border: "1px solid",
-                    borderColor: "divider",
+                    border: '1px solid',
+                    borderColor: 'divider',
                   }}
                 >
                   <Typography variant="subtitle2">{label}</Typography>
@@ -81,8 +75,7 @@ export const BarChart = ({
                       key={index}
                       variant="body2"
                       sx={{
-                        color:
-                          item.fill ?? COLORS[colors[index % colors.length]],
+                        color: item.fill ?? COLORS[colors[index % colors.length]],
                       }}
                     >
                       {item.name}: {valueFormatter(item.value as number)}
@@ -110,7 +103,7 @@ export interface LegendItemProps {
 }
 
 export const LegendItem: React.FC<LegendItemProps> = ({ color, label }) => (
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
     <Box
       sx={{
         width: 12,

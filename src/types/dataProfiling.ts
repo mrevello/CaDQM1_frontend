@@ -1,6 +1,6 @@
-import { themePalette } from "../config/theme.config";
+import { themePalette } from '../config/theme.config';
 
-export type ColumnType = "text" | "real" | "numeric" | "integer" | string;
+export type ColumnType = 'text' | 'real' | 'numeric' | 'integer' | string;
 
 export interface ColumnSchema {
   column: string;
@@ -48,9 +48,9 @@ export const getInfoFromSchema = (
   const connections: ModelConnection[] = [];
   Object.entries(relations).forEach(([table, rels]) => {
     rels.forEach(({ column, references }) => {
-      const parts = references.split(".");
-      const refColumn = parts.pop()!;
-      const refTable = parts.join(".");
+      const parts = references.split('.');
+      parts.pop();
+      const refTable = parts.join('.');
       connections.push({
         source: table,
         target: refTable,
@@ -66,7 +66,7 @@ export const getInfoFromSchema = (
     incoming.add(`${target}:${name}`);
   });
 
-  const childTables = new Set(connections.map((c) => c.source));
+  const childTables = new Set(connections.map(c => c.source));
 
   const models: Model[] = Object.entries(schema).map(([tableName, cols]) => ({
     name: tableName,
@@ -96,7 +96,7 @@ export interface ProfileData {
 }
 
 export interface SampleData {
-  id: "head" | "tail";
+  id: 'head' | 'tail';
   data: Record<string, any>[];
   columnTypes: ColumnSchema[];
   name: string;
@@ -117,10 +117,7 @@ export interface ProfileTableInfo {
   variablesWithMissingCount: number;
   variablesAllMissingCount: number;
   missingCellsPercentage: number;
-  types: Record<
-    ColumnType,
-    { count: number; color: string; backgroundColor: string }
-  >;
+  types: Record<ColumnType, { count: number; color: string; backgroundColor: string }>;
   duplicateRowsCount: number;
   duplicateRowsPercentage: number;
 }
@@ -178,10 +175,7 @@ export function mapProfileTableInfo(raw: {
       acc[key] = { count, color, backgroundColor };
       return acc;
     },
-    {} as Record<
-      ColumnType,
-      { count: number; color: string; backgroundColor: string }
-    >
+    {} as Record<ColumnType, { count: number; color: string; backgroundColor: string }>
   );
 
   return {
@@ -199,9 +193,7 @@ export function mapProfileTableInfo(raw: {
   };
 }
 
-export function mapRawReports(
-  rawReports: Record<string, any>
-): Record<string, ProfileData> {
+export function mapRawReports(rawReports: Record<string, any>): Record<string, ProfileData> {
   const reports: Record<string, ProfileData> = {};
 
   for (const tableName in rawReports) {
@@ -235,7 +227,7 @@ export function mapRawReports(
     }
 
     const sample: SampleData[] = raw.sample.map((s: any) => ({
-      id: s.id as "head" | "tail",
+      id: s.id as 'head' | 'tail',
       data: s.data as Record<string, any>[],
       columnTypes: table.types,
       name: s.name as string,
@@ -255,10 +247,7 @@ export function mapRawReports(
 
 export function normalizeSchemaSQL(input: SchemaSQL): SchemaSQL {
   const schema: Schema = Object.fromEntries(
-    Object.entries(input.schema).map(([table, cols]) => [
-      normalizeTable(table),
-      cols,
-    ])
+    Object.entries(input.schema).map(([table, cols]) => [normalizeTable(table), cols])
   );
 
   const relations: Relations = Object.fromEntries(
@@ -266,7 +255,7 @@ export function normalizeSchemaSQL(input: SchemaSQL): SchemaSQL {
       normalizeTable(table),
       rels.map(({ column, references }) => ({
         column,
-        references: references.replace(/^public\./, ""),
+        references: references.replace(/^public\./, ''),
       })),
     ])
   );
@@ -275,7 +264,7 @@ export function normalizeSchemaSQL(input: SchemaSQL): SchemaSQL {
 }
 
 function normalizeTable(tableName: string): string {
-  return tableName.replace(/^public\./, "");
+  return tableName.replace(/^public\./, '');
 }
 
 // R

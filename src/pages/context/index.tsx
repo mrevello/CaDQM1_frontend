@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { ContextComponentsType } from "../../types/contextComponent";
-import { Box, Fab, Tooltip, Typography } from "@mui/material";
-import { projectsApi } from "../../api/projects.api";
-import { Project } from "../../types/project";
-import { ContextComponents } from "../../components/Context/ContextComponents";
-import { Add } from "@mui/icons-material";
-import { NewContextComponentDialog } from "../../components/NewContextComponentDialog";
-import { contextApi } from "../../api/context.api";
-import { useNotification } from "../../context/notification.context";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ContextComponentsType } from '../../types/contextComponent';
+import { Box, Fab, Tooltip, Typography } from '@mui/material';
+import { projectsApi } from '../../api/projects.api';
+import { Project } from '../../types/project';
+import { ContextComponents } from '../../components/Context/ContextComponents';
+import { Add } from '@mui/icons-material';
+import { NewContextComponentDialog } from '../../components/NewContextComponentDialog';
+import { contextApi } from '../../api/context.api';
+import { useNotification } from '../../context/notification.context';
 
 export const Context: React.FC = () => {
   const { t } = useTranslation();
-  const { getSuccess, getError } = useNotification();
+  const { showSuccess, showError } = useNotification();
+
   const { projectId } = useParams<{ projectId: string }>();
 
-  const [contextComponents, setContextComponents] =
-    useState<ContextComponentsType | null>(null);
+  const [contextComponents, setContextComponents] = useState<ContextComponentsType | null>(null);
 
   const [project, setProject] = useState<Project | null>(null);
   const [newDialogOpen, setNewDialogOpen] = useState(false);
@@ -27,24 +27,24 @@ export const Context: React.FC = () => {
       try {
         const project = await projectsApi.getProject(Number(projectId));
         if (!project) {
-          console.warn("No project data returned");
+          console.warn('No project data returned');
           return;
         }
         setProject(project);
-      } catch (error) {}
+      } catch (error) {
+        console.error('Error fetching project:', error);
+      }
     };
 
     fetchAndUpdate();
   }, [projectId]);
 
-  const handleNewContextComponentSubmit = async (
-    formData: Record<string, any>
-  ) => {
+  const handleNewContextComponentSubmit = async (formData: Record<string, any>) => {
     try {
       const { id, type, ...data } = formData;
 
       if (!type) {
-        console.error("No type provided for context component.");
+        console.error('No type provided for context component.');
         return;
       }
 
@@ -52,25 +52,24 @@ export const Context: React.FC = () => {
 
       setNewDialogOpen(false);
       fetchContextComponents();
+      showSuccess(t('context-component-created'));
     } catch (error) {
-      console.error("Error creating context component:", error);
-      console.log("error", error);
+      console.error('Error creating context component:', error);
+      console.log('error', error);
       if (error instanceof Error && error.message) {
-        console.log("error.message", error.message);
+        console.log('error.message', error.message);
       } else {
-        getError(t("unexpected-error"));
+        showError(t('unexpected-error'));
       }
     }
   };
 
   const fetchContextComponents = async () => {
     try {
-      const contextFromApi = await contextApi.listContextComponents(
-        Number(projectId)
-      );
+      const contextFromApi = await contextApi.listContextComponents(Number(projectId));
       setContextComponents(contextFromApi);
     } catch (err) {
-      console.error("Error fetching context components:", err);
+      console.error('Error fetching context components:', err);
     }
   };
 
@@ -85,7 +84,7 @@ export const Context: React.FC = () => {
         position="relative"
         overflow="auto"
       >
-        <Typography variant="h6">{t("context")}</Typography>
+        <Typography variant="h6">{t('context')}</Typography>
         <Typography variant="subtitle2">{project?.context?.version}</Typography>
 
         <ContextComponents
@@ -95,12 +94,12 @@ export const Context: React.FC = () => {
           showActions={true}
         />
 
-        <Tooltip title={t("new")} placement="left">
+        <Tooltip title={t('new')} placement="left">
           <Fab
             color="primary"
             aria-label="add"
             onClick={() => setNewDialogOpen(true)}
-            sx={{ position: "fixed", bottom: 24, right: 24 }}
+            sx={{ position: 'fixed', bottom: 24, right: 24 }}
           >
             <Add />
           </Fab>

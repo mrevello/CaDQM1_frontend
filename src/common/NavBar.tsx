@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AppBar,
   Box,
@@ -11,18 +11,18 @@ import {
   Avatar,
   Divider,
   Breadcrumbs,
-} from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
-import { ACCESS_TOKEN } from "../utils/constants";
-import { useTranslation } from "react-i18next";
-import { styled } from "@mui/system";
-import i18n, { availableLanguages } from "../i18n";
-import { getPhaseTitle, Phase, phases } from "../types/phase";
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { styled } from '@mui/system';
+import i18n, { availableLanguages } from '../i18n';
+import { getPhaseTitle, Phase, phases } from '../types/phase';
+import { AUTH_CONFIG, ROUTES } from '../constants';
 
 const StyledToolbar = styled(Toolbar)({
-  display: "flex",
-  justifyContent: "space-between",
-  width: "100%",
+  display: 'flex',
+  justifyContent: 'space-between',
+  width: '100%',
 });
 
 export const NavBar: React.FC = () => {
@@ -41,8 +41,9 @@ export const NavBar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
-    navigate("/login");
+    localStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
+    localStorage.removeItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
+    navigate(ROUTES.LOGIN);
     handleClose();
   };
 
@@ -57,9 +58,9 @@ export const NavBar: React.FC = () => {
             <Typography
               variant="h6"
               noWrap
-              sx={{ cursor: "pointer" }}
+              sx={{ cursor: 'pointer' }}
               onClick={() => {
-                navigate("/");
+                navigate(ROUTES.HOME);
               }}
             >
               CaDQM
@@ -68,12 +69,12 @@ export const NavBar: React.FC = () => {
             {showBreadcrumbs && (
               <Breadcrumbs separator=">" aria-label="breadcrumb" sx={{ ml: 1 }}>
                 {phases.map((phase, index) => (
-                  <Link component="button" key={phase} onClick={() => {}}>
+                  <Link component="button" key={phase}>
                     <Typography
                       variant="subtitle2"
                       color="textSecondary"
                       component="span"
-                      fontWeight={phase === selectedPhase ? "bold" : "normal"}
+                      fontWeight={phase === selectedPhase ? 'bold' : 'normal'}
                     >
                       {t(getPhaseTitle(phase))}
                     </Typography>
@@ -93,21 +94,21 @@ export const NavBar: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleClose}
             anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
+              vertical: 'bottom',
+              horizontal: 'right',
             }}
             transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
+              vertical: 'top',
+              horizontal: 'right',
             }}
             PaperProps={{
               sx: {
-                minWidth: "200px",
+                minWidth: '200px',
               },
             }}
           >
             <MenuItem disabled>Language</MenuItem>
-            {availableLanguages.map((language) => {
+            {availableLanguages.map(language => {
               const isSelected = i18n.language === language.code;
               return (
                 <MenuItem
@@ -118,17 +119,17 @@ export const NavBar: React.FC = () => {
                   }}
                   sx={{
                     ...(isSelected && {
-                      color: "primary.main",
+                      color: 'primary.main',
                       fontWeight: 700,
                     }),
                   }}
                 >
-                  {t(`language:${language.labelCode}`)}
+                  {t(language.labelCode)}
                 </MenuItem>
               );
             })}
             <Divider />
-            <MenuItem onClick={handleLogout}>{t("logout")}</MenuItem>
+            <MenuItem onClick={handleLogout}>{t('logout')}</MenuItem>
           </Menu>
         </StyledToolbar>
       </AppBar>

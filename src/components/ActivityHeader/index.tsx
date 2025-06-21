@@ -1,22 +1,9 @@
-import {
-  Breadcrumbs,
-  Typography,
-  Divider,
-  Box,
-  Link,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { getStageActivities, getStageTitle, Stage } from "../../types/stage";
-import {
-  Activity,
-  getActivityDescription,
-  getActivityName,
-  getActivityTitle,
-} from "../../types/activity";
-import { useTranslation } from "react-i18next";
+import { Breadcrumbs, Typography, Divider, Box, Link, Tooltip, IconButton } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { getStageActivities, getStageTitle, Stage } from '../../types/stage';
+import { Activity, getActivityDescription, getActivityTitle } from '../../types/activity';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   stage: Stage;
@@ -38,7 +25,7 @@ export const ActivityHeader: React.FC<HeaderProps> = ({
     <Box p={4}>
       <Box pl={4} pr={4}>
         <Box display="flex" alignItems="center">
-          <Typography variant="body2" color="textSecondary" fontWeight="bold">
+          <Typography variant="body2" fontSize={18} color="textSecondary" fontWeight="bold">
             {t(getStageTitle(stage))}:
           </Typography>
 
@@ -54,11 +41,10 @@ export const ActivityHeader: React.FC<HeaderProps> = ({
                     variant="body2"
                     color="textSecondary"
                     component="span"
-                    fontWeight={
-                      activity === selectedActivity ? "bold" : "normal"
-                    }
+                    fontSize={18}
+                    fontWeight={activity === selectedActivity ? 'bold' : 'normal'}
                   >
-                    {t(getActivityName(activity))}
+                    {t(getActivityTitle(activity))}
                   </Typography>
                 </Link>
               </Tooltip>
@@ -74,14 +60,11 @@ export const ActivityHeader: React.FC<HeaderProps> = ({
           sx={{ mt: 1 }}
         >
           <Typography variant="h4" fontWeight="bold">
-            {`${t(getActivityName(selectedActivity))}- ${t(getActivityTitle(selectedActivity))}`}
+            {t(getActivityTitle(selectedActivity))}
           </Typography>
           <Box display="flex" alignItems="center">
             {children}
-            <Tooltip
-              placement="left-start"
-              title={t(getActivityDescription(selectedActivity))}
-            >
+            <Tooltip placement="left-start" title={t(getActivityDescription(selectedActivity))}>
               <IconButton size="small">
                 <InfoOutlinedIcon />
               </IconButton>

@@ -1,8 +1,9 @@
 import { DataAtHand, toDataAtHand } from "../types/dataAtHand";
 import { instance } from "./base.api";
 import { handleApiError } from "./errorHandler";
+import { API_ENDPOINTS } from "../constants";
 
-const endpoint = "data-at-hand/";
+const endpoint = API_ENDPOINTS.DATA.AT_HAND;
 
 export type DataAtHandBody = {
   name: string;

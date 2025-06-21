@@ -1,4 +1,4 @@
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from '@mui/material';
 import {
   Timeline,
   TimelineConnector,
@@ -7,26 +7,58 @@ import {
   TimelineItem,
   TimelineOppositeContent,
   TimelineSeparator,
-} from "@mui/lab";
-import { useTranslation } from "react-i18next";
-import { canContinueToStage, getStageTitle, Stage } from "../../types/stage";
-import { getStateColor, State } from "../../types/state";
-import { useState } from "react";
-import { StageDialog } from "../StagesDialog";
-import { ProjectStage } from "../../types/project";
-import { StateChip } from "../StateChip";
-import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+} from '@mui/lab';
+import { useTranslation } from 'react-i18next';
+import { canContinueToStage, getStageTitle, Stage, stageOrder } from '../../types/stage';
+import { getStateColor, State } from '../../types/state';
+import { useMemo, useState } from 'react';
+import { StageDialog } from '../StagesDialog';
+import { Project, ProjectStage } from '../../types/project';
+import { StateChip } from '../StateChip';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+
+const computeStages = (stages: ProjectStage[]): ProjectStage[] => {
+  const requiredStages = [
+    Stage.ST1,
+    Stage.ST2,
+    Stage.ST3,
+    Stage.ST4,
+    Stage.ST5,
+    Stage.ST6,
+  ] as const;
+  const mappedStages = [...stages];
+
+  for (const required of requiredStages) {
+    if (!mappedStages.some(ms => ms.stage === required)) {
+      mappedStages.push({
+        stage: required,
+        status: State.TO_DO,
+      });
+    }
+  }
+
+  const orderMap: Record<Stage, number> = stageOrder.reduce(
+    (acc: Record<Stage, number>, stage: Stage, idx: number) => {
+      acc[stage] = idx;
+      return acc;
+    },
+    {} as Record<Stage, number>
+  );
+
+  return mappedStages.sort((a, b) => orderMap[a.stage] - orderMap[b.stage]);
+};
 
 type StageTimelineProps = {
-  stages: ProjectStage[];
+  project: Project;
   onProjectStageClick: (stage: Stage) => void;
 };
 
-export const StageTimeline: React.FC<StageTimelineProps> = ({
-  stages,
-  onProjectStageClick,
-}) => {
-  const { t } = useTranslation("stage");
+export const StageTimeline: React.FC<StageTimelineProps> = ({ project, onProjectStageClick }) => {
+  const { t } = useTranslation();
+
+  const stages = useMemo<ProjectStage[]>(() => {
+    return computeStages(project.stages);
+  }, [project.stages]);
 
   const [stage, setStage] = useState<Stage>();
   const [state, setState] = useState<State>();
@@ -47,11 +79,7 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
             stage={projectStage.stage}
             state={projectStage.status}
             isLast={index === stages.length - 1}
-            isClickable={canContinueToStage(
-              projectStage.stage,
-              projectStage.status,
-              stages
-            )}
+            isClickable={canContinueToStage(projectStage.stage, projectStage.status, stages)}
             onClick={(stage: Stage) => {
               if (canContinueToStage(stage, projectStage.status, stages)) {
                 setStage(stage);
@@ -64,13 +92,14 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
       </Timeline>
 
       <StageDialog
+        // project={project}
         stages={stage ? [stage] : []}
         title={
           state === State.DONE
-            ? t("reopen-stage")
+            ? t('reopen-stage')
             : state === State.IN_PROGRESS
-              ? t("continue-stage")
-              : t("start-stage")
+              ? t('continue-stage')
+              : t('start-stage')
         }
         open={stagesDialogOpen}
         onClose={() => setStagesDialogOpen(false)}
@@ -84,8 +113,8 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
 type StageTimelineItemProps = {
   stage: Stage;
   state: State;
-  isLast: Boolean;
-  isClickable: Boolean;
+  isLast: boolean;
+  isClickable: boolean;
   onClick: (stage: Stage) => void;
 };
 
@@ -106,7 +135,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
       sx={
         isClickable
           ? {
-              cursor: "pointer",
+              cursor: 'pointer',
             }
           : {}
       }
@@ -125,7 +154,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
           <Box display="flex" alignItems="center" gap={1}>
             <StateChip state={state} />
             {!isClickable && state !== State.DONE && (
-              <Tooltip title={t("start-stage-error")}>
+              <Tooltip title={t('start-stage-error')}>
                 <ReportProblemIcon color="warning" sx={{ fontSize: 18 }} />
               </Tooltip>
             )}

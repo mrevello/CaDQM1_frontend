@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { Placeholder } from "../Placeholder";
-import { ProblemBody, problemsApi } from "../../api/problem.api";
-import { Problem, ProblemErrorsType } from "../../types/problem";
-import { ProblemItem } from "../ProblemItem";
-import { ProblemValidate } from "../../utils/validateForm";
-import { useNotification } from "../../context/notification.context";
-import * as yup from "yup";
-import { NewProblemDialog } from "../NewProblemDialog";
-import { AlertDialog } from "../AlertDialog";
+import React, { useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Placeholder } from '../Placeholder';
+import { ProblemBody, problemsApi } from '../../api/problem.api';
+import { Problem, ProblemErrorsType } from '../../types/problem';
+import { ProblemItem } from '../ProblemItem';
+import { ProblemValidate } from '../../utils/validateForm';
+import { useNotification } from '../../context/notification.context';
+import * as yup from 'yup';
+import { NewProblemDialog } from '../NewProblemDialog';
+import { AlertDialog } from '../AlertDialog';
 
 interface ProblemListProps {
   projectId: number;
@@ -17,18 +17,13 @@ interface ProblemListProps {
   setProblems: React.Dispatch<React.SetStateAction<Problem[]>>;
 }
 
-export const ProblemList: React.FC<ProblemListProps> = ({
-  projectId,
-  problems,
-  setProblems,
-}) => {
-  const { t } = useTranslation(["common", "problem"]);
-  const { getError } = useNotification();
+export const ProblemList: React.FC<ProblemListProps> = ({ projectId, problems, setProblems }) => {
+  const { t } = useTranslation(['common', 'problem']);
+  const { showError, showSuccess } = useNotification();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [selectedEditProblem, setSelectedEditProblem] =
-    useState<Problem | null>(null);
+  const [selectedEditProblem, setSelectedEditProblem] = useState<Problem | null>(null);
   const [problemErrors, setProblemErrors] = useState<ProblemErrorsType>({});
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -65,11 +60,9 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           projectId
         );
         if (updatedProblem) {
-          setProblems((prev) =>
-            prev.map((problem) =>
-              problem.id === selectedEditProblem.id
-                ? { ...problem, ...updatedProblem }
-                : problem
+          setProblems(prev =>
+            prev.map(problem =>
+              problem.id === selectedEditProblem.id ? { ...problem, ...updatedProblem } : problem
             )
           );
         }
@@ -80,19 +73,19 @@ export const ProblemList: React.FC<ProblemListProps> = ({
         };
         const createdProblem = await problemsApi.createProblem(newProblemData);
         if (createdProblem) {
-          setProblems((prev) => [...prev, createdProblem]);
+          setProblems(prev => [...prev, createdProblem]);
         }
       }
       handleCloseDialog();
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const errors: ProblemErrorsType = {};
-        error.inner.forEach((validationError) => {
+        error.inner.forEach(validationError => {
           errors.description = validationError.message;
         });
         setProblemErrors(errors);
       } else {
-        getError(String(error));
+        showError(String(error));
         handleCloseDialog();
       }
     }
@@ -106,10 +99,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
       };
       const createdProblem = await problemsApi.createProblem(newProblemData);
       if (createdProblem) {
-        setProblems((prev) => [...prev, createdProblem]);
+        setProblems(prev => [...prev, createdProblem]);
       }
     } catch (error) {
-      getError(String(error));
+      showError(String(error));
     }
   };
 
@@ -122,11 +115,10 @@ export const ProblemList: React.FC<ProblemListProps> = ({
     if (problemToDelete) {
       try {
         await problemsApi.deleteProblem(problemToDelete.id);
-        setProblems((prev) =>
-          prev.filter((problem) => problem.id !== problemToDelete.id)
-        );
+        setProblems(prev => prev.filter(problem => problem.id !== problemToDelete.id));
+        showSuccess(t('problem-deleted'));
       } catch (error) {
-        getError("Failed to delete problem.");
+        showError(t('failed-to-delete-problem'));
       }
     }
     setDeleteDialogOpen(false);
@@ -141,7 +133,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
         const problemsFromApi = await problemsApi.listProblems(projectId);
         setProblems(problemsFromApi ?? []);
       } catch (err) {
-        console.error("Error fetching problems:", err);
+        console.error('Error fetching problems:', err);
       }
     };
 
@@ -152,7 +144,7 @@ export const ProblemList: React.FC<ProblemListProps> = ({
     <>
       <Box display="flex" flexDirection="column" gap={1.5}>
         {problems.length > 0 ? (
-          problems.map((problem) => (
+          problems.map(problem => (
             <ProblemItem
               key={problem.id}
               problem={problem}
@@ -162,8 +154,8 @@ export const ProblemList: React.FC<ProblemListProps> = ({
           ))
         ) : (
           <Placeholder
-            description={t("problem:problems-placeholder")}
-            linkText={t("problem:identify-problem")}
+            description={t('problem:problems-placeholder')}
+            linkText={t('problem:identify-problem')}
             onClick={handleCreateProblem}
           />
         )}
@@ -179,8 +171,8 @@ export const ProblemList: React.FC<ProblemListProps> = ({
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("problem:delete-problem-alert-title")}
-        description={problemToDelete ? problemToDelete.description : ""}
+        title={t('problem:delete-problem-alert-title')}
+        description={problemToDelete ? problemToDelete.description : ''}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />
