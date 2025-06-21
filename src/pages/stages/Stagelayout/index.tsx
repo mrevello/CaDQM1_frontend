@@ -15,6 +15,7 @@ import { link, ProjectStage, Project } from '../../../types/project';
 import { projectsApi } from '../../../api/projects.api';
 import { State } from '../../../types/state';
 import { useTranslation } from 'react-i18next';
+import { ROUTES } from '../../../constants';
 
 export interface ActivityHandle {
   validateForm: () => Promise<boolean>;
@@ -80,7 +81,7 @@ export const StageLayout: React.FC = () => {
     if (newActivities.length > 0 && projectId) {
       navigate(link(projectId, nextStage, newActivities[0]));
     } else {
-      navigate('/');
+      navigate(ROUTES.HOME);
     }
   };
 
@@ -103,8 +104,6 @@ export const StageLayout: React.FC = () => {
     } else {
       if (projectId) {
         navigate(link(projectId, stage, next));
-      } else {
-        console.error('No project ID found');
       }
     }
   };
@@ -122,7 +121,7 @@ export const StageLayout: React.FC = () => {
   const handleSkip = async () => {
     try {
       await projectsApi.updateStage(Number(projectId), stage, State.DONE);
-      navigate('/');
+      navigate(ROUTES.HOME);
     } catch (error) {
       console.error('Error updating stage on skip:', error);
     }
@@ -189,14 +188,18 @@ export const StageLayout: React.FC = () => {
         </Box>
       </Container>
 
-      <StageDialog
-        stages={nextAvailableStages}
-        title={t('stage:choose-next-stage')}
-        open={stagesDialogOpen}
-        onClose={() => setStagesDialogOpen(false)}
-        onStageSelect={handleStageSelect}
-        onSkip={handleSkip}
-      />
+      {project && (
+        <StageDialog
+          project={project}
+          stages={nextAvailableStages}
+          title={t('choose-next-stage')}
+          open={stagesDialogOpen}
+          onClose={() => setStagesDialogOpen(false)}
+          onStageSelect={handleStageSelect}
+          onSkip={handleSkip}
+          showExportButton={true}
+        />
+      )}
 
       <ContextDialog
         projectId={Number(projectId)}

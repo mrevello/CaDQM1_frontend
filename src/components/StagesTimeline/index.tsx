@@ -92,7 +92,7 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({ project, onProject
       </Timeline>
 
       <StageDialog
-        // project={project}
+        project={project}
         stages={stage ? [stage] : []}
         title={
           state === State.DONE

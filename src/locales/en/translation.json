@@ -86,7 +86,15 @@
   "upload-or-drag-and-drop": "to upload your file or drag and drop.",
   "upload-failed": "Upload failed",
   "loading": "Loading",
-  "complete": "Complete",
+  "loading-project": "Loading project",
+  "loading-problems": "Loading problems",
+  "loading-estimation": "Loading estimation",
+  "loading-context-components": "Loading context components",
+  "loading-data-profiling": "Loading data profiling",
+  "loading-reviews": "Loading reviews",
+  "preparing-pdf-report": "Preparing PDF report",
+  "currently-loading": "Currently loading",
+  "completed": "completed",
   "register": "Register",
   "registration-failed": "Registration failed. Please try again.",
   "registration-successful": "Registration successful!",
@@ -114,6 +122,7 @@
   "error-fetching-projects": "Error fetching projects.",
   "error-creating-project": "Error creating project: {{error}}",
   "error-deleting-project": "Error deleting project: {{message}}",
+  "error-loading-project": "Error loading project",
   "projects": "Projects",
   "edit-project": "Edit project",
   "create-project": "Create a new project",
@@ -264,5 +273,6 @@
   "suggest-context-components-with-ai": "Suggest context components with AI",
   "suggest-problems-with-ai": "Suggest DQ problems with AI",
   "delete-title": "Delete",
-  "suggestion": "Suggestion"
+  "suggestion": "Suggestion",
+  "data_filtering": "Data filtering"
 }

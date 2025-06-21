@@ -171,7 +171,7 @@ export function mapProfileTableInfo(raw: {
   const types = entries.reduce(
     (acc, [typeKey, count], idx) => {
       const key = typeKey.toLowerCase() as ColumnType;
-      const { color, backgroundColor } = STYLE_LIST[idx % STYLE_LIST.length]!;
+      const { color, backgroundColor } = STYLE_LIST[idx % STYLE_LIST.length];
       acc[key] = { count, color, backgroundColor };
       return acc;
     },
