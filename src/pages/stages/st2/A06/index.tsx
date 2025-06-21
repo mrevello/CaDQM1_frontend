@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -9,15 +9,15 @@ import {
   CircularProgress,
   TextField,
   Typography,
-} from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { useNotification } from "../../../../context/notification.context";
-import { estimationApi } from "../../../../api/estimation.api";
+} from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { useNotification } from '../../../../context/notification.context';
+import { estimationApi } from '../../../../api/estimation.api';
 
 export const A06: React.FC = () => {
   const { t } = useTranslation();
-  const { getError } = useNotification();
+  const { showError } = useNotification();
   const { projectId } = useParams<{ projectId: string }>();
 
   const [loadingEstimation, setLoadingEstimation] = useState(false);
@@ -25,8 +25,8 @@ export const A06: React.FC = () => {
   const [estimationId, setEstimationId] = useState<number | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [facts, setFacts] = useState<string[]>([]);
-  const [prompt, setPrompt] = useState("");
-  const [manualEstimation, setManualEstimation] = useState("");
+  const [prompt, setPrompt] = useState('');
+  const [manualEstimation, setManualEstimation] = useState('');
 
   const mountedRef = useRef(false);
 
@@ -42,15 +42,15 @@ export const A06: React.FC = () => {
         const estimation = await estimationApi.getEstimation(Number(projectId));
 
         if (estimation) {
-          setEstimationId(estimation.estimation_id);
-          setWarnings(estimation.estimation.warnings);
-          setFacts(estimation.estimation.facts);
+          // setEstimationId(estimation.estimation_id);
+          // setWarnings(estimation.estimation.warnings);
+          // setFacts(estimation.estimation.facts);
         } else {
           handleRegenerate();
         }
       } catch (err) {
-        getError(String(err));
-        console.error("Failed to load estimation:", err);
+        showError(String(err));
+        console.error('Failed to load estimation:', err);
       } finally {
         setLoadingEstimation(false);
       }
@@ -63,20 +63,17 @@ export const A06: React.FC = () => {
 
     setLoadingEstimation(true);
     try {
-      const estimation = await estimationApi.regenerateEstimation(
-        Number(projectId),
-        prompt
-      );
+      const estimation = await estimationApi.regenerateEstimation(Number(projectId), prompt);
 
       if (estimation) {
-        setEstimationId(estimation.estimation_id);
-        setWarnings(estimation.estimation.warnings);
-        setFacts(estimation.estimation.facts);
-        setPrompt("");
+        // setEstimationId(estimation.estimation_id);
+        // setWarnings(estimation.estimation.warnings);
+        // setFacts(estimation.estimation.facts);
+        setPrompt('');
       }
     } catch (err) {
-      getError(String(err));
-      console.error("Failed to regenerate estimation:", err);
+      showError(String(err));
+      console.error('Failed to regenerate estimation:', err);
     } finally {
       setLoadingEstimation(false);
     }
@@ -84,47 +81,36 @@ export const A06: React.FC = () => {
 
   const handleDismissWarning = async (warning: string) => {
     if (estimationId) {
-      const estimation = await estimationApi.discardEstimation(
-        estimationId,
-        warning,
-        "warnings"
-      );
+      const estimation = await estimationApi.discardEstimation(estimationId, warning, 'warnings');
 
-      console.log("estimation", estimation);
+      console.log('estimation', estimation);
 
       if (estimation) {
-        setWarnings(estimation.estimation.warnings);
-        setFacts(estimation.estimation.facts);
+        // setWarnings(estimation.estimation.warnings);
+        // setFacts(estimation.estimation.facts);
       }
     }
   };
 
   const handleDismissFact = async (fact: string) => {
     if (estimationId) {
-      const estimation = await estimationApi.discardEstimation(
-        estimationId,
-        fact,
-        "facts"
-      );
+      const estimation = await estimationApi.discardEstimation(estimationId, fact, 'facts');
 
       if (estimation) {
-        setWarnings(estimation.estimation.warnings);
-        setFacts(estimation.estimation.facts);
+        // setWarnings(estimation.estimation.warnings);
+        // setFacts(estimation.estimation.facts);
       }
     }
   };
 
   const handleSaveManualEstimation = async () => {
     if (estimationId) {
-      const estimation = await estimationApi.addEstimation(
-        estimationId,
-        manualEstimation
-      );
+      const estimation = await estimationApi.addEstimation(estimationId, manualEstimation);
 
       if (estimation) {
-        setWarnings(estimation.estimation.warnings);
-        setFacts(estimation.estimation.facts);
-        setManualEstimation("");
+        // setWarnings(estimation.estimation.warnings);
+        // setFacts(estimation.estimation.facts);
+        setManualEstimation('');
       }
     }
   };
@@ -196,8 +182,8 @@ export const A06: React.FC = () => {
                   multiline
                   variant="outlined"
                   value={prompt}
-                  placeholder={t("prompt-placeholder")}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={t('prompt-placeholder')}
+                  onChange={e => setPrompt(e.target.value)}
                 />
                 <Box display="flex" justifyContent="flex-end">
                   <Button
@@ -205,7 +191,7 @@ export const A06: React.FC = () => {
                     onClick={handleRegenerate}
                     loading={loadingEstimation}
                   >
-                    {loadingEstimation ? "Regenerating..." : t("regenerate")}
+                    {loadingEstimation ? 'Regenerating...' : t('regenerate')}
                   </Button>
                 </Box>
               </Box>
@@ -224,7 +210,7 @@ export const A06: React.FC = () => {
               variant="outlined"
               value={manualEstimation}
               placeholder="Enter your manual estimation details..."
-              onChange={(e) => setManualEstimation(e.target.value)}
+              onChange={e => setManualEstimation(e.target.value)}
             />
             <Box display="flex" justifyContent="flex-end">
               <Button
@@ -232,7 +218,7 @@ export const A06: React.FC = () => {
                 disabled={!manualEstimation.trim()}
                 onClick={() => handleSaveManualEstimation()}
               >
-                {t("save")}
+                {t('save')}
               </Button>
             </Box>
           </Box>

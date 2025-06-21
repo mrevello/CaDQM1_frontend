@@ -1,30 +1,28 @@
-import { SimpleTreeView } from "@mui/x-tree-view";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { SimpleTreeView } from '@mui/x-tree-view';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ContextComponent,
   ContextComponentData,
   ContextComponentErrorsType,
   ContextComponentsType,
   ContextComponentType,
-} from "../../../types/contextComponent";
-import { Placeholder } from "../../Placeholder";
-import { Box, Button, Typography } from "@mui/material";
-import TocSharpIcon from "@mui/icons-material/TocSharp";
-import { contextApi } from "../../../api/context.api";
-import { NewContextComponentDialog } from "../../NewContextComponentDialog";
-import { AlertDialog } from "../../AlertDialog";
-import { useNotification } from "../../../context/notification.context";
-import { getStageTitle, Stage } from "../../../types/stage";
-import { ContextComponentList } from "../ContextComponentList";
-import { StageGroupSection } from "../StageGroupSection";
+} from '../../../types/contextComponent';
+import { Placeholder } from '../../Placeholder';
+import { Box, Button, Typography } from '@mui/material';
+import TocSharpIcon from '@mui/icons-material/TocSharp';
+import { contextApi } from '../../../api/context.api';
+import { NewContextComponentDialog } from '../../NewContextComponentDialog';
+import { AlertDialog } from '../../AlertDialog';
+import { useNotification } from '../../../context/notification.context';
+import { getStageTitle, Stage } from '../../../types/stage';
+import { ContextComponentList } from '../ContextComponentList';
+import { StageGroupSection } from '../StageGroupSection';
 
 interface ContextComponentsProps {
   projectId: number;
   contextComponents: ContextComponentsType | null;
-  setContextComponents: React.Dispatch<
-    React.SetStateAction<ContextComponentsType | null>
-  >;
+  setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType | null>>;
   showActions?: boolean;
   stage?: Stage;
 }
@@ -36,13 +34,13 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
   showActions = false,
   stage,
 }) => {
-  const { t } = useTranslation("context");
-  const { getError } = useNotification();
+  const { t } = useTranslation('context');
+  const { showError, showSuccess } = useNotification();
 
-  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] =
-    useState(false);
-  const [contextComponentErrors, setContextComponentErrors] =
-    useState<ContextComponentErrorsType>({});
+  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] = useState(false);
+  const [contextComponentErrors, setContextComponentErrors] = useState<ContextComponentErrorsType>(
+    {}
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [compToDelete, setCompToDelete] = useState<{
     component: ContextComponent;
@@ -58,12 +56,10 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
 
   const fetchContextComponents = useCallback(async () => {
     try {
-      const contextFromApi = await contextApi.listContextComponents(
-        Number(projectId)
-      );
+      const contextFromApi = await contextApi.listContextComponents(Number(projectId));
       setContextComponents(contextFromApi);
     } catch (err) {
-      console.error("Error fetching context components:", err);
+      console.error('Error fetching context components:', err);
     }
   }, [projectId, setContextComponents]);
 
@@ -82,14 +78,12 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
     setNewContextComponentDialogOpen(false);
   };
 
-  const handleNewContextComponentSubmit = async (
-    formData: Record<string, any>
-  ) => {
+  const handleNewContextComponentSubmit = async (formData: Record<string, any>) => {
     try {
       const { id, type, ...data } = formData;
 
       if (!type) {
-        console.error("No type provided for context component.");
+        console.error('No type provided for context component.');
         return;
       }
       if (selectedEditCompoenent) {
@@ -101,14 +95,11 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
       handleCloseNewContextComponentDialog();
       fetchContextComponents();
     } catch (error) {
-      console.error("Error creating context component:", error);
+      console.error('Error creating context component:', error);
     }
   };
 
-  const confirmEditContextComponent = (
-    component: ContextComponent,
-    type: ContextComponentType
-  ) => {
+  const confirmEditContextComponent = (component: ContextComponent, type: ContextComponentType) => {
     setSelectedEditCompoenent({
       component: component,
       type: type,
@@ -133,9 +124,10 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
         );
         if (response) {
           fetchContextComponents();
+          showSuccess(t('context-component-deleted'));
         }
       } catch (error) {
-        getError("Failed to delete context component.");
+        showError(t('failed-to-delete-context-component'));
       }
     }
     setDeleteDialogOpen(false);
@@ -148,16 +140,14 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
         {showActions && (
           <Box display="flex" justifyContent="flex-end" gap={2}>
             <Button
-              variant={groupByStage ? "outlined" : "text"}
+              variant={groupByStage ? 'outlined' : 'text'}
               onClick={() => setGroupByStage(!groupByStage)}
-              startIcon={
-                <TocSharpIcon color={groupByStage ? "primary" : "action"} />
-              }
+              startIcon={<TocSharpIcon color={groupByStage ? 'primary' : 'action'} />}
             >
               <Typography
                 variant="caption"
                 fontWeight={550}
-                color={groupByStage ? "primary" : "action"}
+                color={groupByStage ? 'primary' : 'action'}
               >
                 group by stage
               </Typography>
@@ -169,20 +159,16 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
           {contextComponents ? (
             groupByStage ? (
               <>
-                {Object.values(Stage).map((stage) => {
+                {Object.values(Stage).map(stage => {
                   const stageComponents = Object.values(contextComponents)
                     .filter(
                       (comp): comp is ContextComponentData<ContextComponent> =>
                         comp !== null &&
-                        comp.data.some(
-                          (item: ContextComponent) => item.stage === stage
-                        )
+                        comp.data.some((item: ContextComponent) => item.stage === stage)
                     )
-                    .map((comp) => ({
+                    .map(comp => ({
                       ...comp,
-                      data: comp.data.filter(
-                        (item: ContextComponent) => item.stage === stage
-                      ),
+                      data: comp.data.filter((item: ContextComponent) => item.stage === stage),
                     }));
 
                   if (stageComponents.length === 0) return null;
@@ -233,20 +219,16 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
                       key={`${component.type}`}
                       itemId={`${component.type}`}
                       component={component}
-                      onEdit={(comp, type) =>
-                        confirmEditContextComponent(comp, type)
-                      }
-                      onDelete={(comp, type) =>
-                        confirmDeleteContextComponent(comp, type)
-                      }
+                      onEdit={(comp, type) => confirmEditContextComponent(comp, type)}
+                      onDelete={(comp, type) => confirmDeleteContextComponent(comp, type)}
                     />
                   )
               )
             )
           ) : (
             <Placeholder
-              description={t("context-component-placeholder")}
-              linkText={t("identify-component")}
+              description={t('context-component-placeholder')}
+              linkText={t('identify-component')}
               onClick={handleCreateContextComponent}
             />
           )}
@@ -265,14 +247,10 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
 
       <AlertDialog
         open={deleteDialogOpen}
-        title={t("context:delete-context-component-alert-title", {
-          type: t(compToDelete?.type || "context:context-component"),
+        title={t('context:delete-context-component-alert-title', {
+          type: t(compToDelete?.type || 'context:context-component'),
         })}
-        description={
-          compToDelete
-            ? t("context:delete-context-component-alert-description")
-            : ""
-        }
+        description={compToDelete ? t('context:delete-context-component-alert-description') : ''}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />

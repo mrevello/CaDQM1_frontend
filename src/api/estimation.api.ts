@@ -1,71 +1,69 @@
-import { instance } from "./base.api";
-import { endpoint as projectsEndpoint } from "./projects.api";
+import { Estimation, EstimationResponse, EstimationType } from '../types/estimation';
+import { instance } from './base.api';
+import { endpoint as projectsEndpoint } from './projects.api';
+import { API_ENDPOINTS } from '../constants';
 
-export const endpoint = "estimations/";
-
-export type EstimationType = "warnings" | "facts";
-
-export type EstimationResponse = {
-  estimation_id: number;
-  estimation: {
-    warnings: string[];
-    facts: string[];
-  };
-};
+export const endpoint = API_ENDPOINTS.ESTIMATION;
 
 export const estimationApi = {
-  getEstimation: async function (
-    projectId: number
-  ): Promise<EstimationResponse> {
-    const response = await instance.post(
-      `${projectsEndpoint}${projectId}/estimation/`,
-      {
-        regenerate: false,
-        prompt: "",
-      }
-    );
+  getEstimation: async function (projectId: number): Promise<Estimation> {
+    const response = await instance.post(`${projectsEndpoint}${projectId}/estimation/`, {
+      regenerate: false,
+      prompt: '',
+    });
 
-    return response.data;
+    const estimation: EstimationResponse = response.data;
+    return {
+      id: estimation.estimation_id,
+      warnings: estimation.estimation.warnings,
+      facts: estimation.estimation.facts,
+    };
   },
 
-  regenerateEstimation: async function (
-    projectId: number,
-    prompt: string
-  ): Promise<EstimationResponse> {
-    const response = await instance.post(
-      `${projectsEndpoint}${projectId}/estimation/`,
-      {
-        regenerate: true,
-        prompt: prompt,
-      }
-    );
+  regenerateEstimation: async function (projectId: number, prompt: string): Promise<Estimation> {
+    const response = await instance.post(`${projectsEndpoint}${projectId}/estimation/`, {
+      regenerate: true,
+      prompt: prompt,
+    });
 
-    return response.data.estimation;
+    const estimation: EstimationResponse = response.data;
+    return {
+      id: estimation.estimation_id,
+      warnings: estimation.estimation.warnings,
+      facts: estimation.estimation.facts,
+    };
   },
 
   discardEstimation: async function (
     estimationId: number,
     text: string,
     type: EstimationType
-  ): Promise<EstimationResponse> {
+  ): Promise<Estimation> {
     const response = await instance.post(`${endpoint}discard-item/`, {
       estimation_id: estimationId,
       text_to_discard: text,
       type: type,
     });
 
-    return response.data;
+    const estimation: EstimationResponse = response.data;
+    return {
+      id: estimation.estimation_id,
+      warnings: estimation.estimation.warnings,
+      facts: estimation.estimation.facts,
+    };
   },
 
-  addEstimation: async function (
-    estimationId: number,
-    text: string
-  ): Promise<EstimationResponse> {
+  addEstimation: async function (estimationId: number, text: string): Promise<Estimation> {
     const response = await instance.post(`${endpoint}add-fact/`, {
       estimation_id: estimationId,
       fact_text: text,
     });
 
-    return response.data;
+    const estimation: EstimationResponse = response.data;
+    return {
+      id: estimation.estimation_id,
+      warnings: estimation.estimation.warnings,
+      facts: estimation.estimation.facts,
+    };
   },
 };

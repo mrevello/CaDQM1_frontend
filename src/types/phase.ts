@@ -13,15 +13,15 @@ interface PhaseInfo {
 
 export const PHASE_STAGE_MAP: Record<Phase, PhaseInfo> = {
   [Phase.P1]: {
-    title: "phase:phase-1-title",
+    title: "phase-1-title",
     stages: [Stage.ST1, Stage.ST2, Stage.ST3],
   },
   [Phase.P2]: {
-    title: "phase:phase-2-title",
+    title: "phase-2-title",
     stages: [Stage.ST4, Stage.ST5, Stage.ST6],
   },
   [Phase.P3]: {
-    title: "phase:phase-3-title",
+    title: "phase-3-title",
     stages: [Stage.ST7, Stage.ST8, Stage.ST9],
   },
 };

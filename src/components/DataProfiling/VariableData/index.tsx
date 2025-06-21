@@ -1,14 +1,10 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-import {
-  BarChart,
-  ChartsXAxis,
-  ChartsYAxis,
-  ChartsTooltip,
-} from "@mui/x-charts";
-import { TypeChip } from "../TypeChip";
-import { DataProfilingValue } from "../DataProfilingValue";
-import { VariableProfileDetails } from "../../../types/dataProfiling";
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import { BarChart, ChartsXAxis, ChartsYAxis, ChartsTooltip } from '@mui/x-charts';
+import { TypeChip } from '../TypeChip';
+import { DataProfilingValue } from '../DataProfilingValue';
+import { VariableProfileDetails } from '../../../types/dataProfiling';
+import { useTranslation } from 'react-i18next';
 
 interface HistData {
   counts: number[];
@@ -23,11 +19,9 @@ interface VariableDataProps {
   variableData: VariableProfileDetails;
 }
 
-export const VariableData: React.FC<VariableDataProps> = ({
-  name,
-  variableData,
-}) => {
-  console.log(name, variableData);
+export const VariableData: React.FC<VariableDataProps> = ({ name, variableData }) => {
+  const { t } = useTranslation();
+
   const totalCount = variableData.n ?? variableData.count ?? 0;
 
   const missingCount = variableData.missingCount ?? variableData.n_missing ?? 0;
@@ -48,9 +42,7 @@ export const VariableData: React.FC<VariableDataProps> = ({
 
   const memorySize = variableData.memory_size / 1000;
 
-  const rawHist = (variableData.histogram ?? variableData.histogram_length) as
-    | HistData
-    | undefined;
+  const rawHist = (variableData.histogram ?? variableData.histogram_length) as HistData | undefined;
 
   const histSeries =
     rawHist?.counts.map((count: number, i: number) => ({
@@ -72,11 +64,7 @@ export const VariableData: React.FC<VariableDataProps> = ({
     : [];
 
   const chartDescription =
-    histSeries.length > 0
-      ? "Histogram"
-      : catSeries.length > 0
-        ? "Value counts"
-        : "";
+    histSeries.length > 0 ? 'Histogram' : catSeries.length > 0 ? 'Value counts' : '';
 
   return (
     <Box mb={4}>
@@ -91,76 +79,48 @@ export const VariableData: React.FC<VariableDataProps> = ({
 
       <Box display="flex" flexDirection="row" gap={1}>
         <Box flex={1} display="flex" flexDirection="column" gap={1} mb={2}>
-          {totalCount && (
-            <DataProfilingValue label="total-count" value={totalCount} />
-          )}
+          {totalCount && <DataProfilingValue label="total-count" value={totalCount} />}
 
           {missingCount != null && (
-            <DataProfilingValue
-              label="missing"
-              value={missingCount}
-              percentage={p_missing}
-            />
+            <DataProfilingValue label="missing" value={missingCount} percentage={p_missing} />
           )}
 
           {mean && <DataProfilingValue label="mean" value={mean?.toFixed(2)} />}
 
-          {std && (
-            <DataProfilingValue label="std-dev" value={std?.toFixed(2)} />
-          )}
+          {std && <DataProfilingValue label="std-dev" value={std?.toFixed(2)} />}
 
           {min && <DataProfilingValue label="min" value={min} />}
 
           {max && <DataProfilingValue label="max" value={max} />}
 
           {n_distinct && (
-            <DataProfilingValue
-              label="distinct"
-              value={n_distinct}
-              percentage={p_distinct}
-            />
+            <DataProfilingValue label="distinct" value={n_distinct} percentage={p_distinct} />
           )}
 
-          <DataProfilingValue
-            label="unique"
-            value={n_unique}
-            percentage={p_unique}
-          />
+          <DataProfilingValue label="unique" value={n_unique} percentage={p_unique} />
 
-          <DataProfilingValue label="is unique" value={String(isUnique)} />
-          <DataProfilingValue label="is ordered" value={String(isOrdered)} />
+          <DataProfilingValue label="is-unique" value={isUnique ? t('yes') : t('no')} />
+          <DataProfilingValue label="is-ordered" value={isOrdered ? t('yes') : t('no')} />
 
           {memorySize && (
-            <DataProfilingValue
-              label="memory-size"
-              value={`${memorySize.toFixed(2)} kB`}
-            />
+            <DataProfilingValue label="memory-size" value={`${memorySize.toFixed(2)} kB`} />
           )}
         </Box>
 
         {(histSeries.length > 0 || catSeries.length > 0) && (
           <Box flex={1}>
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              height={300}
-            >
+            <Box display="flex" flexDirection="column" alignItems="center" height={300}>
               <BarChart
                 series={[
                   {
-                    type: "bar",
-                    data: (histSeries.length > 0 ? histSeries : catSeries).map(
-                      (d) => d.y
-                    ),
+                    type: 'bar',
+                    data: (histSeries.length > 0 ? histSeries : catSeries).map(d => d.y),
                   },
                 ]}
                 xAxis={[
                   {
-                    data: (histSeries.length > 0 ? histSeries : catSeries).map(
-                      (d) => d.x
-                    ),
-                    scaleType: "band",
+                    data: (histSeries.length > 0 ? histSeries : catSeries).map(d => d.x),
+                    scaleType: 'band',
                   },
                 ]}
                 height={300}

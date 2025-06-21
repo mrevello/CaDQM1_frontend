@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
-import MonacoEditor, { BeforeMount, OnMount } from "@monaco-editor/react";
-import { Card } from "@mui/material";
+import React, { useEffect } from 'react';
+import MonacoEditor, { BeforeMount, OnMount } from '@monaco-editor/react';
+import { Card } from '@mui/material';
 import {
   setupSqlProvider,
   updateSqlColumnNames,
   updateSqlTableNames,
-} from "../../../utils/monacoSqlProvider";
-import { ColumnSchema, Schema } from "../../../types/dataProfiling";
+} from '../../../utils/monacoSqlProvider';
+import { ColumnSchema, Schema } from '../../../types/dataProfiling';
 
 export interface SqlEditorProps {
   value: string;
@@ -14,12 +14,8 @@ export interface SqlEditorProps {
   schema?: Schema;
 }
 
-export const SqlEditor: React.FC<SqlEditorProps> = ({
-  value,
-  onChange,
-  schema,
-}) => {
-  const handleBeforeMount: BeforeMount = (monacoInstance) => {
+export const SqlEditor: React.FC<SqlEditorProps> = ({ value, onChange, schema }) => {
+  const handleBeforeMount: BeforeMount = monacoInstance => {
     setupSqlProvider(monacoInstance);
   };
 
@@ -27,16 +23,16 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
     if (schema) {
       updateSqlTableNames(Object.keys(schema));
 
-      const columnNames = Object.values(schema).flatMap((colsArr) =>
+      const columnNames = Object.values(schema).flatMap(colsArr =>
         colsArr.map((column: ColumnSchema) => column.column)
       );
       updateSqlColumnNames(columnNames);
     }
   }, [schema]);
 
-  const handleOnMount: OnMount = (editor) => {
+  const handleOnMount: OnMount = editor => {
     editor.updateOptions({
-      wordWrap: "on",
+      wordWrap: 'on',
       minimap: { enabled: false },
     });
   };
@@ -49,10 +45,10 @@ export const SqlEditor: React.FC<SqlEditorProps> = ({
         height={200}
         beforeMount={handleBeforeMount}
         onMount={handleOnMount}
-        onChange={(v) => v !== undefined && onChange(v)}
+        onChange={v => v !== undefined && onChange(v)}
         options={{
           minimap: { enabled: false },
-          fontFamily: "monospace",
+          fontFamily: 'monospace',
           automaticLayout: true,
         }}
       />

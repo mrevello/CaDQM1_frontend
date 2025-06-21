@@ -1,0 +1,219 @@
+import { useState, useCallback } from 'react';
+import { problemsApi, ProblemBody } from '../api/problem.api';
+import { Problem, ProblemErrorsType } from '../types/problem';
+import { ReviewType } from '../types/review';
+import { reviewApi } from '../api/review.api';
+import { ProblemValidate } from '../utils/validateForm';
+import * as yup from 'yup';
+
+interface UseDQProblemsProps {
+  projectId: number;
+  type?: ReviewType;
+}
+
+export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
+  const [problems, setProblems] = useState<Problem[]>([]);
+  const [loadingProblems, setLoadingProblems] = useState<boolean>(false);
+  const [loadingAnalysis, setLoadingAnalysis] = useState<boolean>(false);
+  const [newProblemDialogOpen, setNewProblemDialogOpen] = useState(false);
+  const [problemErrors, setProblemErrors] = useState<ProblemErrorsType>({});
+  const [selectedEditProblem, setSelectedEditProblem] = useState<Problem | null>(null);
+  const [reviewId, setReviewId] = useState<number>();
+
+  const fetchProblems = useCallback(async () => {
+    try {
+      setLoadingProblems(true);
+      const problemsFromApi = await problemsApi.listProblems(projectId);
+      setProblems(problemsFromApi ?? []);
+    } catch (err) {
+      console.error('Error fetching problems:', err);
+    } finally {
+      setLoadingProblems(false);
+    }
+  }, [projectId]);
+
+  const fetchReview = useCallback(async () => {
+    if (!type) return;
+
+    try {
+      const review = await reviewApi.getReview(projectId, type);
+      setReviewId(review?.id);
+    } catch (err) {
+      console.error('Error fetching review:', err);
+    }
+  }, [projectId, type]);
+
+  const fetchAnalysis = useCallback(async () => {
+    if (!reviewId) return;
+
+    try {
+      setLoadingAnalysis(true);
+      const response = await reviewApi.getAnalysis(reviewId);
+      if (response) {
+        const suggestedProblems: Problem[] = response.data.map(suggestion => ({
+          id: Date.now() + Math.random(),
+          description: suggestion,
+          date: new Date(),
+          isSuggestion: true,
+        }));
+        setProblems(prev => [...prev, ...suggestedProblems]);
+      }
+    } catch (error) {
+      console.error('Error fetching analysis:', error);
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  }, [reviewId]);
+
+  const createProblem = useCallback(async (data: ProblemBody) => {
+    try {
+      setLoadingProblems(true);
+      const createdProblem = await problemsApi.createProblem(data);
+      console.log('createdProblem', createdProblem);
+      if (createdProblem) {
+        setProblems(prev => [...prev, createdProblem]);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error creating problem:', error);
+      return false;
+    } finally {
+      setLoadingProblems(false);
+    }
+  }, []);
+
+  const updateProblem = useCallback(
+    async (id: number, data: Partial<ProblemBody>) => {
+      try {
+        setLoadingProblems(true);
+        const updatedProblem = await problemsApi.updateProblem(id, data, projectId);
+        if (updatedProblem) {
+          setProblems(prev =>
+            prev.map(problem => (problem.id === id ? { ...problem, ...updatedProblem } : problem))
+          );
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error updating problem:', error);
+        return false;
+      } finally {
+        setLoadingProblems(false);
+      }
+    },
+    [projectId]
+  );
+
+  const deleteProblem = useCallback(async (id: number) => {
+    try {
+      setLoadingProblems(true);
+      const response = await problemsApi.deleteProblem(id);
+      if (response?.success) {
+        setProblems(prev => prev.filter(problem => problem.id !== id));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error deleting problem:', error);
+      return false;
+    } finally {
+      setLoadingProblems(false);
+    }
+  }, []);
+
+  const handleCreateProblem = useCallback(() => {
+    console.log('handleCreateProblem called');
+    setProblemErrors({});
+    setSelectedEditProblem(null);
+    setNewProblemDialogOpen(true);
+    console.log('newProblemDialogOpen set to true');
+  }, []);
+
+  const handleCloseNewProblemDialog = useCallback(() => {
+    setProblemErrors({});
+    setSelectedEditProblem(null);
+    setNewProblemDialogOpen(false);
+  }, []);
+
+  const handleNewProblemSubmit = useCallback(
+    async (formData: Record<string, any>) => {
+      try {
+        await ProblemValidate.validate(formData, { abortEarly: false });
+        setProblemErrors({});
+
+        const { description, ...rest } = formData;
+        const problemData: ProblemBody = {
+          description,
+          project_id: projectId,
+          ...rest,
+        };
+
+        let success;
+        if (selectedEditProblem) {
+          success = await updateProblem(selectedEditProblem.id, problemData);
+        } else {
+          success = await createProblem(problemData);
+        }
+
+        if (success) {
+          handleCloseNewProblemDialog();
+        }
+      } catch (error) {
+        if (error instanceof yup.ValidationError) {
+          const errors: ProblemErrorsType = {};
+          error.inner.forEach(validationError => {
+            errors.description = validationError.message;
+          });
+          setProblemErrors(errors);
+        } else {
+          console.error('Error submitting problem:', error);
+          handleCloseNewProblemDialog();
+        }
+      }
+    },
+    [createProblem, updateProblem, selectedEditProblem, projectId, handleCloseNewProblemDialog]
+  );
+
+  const handleEditProblem = useCallback((problem: Problem) => {
+    setSelectedEditProblem(problem);
+    setNewProblemDialogOpen(true);
+  }, []);
+
+  const handleDiscardProblem = useCallback(
+    async (problem: Problem) => {
+      if (!reviewId) {
+        console.error('Error: No review ID available');
+        return;
+      }
+
+      try {
+        await reviewApi.rejectSuccestion(reviewId, problem.description);
+        setProblems(prev => prev.filter(p => p !== problem));
+      } catch (error) {
+        console.error('Error discarding problem:', error);
+      }
+    },
+    [reviewId]
+  );
+
+  return {
+    problems,
+    setProblems,
+    loading: loadingProblems || loadingAnalysis,
+    fetchProblems,
+    fetchReview,
+    fetchAnalysis,
+    createProblem,
+    updateProblem,
+    deleteProblem,
+    newProblemDialogOpen,
+    problemErrors,
+    selectedEditProblem,
+    handleCreateProblem,
+    handleCloseNewProblemDialog,
+    handleNewProblemSubmit,
+    handleEditProblem,
+    handleDiscardProblem,
+  };
+};

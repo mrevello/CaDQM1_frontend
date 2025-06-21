@@ -1,20 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box, Container, SpeedDial, SpeedDialAction } from "@mui/material";
-import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { ActivityHeader } from "../../../components/ActivityHeader";
-import { getStageActivities, Stage } from "../../../types/stage";
-import { Activity } from "../../../types/activity";
-import { ActivityStepper } from "../../../components/ActivityStepper";
-import PriorityHighOutlinedIcon from "@mui/icons-material/PriorityHighOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { KeyboardArrowUpOutlined } from "@mui/icons-material";
-import { StageDialog } from "../../../components/StagesDialog";
-import { ContextDialog } from "../../../components/Context/ContextDialog";
-import { ProblemsDialog } from "../../../components/ProblemsDialog";
-import { link, ProjectStage, Project } from "../../../types/project";
-import { projectsApi } from "../../../api/projects.api";
-import { State } from "../../../types/state";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Container, SpeedDial, SpeedDialAction } from '@mui/material';
+import { useParams, useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { ActivityHeader } from '../../../components/ActivityHeader';
+import { getStageActivities, Stage } from '../../../types/stage';
+import { Activity } from '../../../types/activity';
+import { ActivityStepper } from '../../../components/ActivityStepper';
+import PriorityHighOutlinedIcon from '@mui/icons-material/PriorityHighOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import { KeyboardArrowUpOutlined } from '@mui/icons-material';
+import { StageDialog } from '../../../components/StagesDialog';
+import { ContextDialog } from '../../../components/Context/ContextDialog';
+import { ProblemsDialog } from '../../../components/ProblemsDialog';
+import { link, ProjectStage, Project } from '../../../types/project';
+import { projectsApi } from '../../../api/projects.api';
+import { State } from '../../../types/state';
+import { useTranslation } from 'react-i18next';
 
 export interface ActivityHandle {
   validateForm: () => Promise<boolean>;
@@ -29,15 +29,15 @@ export const StageLayout: React.FC = () => {
 
   const activityRef = useRef<ActivityHandle>(null);
 
-  const stageFromPath = location.pathname.split("/")[3].toUpperCase() as Stage;
+  const stageFromPath = location.pathname.split('/')[3].toUpperCase() as Stage;
 
   const [stage, setStage] = useState<Stage>(stageFromPath);
   const [nextAvailableStages, setNextAvailableStages] = useState<Stage[]>([]);
   const activities = React.useMemo(() => getStageActivities(stage), [stage]);
 
-  const lastSegment = location.pathname.split("/").pop()?.toLowerCase() || "";
+  const lastSegment = location.pathname.split('/').pop()?.toLowerCase() || '';
   const selectedActivity: Activity = React.useMemo(() => {
-    const found = activities.find((act) => act.toLowerCase() === lastSegment);
+    const found = activities.find(act => act.toLowerCase() === lastSegment);
     return found ?? activities[0];
   }, [lastSegment, activities]);
 
@@ -52,26 +52,21 @@ export const StageLayout: React.FC = () => {
       try {
         const project = await projectsApi.getProject(Number(projectId));
         if (!project) {
-          console.warn("No project data returned");
+          console.warn('No project data returned');
           return;
         }
         setProject(project);
 
         const hasStage =
           project.stages?.some(
-            (ps: ProjectStage) =>
-              ps.stage === stage && ps.status === State.IN_PROGRESS
+            (ps: ProjectStage) => ps.stage === stage && ps.status === State.IN_PROGRESS
           ) ?? false;
 
         if (projectId && stage && !hasStage) {
-          await projectsApi.updateStage(
-            Number(projectId),
-            stage,
-            State.IN_PROGRESS
-          );
+          await projectsApi.updateStage(Number(projectId), stage, State.IN_PROGRESS);
         }
       } catch (error) {
-        console.error("Error during project fetch or stage update:", error);
+        console.error('Error during project fetch or stage update:', error);
       }
     };
 
@@ -82,10 +77,10 @@ export const StageLayout: React.FC = () => {
     setStage(nextStage);
     const newActivities = getStageActivities(nextStage);
 
-    if (newActivities.length > 0) {
-      navigate(link(projectId!!, nextStage, newActivities[0]));
+    if (newActivities.length > 0 && projectId) {
+      navigate(link(projectId, nextStage, newActivities[0]));
     } else {
-      navigate("/");
+      navigate('/');
     }
   };
 
@@ -106,7 +101,11 @@ export const StageLayout: React.FC = () => {
       }
       setStagesDialogOpen(true);
     } else {
-      navigate(link(projectId!!, stage, next));
+      if (projectId) {
+        navigate(link(projectId, stage, next));
+      } else {
+        console.error('No project ID found');
+      }
     }
   };
 
@@ -115,7 +114,7 @@ export const StageLayout: React.FC = () => {
       await projectsApi.updateStage(Number(projectId), stage, State.DONE);
       continueToStage(nextStage);
     } catch (error) {
-      console.error("Error updating stage:", error);
+      console.error('Error updating stage:', error);
     }
     setStagesDialogOpen(false);
   };
@@ -123,9 +122,9 @@ export const StageLayout: React.FC = () => {
   const handleSkip = async () => {
     try {
       await projectsApi.updateStage(Number(projectId), stage, State.DONE);
-      navigate("/");
+      navigate('/');
     } catch (error) {
-      console.error("Error updating stage on skip:", error);
+      console.error('Error updating stage on skip:', error);
     }
     setStagesDialogOpen(false);
   };
@@ -133,12 +132,12 @@ export const StageLayout: React.FC = () => {
   const actions = [
     {
       icon: <AddOutlinedIcon />,
-      name: "View Context",
+      name: 'View Context',
       onClick: () => setContextDialogOpen(true),
     },
     {
       icon: <PriorityHighOutlinedIcon />,
-      name: "View Problems",
+      name: 'View Problems',
       onClick: () => setProblemsDialogOpen(true),
     },
   ];
@@ -159,10 +158,10 @@ export const StageLayout: React.FC = () => {
         <SpeedDial
           direction="up"
           ariaLabel="SpeedDial for extra actions"
-          sx={{ position: "fixed", bottom: 92, right: 24 }}
+          sx={{ position: 'fixed', bottom: 92, right: 24 }}
           icon={<KeyboardArrowUpOutlined />}
         >
-          {actions.map((action) => (
+          {actions.map(action => (
             <SpeedDialAction
               key={action.name}
               icon={action.icon}
@@ -173,13 +172,13 @@ export const StageLayout: React.FC = () => {
         </SpeedDial>
         <Box
           sx={{
-            position: "fixed",
+            position: 'fixed',
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: "#fff",
+            backgroundColor: '#fff',
             zIndex: 1300,
-            boxShadow: "0px -2px 16px #091E420F",
+            boxShadow: '0px -2px 16px #091E420F',
           }}
         >
           <ActivityStepper
@@ -192,7 +191,7 @@ export const StageLayout: React.FC = () => {
 
       <StageDialog
         stages={nextAvailableStages}
-        title={t("stage:choose-next-stage")}
+        title={t('stage:choose-next-stage')}
         open={stagesDialogOpen}
         onClose={() => setStagesDialogOpen(false)}
         onStageSelect={handleStageSelect}

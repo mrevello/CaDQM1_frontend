@@ -1,22 +1,16 @@
-import {
-  Box,
-  Button,
-  Container,
-  Link,
-  TextField,
-  Typography,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import React, { useState } from "react";
-import { useNotification } from "../../context/notification.context";
-import { RegisterValidate } from "../../utils/validateForm";
-import { useNavigate } from "react-router-dom";
-import * as yup from "yup";
-import { register } from "../../api/register.api";
-import "../../i18n";
-import { useTranslation } from "react-i18next";
-import { StyledGrid, StyledFormPaper, StyledBottomGrid } from "../login";
-import { login } from "../../api/login.api";
+import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import React, { useState } from 'react';
+import { useNotification } from '../../context/notification.context';
+import { RegisterValidate } from '../../utils/validateForm';
+import { useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+import { register } from '../../api/register.api';
+import '../../i18n';
+import { useTranslation } from 'react-i18next';
+import { StyledGrid, StyledFormPaper, StyledBottomGrid } from '../login';
+import { login } from '../../api/login.api';
+import { ROUTES } from '../../constants';
 
 type RegisterType = {
   username: string;
@@ -36,20 +30,20 @@ export const Register: React.FC = () => {
   const { t } = useTranslation();
 
   const navigate = useNavigate();
-  const { getSuccess, getError } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const [registerData, setRegisterData] = useState<RegisterType>({
-    username: "",
-    password: "",
-    email: "",
-    description: "",
+    username: '',
+    password: '',
+    email: '',
+    description: '',
   });
 
   const [registerErrors, setRegisterErrors] = useState<RegisterErrorsType>({});
 
   const onChangeRegisterData = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRegisterData({ ...registerData, [e.target.name]: e.target.value });
-    setRegisterErrors({ ...registerErrors, [e.target.name]: "" });
+    setRegisterErrors({ ...registerErrors, [e.target.name]: '' });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,37 +57,36 @@ export const Register: React.FC = () => {
       await register.register(
         registerData.username,
         registerData.password,
-        registerData.email || "",
-        registerData.description || ""
+        registerData.email || '',
+        registerData.description || ''
       );
 
-      getSuccess(t("registration-successful"));
+      showSuccess(t('registration-successful'));
 
       await login.login(registerData.username, registerData.password);
-      getSuccess(t("login-successful"));
-      navigate("/");
+      showSuccess(t('login-successful'));
+      navigate(ROUTES.HOME);
     } catch (error: any) {
       if (error instanceof yup.ValidationError) {
         const errors: RegisterErrorsType = {};
-        error.inner.forEach((validationError) => {
-          errors[validationError.path as keyof RegisterType] =
-            validationError.message;
+        error.inner.forEach(validationError => {
+          errors[validationError.path as keyof RegisterType] = validationError.message;
         });
         setRegisterErrors(errors);
       } else if (error instanceof Error && error.message) {
-        if (error.message.includes("nombre de usuario ya existe")) {
+        if (error.message.includes('nombre de usuario ya existe')) {
           setRegisterErrors({ username: error.message });
         } else {
-          getError(error.message || t("registration-failed"));
+          showError(error.message || t('registration-failed'));
         }
       } else {
-        getError(t("unexpected-error"));
+        showError(t('unexpected-error'));
       }
     }
   };
 
   const handleLoginClicked = () => {
-    navigate("/login");
+    navigate(ROUTES.LOGIN);
   };
 
   return (
@@ -102,10 +95,10 @@ export const Register: React.FC = () => {
         <StyledFormPaper>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Typography variant="h4">{t("register")}</Typography>
+              <Typography variant="h4">{t('register')}</Typography>
               <TextField
                 name="username"
-                label={t("username")}
+                label={t('username')}
                 fullWidth
                 onChange={onChangeRegisterData}
                 value={registerData.username}
@@ -114,7 +107,7 @@ export const Register: React.FC = () => {
               />
               <TextField
                 name="password"
-                label={t("password")}
+                label={t('password')}
                 type="password"
                 fullWidth
                 onChange={onChangeRegisterData}
@@ -124,7 +117,7 @@ export const Register: React.FC = () => {
               />
               <TextField
                 name="email"
-                label={t("email")}
+                label={t('email')}
                 fullWidth
                 onChange={onChangeRegisterData}
                 value={registerData.email}
@@ -133,7 +126,7 @@ export const Register: React.FC = () => {
               />
               <TextField
                 name="description"
-                label={t("description")}
+                label={t('description')}
                 fullWidth
                 rows={2}
                 multiline
@@ -143,14 +136,14 @@ export const Register: React.FC = () => {
                 helperText={registerErrors.description}
               />
               <Button fullWidth type="submit" variant="contained">
-                {t("register")}
+                {t('register')}
               </Button>
             </Grid>
           </Box>
           <StyledBottomGrid container spacing={1}>
-            <Typography variant="body1">{t("already-have-account")}</Typography>
+            <Typography variant="body1">{t('already-have-account')}</Typography>
             <Link component="button" onClick={handleLoginClicked}>
-              {t("login")}
+              {t('login')}
             </Link>
           </StyledBottomGrid>
         </StyledFormPaper>

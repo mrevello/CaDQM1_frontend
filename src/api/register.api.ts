@@ -1,7 +1,8 @@
-import axios from "axios";
-import { instance } from "./base.api";
+import axios from 'axios';
+import { instance } from './base.api';
+import { API_ENDPOINTS } from '../constants';
 
-const endpoint = "register/";
+const endpoint = API_ENDPOINTS.AUTH.REGISTER;
 
 export const register = {
   register: async function (
@@ -29,13 +30,13 @@ export const register = {
           }
         } else if (error.request) {
           throw new Error(
-            "No response received from server. Please check your network connection."
+            'No response received from server. Please check your network connection.'
           );
         } else {
-          throw new Error("An unexpected error occurred. Please try again.");
+          throw new Error('An unexpected error occurred. Please try again.');
         }
       } else {
-        throw new Error("An unexpected error occurred. Please try again.");
+        throw new Error('An unexpected error occurred. Please try again.');
       }
     }
   },

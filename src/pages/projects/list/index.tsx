@@ -57,7 +57,7 @@ interface Column {
 
 export const ProjectsList: React.FC = () => {
   const { t } = useTranslation();
-  const { getSuccess, getError } = useNotification();
+  const { showSuccess, showError } = useNotification();
   const navigate = useNavigate();
 
   const [selectedStage, setSelectedStage] = useState<Stage | "all">("all");
@@ -168,10 +168,10 @@ export const ProjectsList: React.FC = () => {
     if (!projectToDelete) return;
     try {
       await projectsApi.deleteProject(projectToDelete.id);
-      getSuccess(t("delete-success", { name: projectToDelete.name }));
+      showSuccess(t("delete-success", { name: projectToDelete.name }));
       await fetchProjects();
     } catch (err: any) {
-      getError(t("error-deleting-project", { message: err.message }));
+      showError(t("error-deleting-project", { message: err.message }));
       console.error("Error deleting project:", err);
     } finally {
       setDeleteDialogOpen(false);
@@ -228,7 +228,7 @@ export const ProjectsList: React.FC = () => {
         // Set form errors
         setProjectErrors({ name: error.errors[0] });
       } else {
-        getError(t("error-creating-project", { error }));
+        showError(t("error-creating-project", { error }));
       }
     }
   };

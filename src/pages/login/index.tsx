@@ -1,22 +1,14 @@
-import {
-  Box,
-  Button,
-  Container,
-  Link,
-  Paper,
-  styled,
-  TextField,
-  Typography,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";
-import React, { useState } from "react";
-import { useNotification } from "../../context/notification.context";
-import { LoginValidate } from "../../utils/validateForm";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../api/login.api";
-import * as yup from "yup";
-import "../../i18n";
-import { useTranslation } from "react-i18next";
+import { Box, Button, Container, Link, Paper, styled, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import React, { useState } from 'react';
+import { useNotification } from '../../context/notification.context';
+import { LoginValidate } from '../../utils/validateForm';
+import { useNavigate } from 'react-router-dom';
+import { login } from '../../api/login.api';
+import * as yup from 'yup';
+import '../../i18n';
+import { useTranslation } from 'react-i18next';
+import { ROUTES } from '../../constants';
 
 type LoginType = {
   username: string;
@@ -29,38 +21,38 @@ type LoginErrorsType = {
 };
 
 export const StyledGrid = styled(Grid)({
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  minHeight: '100vh',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
 });
 
 export const StyledFormPaper = styled(Paper)({
-  padding: "4rem 3rem",
+  padding: '4rem 3rem',
 });
 
 export const StyledBottomGrid = styled(Grid)({
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: "2rem",
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginTop: '2rem',
 });
 
 export const Login: React.FC = () => {
   const { t } = useTranslation();
 
   const navigate = useNavigate();
-  const { getSuccess, getError } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const [loginData, setLoginData] = useState<LoginType>({
-    username: "",
-    password: "",
+    username: '',
+    password: '',
   });
 
   const [loginErrors, setLoginErrors] = useState<LoginErrorsType>({});
 
   const onChangeLoginData = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
-    setLoginErrors({ ...loginErrors, [e.target.name]: "" });
+    setLoginErrors({ ...loginErrors, [e.target.name]: '' });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,25 +64,24 @@ export const Login: React.FC = () => {
       setLoginErrors({});
 
       await login.login(loginData.username, loginData.password);
-      getSuccess(t("login-successful"));
-      navigate("/");
+      showSuccess(t('login-successful'));
+      navigate(ROUTES.HOME);
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const errors: LoginErrorsType = {};
-        error.inner.forEach((validationError) => {
-          errors[validationError.path as keyof LoginType] =
-            validationError.message;
+        error.inner.forEach(validationError => {
+          errors[validationError.path as keyof LoginType] = validationError.message;
         });
         setLoginErrors(errors);
       } else {
         // Server error
-        getError(t("login-failed"));
+        showError(t('login-failed'));
       }
     }
   };
 
   const handleRegisterClicked = () => {
-    navigate("/register");
+    navigate(ROUTES.REGISTER);
   };
 
   return (
@@ -99,10 +90,10 @@ export const Login: React.FC = () => {
         <StyledFormPaper>
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Typography variant="h5">{t("login")}</Typography>
+              <Typography variant="h5">{t('login')}</Typography>
               <TextField
                 name="username"
-                label={t("username")}
+                label={t('username')}
                 fullWidth
                 onChange={onChangeLoginData}
                 value={loginData.username}
@@ -111,7 +102,7 @@ export const Login: React.FC = () => {
               />
               <TextField
                 name="password"
-                label={t("password")}
+                label={t('password')}
                 type="password"
                 fullWidth
                 onChange={onChangeLoginData}
@@ -120,16 +111,14 @@ export const Login: React.FC = () => {
                 helperText={loginErrors.password}
               />
               <Button fullWidth type="submit" variant="contained">
-                {t("login")}
+                {t('login')}
               </Button>
             </Grid>
           </Box>
           <StyledBottomGrid container spacing={1}>
-            <Typography variant="body1">
-              {t("dont-have-account")}
-            </Typography>
+            <Typography variant="body1">{t('dont-have-account')}</Typography>
             <Link component="button" onClick={handleRegisterClicked}>
-              {t("register")}
+              {t('register')}
             </Link>
           </StyledBottomGrid>
         </StyledFormPaper>

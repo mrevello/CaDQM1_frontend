@@ -125,7 +125,8 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <Label text={`${t("project:progress")}:`} />
 
             <StageTimeline
-              stages={stages}
+              project={project}
+              // stages={stages}
               onProjectStageClick={(stage) =>
                 navigate(projectLink(project, stage))
               }

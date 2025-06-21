@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -11,32 +11,31 @@ import {
   Tooltip,
   Typography,
   Card,
-  CircularProgress,
   PaperProps,
   Paper,
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
-} from "@mui/material";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { useTranslation } from "react-i18next";
-import { SqlEditor } from "../SQLEditor";
+} from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { useTranslation } from 'react-i18next';
+import { SqlEditor } from '../SQLEditor';
 import {
   dataProfilingApi,
   RawRow,
   SQLQueryBody,
   SQLQueryResponse,
-} from "../../../api/dataProfiling.api";
-import { useNotification } from "../../../context/notification.context";
-import { NewProblemDialog } from "../../NewProblemDialog";
-import { ProblemErrorsType } from "../../../types/problem";
-import { ProblemValidate } from "../../../utils/validateForm";
-import { ProblemBody, problemsApi } from "../../../api/problem.api";
-import * as yup from "yup";
-import Draggable from "react-draggable";
-import { Close } from "@mui/icons-material";
-import { Schema } from "../../../types/dataProfiling";
+} from '../../../api/dataProfiling.api';
+import { useNotification } from '../../../context/notification.context';
+import { NewProblemDialog } from '../../NewProblemDialog';
+import { ProblemErrorsType } from '../../../types/problem';
+import { ProblemValidate } from '../../../utils/validateForm';
+import * as yup from 'yup';
+import Draggable from 'react-draggable';
+import { Close } from '@mui/icons-material';
+import { Schema } from '../../../types/dataProfiling';
+import { useDQProblems } from '../../../hooks/useDQProblems';
 
 interface SQLQueryDialogProps {
   open: boolean;
@@ -64,10 +63,11 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
   projectId,
   schema,
 }) => {
-  const { t } = useTranslation("dataProfiling");
-  const { getError } = useNotification();
+  const { t } = useTranslation();
+  const { showError } = useNotification();
+  const { createProblem } = useDQProblems({ projectId });
 
-  const [sql, setSql] = useState<string>("");
+  const [sql, setSql] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SQLQueryResponse>();
 
@@ -90,15 +90,15 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
     try {
       let query = sql.trim();
 
-      if (query.endsWith(";")) query = query.slice(0, -1);
-      if (!/limit\s+\d+/i.test(query)) query += " LIMIT 500";
+      if (query.endsWith(';')) query = query.slice(0, -1);
+      if (!/limit\s+\d+/i.test(query)) query += ' LIMIT 500';
 
       const data: SQLQueryBody = { projectId, sql: query };
       const response = await dataProfilingApi.runSQLQuery(data);
       if (response) setResult(response);
     } catch (error: any) {
       console.error(error);
-      getError(error.toString());
+      showError(error.toString());
     } finally {
       setLoading(false);
     }
@@ -114,21 +114,23 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
       await ProblemValidate.validate(formData, { abortEarly: false });
       setProblemErrors({});
 
-      const newProblemData: ProblemBody = {
+      const success = await createProblem({
         description: formData.description,
-        project_id: Number(projectId),
-      };
-      const createdProblem = await problemsApi.createProblem(newProblemData);
-      handleCloseProblemDialog();
+        project_id: projectId,
+      });
+
+      if (success) {
+        handleCloseProblemDialog();
+      }
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const errors: ProblemErrorsType = {};
-        error.inner.forEach((validationError) => {
+        error.inner.forEach(validationError => {
           errors.description = validationError.message;
         });
         setProblemErrors(errors);
       } else {
-        getError(String(error));
+        showError(String(error));
         handleCloseProblemDialog();
       }
     }
@@ -145,18 +147,11 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
         maxWidth="md"
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle
-          id="draggable-dialog-title"
-          sx={{ cursor: "move", py: 2, px: 3 }}
-        >
+        <DialogTitle id="draggable-dialog-title" sx={{ cursor: 'move', py: 2, px: 3 }}>
           <Box>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
+            <Box display="flex" justifyContent="space-between" alignItems="center">
               <Box display="flex" alignItems="center">
-                <Typography variant="h6">{t("sql-query")}</Typography>
+                <Typography variant="h6">{t('sql-query')}</Typography>
               </Box>
 
               <Box display="flex" alignItems="center">
@@ -176,19 +171,18 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
               <Button
                 endIcon={<PlayArrowIcon />}
                 loading={loading}
-                disabled={sql.trim() === ""}
+                disabled={sql.trim() === ''}
                 variant="contained"
                 onClick={run}
               >
-                {loading ? t("running") : t("run-query")}
+                {loading ? t('running') : t('run-query')}
               </Button>
             </Box>
 
             {result && (
               <Box display="flex" flexDirection="column" gap={1}>
                 <Typography variant="subtitle2">
-                  {result.rows.length}{" "}
-                  {t(result.rows.length === 1 ? "row" : "rows")}
+                  {result.rows.length} {t(result.rows.length === 1 ? 'row' : 'rows')}
                 </Typography>
 
                 <TableContainer
@@ -196,29 +190,23 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
                   sx={{
                     maxHeight: 300,
                     borderRadius: 1,
-                    overflowY: "auto",
+                    overflowY: 'auto',
                   }}
-                  onScroll={(e) => {
+                  onScroll={e => {
                     const target = e.currentTarget;
                     if (
-                      target.scrollHeight - target.scrollTop <=
-                        target.clientHeight + 100 &&
+                      target.scrollHeight - target.scrollTop <= target.clientHeight + 100 &&
                       displayCount < result.rows.length
                     ) {
-                      setDisplayCount((c) =>
-                        Math.min(c + INCREMENT, result.rows.length)
-                      );
+                      setDisplayCount(c => Math.min(c + INCREMENT, result.rows.length));
                     }
                   }}
                 >
                   <Table stickyHeader size="small">
                     <TableHead>
                       <TableRow>
-                        {result.columns.map((col) => (
-                          <TableCell
-                            key={col}
-                            sx={{ minWidth: 150, px: 1, py: 1.5, fontSize: 14 }}
-                          >
+                        {result.columns.map(col => (
+                          <TableCell key={col} sx={{ minWidth: 150, px: 1, py: 1.5, fontSize: 14 }}>
                             {col}
                           </TableCell>
                         ))}
@@ -228,16 +216,12 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
                     <TableBody>
                       {visibleRows.map((row: RawRow, idx) => (
                         <TableRow key={idx} hover>
-                          {result.columns.map((col) => {
-                            const cellValue = String(row[col] ?? "null");
+                          {result.columns.map(col => {
+                            const cellValue = String(row[col] ?? 'null');
                             const isLong = cellValue.length > 40;
                             return (
                               <TableCell key={col} sx={{ px: 1, py: 0.8 }}>
-                                <Tooltip
-                                  title={cellValue}
-                                  arrow
-                                  disableHoverListener={!isLong}
-                                >
+                                <Tooltip title={cellValue} arrow disableHoverListener={!isLong}>
                                   <Box
                                     display="-webkit-box"
                                     overflow="hidden"
@@ -245,8 +229,8 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
                                     fontSize={12}
                                     sx={{
                                       WebkitLineClamp: 2,
-                                      WebkitBoxOrient: "vertical",
-                                      wordBreak: "break-word",
+                                      WebkitBoxOrient: 'vertical',
+                                      wordBreak: 'break-word',
                                     }}
                                   >
                                     {cellValue}
@@ -259,21 +243,11 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
                       ))}
                     </TableBody>
                   </Table>
-
-                  {displayCount < result.rows.length && (
-                    <Box display="flex" justifyContent="center" p={2}>
-                      <CircularProgress color="inherit" size={20} />
-                    </Box>
-                  )}
                 </TableContainer>
 
                 <Box display="flex" justifyContent="flex-end" width="100%">
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={() => setDialogOpen(true)}
-                  >
-                    {t("problem:identify-problem")}
+                  <Button size="small" onClick={() => setDialogOpen(true)}>
+                    {t('identify-problem')}
                   </Button>
                 </Box>
               </Box>

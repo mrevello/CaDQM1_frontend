@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Button, TextField, MenuItem, Box } from "@mui/material";
-import { GenericDialog } from "../Dialog";
-import { useTranslation } from "react-i18next";
+import React, { useState, useEffect } from 'react';
+import { Button, TextField, MenuItem, Box } from '@mui/material';
+import { GenericDialog } from '../Dialog';
+import { useTranslation } from 'react-i18next';
 
 export interface SelectOption {
   value: string;
@@ -9,7 +9,7 @@ export interface SelectOption {
   isAddOption?: boolean;
 }
 
-type InputType = "text" | "number" | "select" | "date" | "email";
+type InputType = 'text' | 'number' | 'select' | 'date' | 'email';
 
 export type TextFieldConfig = {
   id: string;
@@ -47,8 +47,8 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   title,
   dialogContentText,
   textFieldConfigs,
-  confirmTextResource = "confirm",
-  cancelTextResource = "cancel",
+  confirmTextResource = 'confirm',
+  cancelTextResource = 'cancel',
   onFieldChange,
 }) => {
   const { t } = useTranslation();
@@ -71,7 +71,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   }, [open, textFieldConfigs]);
 
   const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (onFieldChange) {
       onFieldChange(name, value);
     }
@@ -83,20 +83,14 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   };
 
   const dialogContent = (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      display="flex"
-      flexDirection="column"
-      gap={2.5}
-    >
-      {textFieldConfigs.map((field) => (
+    <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2.5}>
+      {textFieldConfigs.map(field => (
         <Box key={field.id}>
           <TextField
             fullWidth
-            select={field.type === "select"}
-            value={formData[field.name] || ""}
-            onChange={(e) => handleChange(field.name, e.target.value)}
+            select={field.type === 'select'}
+            value={formData[field.name] || ''}
+            onChange={e => handleChange(field.name, e.target.value)}
             SelectProps={{ native: false }}
             id={field.id}
             name={field.name}
@@ -109,16 +103,12 @@ export const FormDialog: React.FC<FormDialogProps> = ({
             placeholder={field.placeholder}
             inputRef={field.inputRef}
           >
-            {field.type === "select" &&
-              field.options?.map((option) => (
+            {field.type === 'select' &&
+              field.options?.map(option => (
                 <MenuItem
                   key={option.value}
                   value={option.value}
-                  sx={
-                    option.isAddOption
-                      ? { color: "primary.main", fontWeight: 500 }
-                      : undefined
-                  }
+                  sx={option.isAddOption ? { color: 'primary.main', fontWeight: 500 } : undefined}
                 >
                   {option.label}
                 </MenuItem>
@@ -142,11 +132,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
           <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }}>
             {t(cancelTextResource)}
           </Button>
-          <Button
-            autoFocus
-            variant="contained"
-            onClick={() => onSubmit(formData)}
-          >
+          <Button variant="contained" onClick={() => onSubmit(formData)}>
             {t(confirmTextResource)}
           </Button>
         </Box>

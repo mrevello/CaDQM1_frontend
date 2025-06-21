@@ -1,61 +1,62 @@
-import axios from "axios";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../utils/constants";
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { handleApiError } from './errorHandler';
+import { API_CONFIG, API_ENDPOINTS, AUTH_CONFIG, ROUTES } from '../constants';
 
-const BASE_URL = "http://localhost:8000/api/";
-
-export const instance = axios.create({
-  baseURL: BASE_URL,
+export const instance: AxiosInstance = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: 10000, // 10 seconds timeout
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Request interceptor to attach the access token to each request
+// Request interceptor
 instance.interceptors.request.use(
-  (config) => {
-    const accessToken = localStorage.getItem("accessToken");
+  (config: InternalAxiosRequestConfig) => {
+    const accessToken = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
 );
 
-// Response interceptor to refresh the token on 401 errors
+// Response interceptor
 instance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  (response: AxiosResponse) => response,
+  async error => {
     const originalRequest = error.config;
 
+    // Handle token refresh
     if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== `${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`
     ) {
       originalRequest._retry = true;
+
       try {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-
-        if (refreshToken) {
-          const { data } = await axios.post(`${BASE_URL}token/refresh/`, {
-            refresh: refreshToken,
-          });
-
-          const newAccessToken = data.access;
-          const newRefreshToken = data.refresh;
-          localStorage.setItem(ACCESS_TOKEN, newAccessToken);
-          localStorage.setItem(REFRESH_TOKEN, newRefreshToken);
-
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axios(originalRequest);
-        } else {
-          window.location.href = "/login";
+        const refreshToken = localStorage.getItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
         }
+
+        const { data } = await axios.post(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`, {
+          refresh: refreshToken,
+        });
+
+        const { access, refresh } = data;
+        localStorage.setItem(AUTH_CONFIG.TOKEN_KEY, access);
+        localStorage.setItem(AUTH_CONFIG.REFRESH_TOKEN_KEY, refresh);
+
+        originalRequest.headers.Authorization = `Bearer ${access}`;
+        return instance(originalRequest);
       } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
-
-        localStorage.removeItem(ACCESS_TOKEN);
-        localStorage.removeItem(REFRESH_TOKEN);
-
-        window.location.href = "/login";
+        // Clear tokens and redirect to login
+        localStorage.removeItem(AUTH_CONFIG.TOKEN_KEY);
+        localStorage.removeItem(AUTH_CONFIG.REFRESH_TOKEN_KEY);
+        window.location.href = ROUTES.LOGIN;
         return Promise.reject(refreshError);
       }
     }
@@ -63,3 +64,12 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Helper function to handle API responses
+export const handleResponse = <T>(response: AxiosResponse<T>): T => {
+  try {
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};

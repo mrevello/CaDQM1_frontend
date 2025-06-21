@@ -1,10 +1,15 @@
 import { ReviewData } from "../components/ReviewScreen";
-import { ContextComponentsType, emptyContextComponentsType } from "../types/contextComponent";
+import {
+  ContextComponentsType,
+  emptyContextComponentsType,
+  mapAnalysisToComponents,
+} from "../types/contextComponent";
 import { Review, ReviewType } from "../types/review";
 import { instance } from "./base.api";
 import { handleApiError } from "./errorHandler";
+import { API_ENDPOINTS } from "../constants";
 
-const endpoint = "reviews/";
+const endpoint = API_ENDPOINTS.REVIEWS;
 
 export type ReviewBody = {
   data: string;
@@ -164,25 +169,25 @@ export const reviewApi = {
     }
   },
 
-  // getContextComponentsAnalysis: async function (
-  //   projectId: number,
-  //   type: ReviewType
-  // ): Promise<ContextComponentsType> {
-  //   try {
-  //     const review = await this.getReview(projectId, type);
-  //     if (!review) {
-  //       return emptyContextComponentsType;
-  //     }
+  getContextComponentsAnalysis: async function (
+    projectId: number,
+    type: ReviewType
+  ): Promise<ContextComponentsType> {
+    try {
+      const review = await this.getReview(projectId, type);
+      if (!review) {
+        return emptyContextComponentsType;
+      }
 
-  //     const response = await instance.post(
-  //       `${endpoint}${review.id}/context-components/`
-  //     );
+      const response = await instance.post(
+        `${endpoint}${review.id}/context-components/`
+      );
 
-  //     return mapAnalysisToComponents(response.data);
-  //   } catch (error: any) {
-  //     return emptyContextComponentsType;
-  //   }
-  // },
+      return mapAnalysisToComponents(response.data);
+    } catch (error: any) {
+      return emptyContextComponentsType;
+    }
+  },
 
   rejectSuccestion: async function (
     reviewId: number,

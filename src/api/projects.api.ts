@@ -9,8 +9,9 @@ import { State } from "../types/state";
 import { instance } from "./base.api";
 import { dataAtHandApi } from "./dataAtHand.api";
 import { handleApiError } from "./errorHandler";
+import { API_ENDPOINTS } from "../constants";
 
-export const endpoint = "projects/";
+export const endpoint = API_ENDPOINTS.PROJECTS;
 
 export const projectsApi = {
   listProjects: async function (): Promise<Project[]> {

@@ -1,18 +1,8 @@
-import { S } from "framer-motion/dist/types.d-DDSxwf0n";
-import { FileType } from "../types/file";
-import {
-  Project,
-  ProjectResponse,
-  ProjectBody,
-  toProject,
-} from "../types/project";
-import { Stage } from "../types/stage";
-import { State } from "../types/state";
-import { instance } from "./base.api";
-import { dataAtHandApi } from "./dataAtHand.api";
-import { handleApiError } from "./errorHandler";
+import { instance } from './base.api';
+import { FileType } from '../types/file';
+import { API_ENDPOINTS } from '../constants';
 
-export const endpoint = "file-types/";
+export const endpoint = API_ENDPOINTS.FILES.TYPES;
 
 export const fileTypesApi = {
   listFileTypes: async function (): Promise<FileType[]> {
@@ -21,7 +11,7 @@ export const fileTypesApi = {
       console.log(response);
       const all: FileType[] = response.data;
       const seen = new Set<string>();
-      const distinct = all.filter((ft) => {
+      const distinct = all.filter(ft => {
         if (seen.has(ft.type)) return false;
         seen.add(ft.type);
         return true;

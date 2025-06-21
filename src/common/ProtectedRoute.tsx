@@ -1,11 +1,11 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { ACCESS_TOKEN } from "../utils/constants";
+import { Navigate, Outlet } from 'react-router-dom';
+import { AUTH_CONFIG, ROUTES } from '../constants';
 
 export const ProtectedRoute: React.FC<{ redirectPath?: string }> = ({
-  redirectPath = "/login",
+  redirectPath = ROUTES.LOGIN,
 }) => {
-  const token = localStorage.getItem(ACCESS_TOKEN);
-  const isLoggedIn = token && token !== "undefined" && token !== "null";
+  const token = localStorage.getItem(AUTH_CONFIG.TOKEN_KEY);
+  const isLoggedIn = token && token !== 'undefined' && token !== 'null';
 
   return isLoggedIn ? <Outlet /> : <Navigate to={redirectPath} />;
 };

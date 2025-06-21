@@ -1,17 +1,15 @@
-import React from "react";
-import { Box, Button, Typography } from "@mui/material";
-import Add from "@mui/icons-material/Add";
-import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { Box, Button, Typography } from '@mui/material';
+import Add from '@mui/icons-material/Add';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyProjectStateProps {
   onCreateNew: () => void;
 }
 
-export const EmptyProjectState: React.FC<EmptyProjectStateProps> = ({
-  onCreateNew,
-}) => {
-  const { t } = useTranslation("project");
+export const EmptyProjectState: React.FC<EmptyProjectStateProps> = ({ onCreateNew }) => {
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -33,25 +31,18 @@ export const EmptyProjectState: React.FC<EmptyProjectStateProps> = ({
         bgcolor="#eff6ff"
         mb={3}
       >
-        <CreateNewFolderOutlinedIcon
-          sx={{ fontSize: 48, color: "primary.main" }}
-        />
+        <CreateNewFolderOutlinedIcon sx={{ fontSize: 48, color: 'primary.main' }} />
       </Box>
 
       <Typography variant="h6" mb={1} fontWeight={600}>
-        {t("no-projects-yet")}
+        {t('no-projects-yet')}
       </Typography>
-      <Typography
-        variant="subtitle2"
-        color="text.secondary"
-        mb={3}
-        maxWidth={400}
-      >
-        {t("no-projects-placeholder")}
+      <Typography variant="subtitle2" color="text.secondary" mb={3} maxWidth={400}>
+        {t('no-projects-placeholder')}
       </Typography>
 
       <Button startIcon={<Add />} onClick={onCreateNew}>
-        {t("create-new-project")}
+        {t('create-new-project')}
       </Button>
     </Box>
   );

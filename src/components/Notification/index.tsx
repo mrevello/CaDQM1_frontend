@@ -5,14 +5,15 @@ type NotificationProps = {
     open: boolean,
     msg: string,
     severity: AlertColor,
-    handleClose: () => void
+    handleClose: () => void,
+    autoHideDuration?: number
 }
 
-export const Notification: React.FC<NotificationProps> = ({ open, msg, severity, handleClose }) => {
+export const Notification: React.FC<NotificationProps> = ({ open, msg, severity, handleClose, autoHideDuration = 4000 }) => {
     return (
         <Snackbar
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            autoHideDuration={4000}
+            autoHideDuration={autoHideDuration}
             open={open}
             onClose={handleClose}
         >
