@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Alert,
   Box,
@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useNotification } from '../../../../context/notification.context';
 import { estimationApi } from '../../../../api/estimation.api';
+import { Estimation } from '../../../../types/estimation';
 
 export const A06: React.FC = () => {
   const { t } = useTranslation();
@@ -23,12 +24,34 @@ export const A06: React.FC = () => {
   const [loadingEstimation, setLoadingEstimation] = useState(false);
 
   const [estimationId, setEstimationId] = useState<number | null>(null);
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const [facts, setFacts] = useState<string[]>([]);
+  const [estimation, setEstimation] = useState<Estimation | null>(null);
+
   const [prompt, setPrompt] = useState('');
   const [manualEstimation, setManualEstimation] = useState('');
 
   const mountedRef = useRef(false);
+
+  const handleRegenerate = useCallback(async () => {
+    console.log('handleRegenerate', prompt);
+    setLoadingEstimation(true);
+    try {
+      const estimation: Estimation = await estimationApi.regenerateEstimation(
+        Number(projectId),
+        prompt
+      );
+
+      if (estimation) {
+        setEstimationId(estimation.id);
+        setEstimation(estimation);
+        setPrompt('');
+      }
+    } catch (err) {
+      showError(String(err));
+      console.error('Failed to regenerate estimation:', err);
+    } finally {
+      setLoadingEstimation(false);
+    }
+  }, [projectId, prompt, showError]);
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -42,9 +65,8 @@ export const A06: React.FC = () => {
         const estimation = await estimationApi.getEstimation(Number(projectId));
 
         if (estimation) {
-          // setEstimationId(estimation.estimation_id);
-          // setWarnings(estimation.estimation.warnings);
-          // setFacts(estimation.estimation.facts);
+          setEstimationId(estimation.id);
+          setEstimation(estimation);
         } else {
           handleRegenerate();
         }
@@ -56,28 +78,7 @@ export const A06: React.FC = () => {
       }
     };
     fetchEstimation();
-  }, [projectId]);
-
-  const handleRegenerate = async () => {
-    if (!prompt.trim()) return;
-
-    setLoadingEstimation(true);
-    try {
-      const estimation = await estimationApi.regenerateEstimation(Number(projectId), prompt);
-
-      if (estimation) {
-        // setEstimationId(estimation.estimation_id);
-        // setWarnings(estimation.estimation.warnings);
-        // setFacts(estimation.estimation.facts);
-        setPrompt('');
-      }
-    } catch (err) {
-      showError(String(err));
-      console.error('Failed to regenerate estimation:', err);
-    } finally {
-      setLoadingEstimation(false);
-    }
-  };
+  }, [projectId, handleRegenerate, showError]);
 
   const handleDismissWarning = async (warning: string) => {
     if (estimationId) {
@@ -86,8 +87,7 @@ export const A06: React.FC = () => {
       console.log('estimation', estimation);
 
       if (estimation) {
-        // setWarnings(estimation.estimation.warnings);
-        // setFacts(estimation.estimation.facts);
+        setEstimation(estimation);
       }
     }
   };
@@ -97,8 +97,7 @@ export const A06: React.FC = () => {
       const estimation = await estimationApi.discardEstimation(estimationId, fact, 'facts');
 
       if (estimation) {
-        // setWarnings(estimation.estimation.warnings);
-        // setFacts(estimation.estimation.facts);
+        setEstimation(estimation);
       }
     }
   };
@@ -108,8 +107,7 @@ export const A06: React.FC = () => {
       const estimation = await estimationApi.addEstimation(estimationId, manualEstimation);
 
       if (estimation) {
-        // setWarnings(estimation.estimation.warnings);
-        // setFacts(estimation.estimation.facts);
+        setEstimation(estimation);
         setManualEstimation('');
       }
     }
@@ -123,7 +121,7 @@ export const A06: React.FC = () => {
         </Box>
       ) : (
         <>
-          {warnings.length > 0 && (
+          {estimation && (
             <Card>
               <CardHeader
                 title={
@@ -134,7 +132,7 @@ export const A06: React.FC = () => {
               />
               <CardContent>
                 <Box display="flex" flexDirection="column" gap={1}>
-                  {warnings.map((warning, index) => (
+                  {estimation.warnings.map((warning, index) => (
                     <Alert
                       key={`warning-${index}`}
                       severity="warning"
@@ -148,7 +146,7 @@ export const A06: React.FC = () => {
             </Card>
           )}
 
-          {facts.length > 0 && (
+          {estimation && (
             <Card>
               <CardHeader
                 title={
@@ -159,7 +157,7 @@ export const A06: React.FC = () => {
               />
               <CardContent>
                 <Box display="flex" flexDirection="column" gap={1}>
-                  {facts.map((fact, index) => (
+                  {estimation.facts.map((fact, index) => (
                     <Alert
                       key={`fact-${index}`}
                       severity="info"
@@ -188,7 +186,7 @@ export const A06: React.FC = () => {
                 <Box display="flex" justifyContent="flex-end">
                   <Button
                     variant="contained"
-                    onClick={handleRegenerate}
+                    onClick={() => handleRegenerate()}
                     loading={loadingEstimation}
                   >
                     {loadingEstimation ? 'Regenerating...' : t('regenerate')}

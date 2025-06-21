@@ -82,7 +82,15 @@
   "upload-or-drag-and-drop": "para subir su archivo o arrastrar y soltar.",
   "upload-failed": "Error al subir",
   "loading": "Cargando",
-  "complete": "Completar",
+  "loading-project": "Cargando proyecto",
+  "loading-problems": "Cargando problemas",
+  "loading-estimation": "Cargando estimación",
+  "loading-context-components": "Cargando componentes de contexto",
+  "loading-data-profiling": "Cargando perfilado de datos",
+  "loading-reviews": "Cargando revisiones",
+  "preparing-pdf-report": "Preparando reporte PDF",
+  "currently-loading": "Cargando actualmente",
+  "completed": "completado",
   "register": "Registrarse",
   "registration-failed": "Error en el registro. Por favor, inténtelo de nuevo.",
   "registration-successful": "¡Registro exitoso!",
@@ -160,6 +168,7 @@
   "error-fetching-projects": "Error al obtener proyectos.",
   "error-creating-project": "Error al crear el proyecto: {{error}}",
   "error-deleting-project": "Error al eliminar el proyecto: {{message}}",
+  "error-loading-project": "Error al cargar el proyecto",
   "data-at-hand": "Datos disponibles",
   "last-update": "Última actualización",
   "created": "Creado",
@@ -261,5 +270,6 @@
   "suggest-context-components-with-ai": "Sugerir componentes de contexto con IA",
   "suggest-problems-with-ai": "Sugerir problema de calidad de datos con IA",
   "delete-title": "Eliminar",
-  "suggestion": "Sugerido"
+  "suggestion": "Sugerido",
+  "data_filtering": "Filtrado de datos"
 }

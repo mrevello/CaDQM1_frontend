@@ -160,8 +160,39 @@ export const dataProfilingApi = {
   },
 
   dataProfilingRhtmlContent: async (projectId: number, table: string): Promise<string> => {
+    const htmlContent = await dataProfilingApi.dataProfilingRhtmlText(projectId, table);
+    
+    // Create blob URL from the HTML content
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    return url;
+  },
+
+  dataProfilingYhtmlContent: async (projectId: number, table: string): Promise<string> => {
+    const htmlContent = await dataProfilingApi.dataProfilingYhtmlText(projectId, table);
+    
+    // Create blob URL from the HTML content
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    return url;
+  },
+
+  // Functions to get HTML content directly (for use in other screens)
+  dataProfilingRhtmlText: async (projectId: number, table: string): Promise<string> => {
     const resp = await instance.post(
       `/data-profiling-r-dataexplorer-full/`,
+      { project_id: projectId, table_name: table },
+      {
+        responseType: 'text',
+        headers: { Accept: 'text/html' },
+      }
+    );
+    return resp.data;
+  },
+
+  dataProfilingYhtmlText: async (projectId: number, table: string): Promise<string> => {
+    const resp = await instance.post(
+      `/full-db-profiling-per-table-html/`,
       { project_id: projectId, table_name: table },
       {
         responseType: 'text',

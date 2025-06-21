@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextField, MenuItem, Box } from '@mui/material';
+import { Button, TextField, MenuItem, Box, CircularProgress } from '@mui/material';
 import { GenericDialog } from '../Dialog';
 import { useTranslation } from 'react-i18next';
+import { LoadingProgress } from '../LoadingProgress';
 
 export interface SelectOption {
   value: string;
@@ -38,6 +39,10 @@ interface FormDialogProps {
   confirmTextResource?: string;
   cancelTextResource?: string;
   onFieldChange?: (name: string, value: any) => void;
+  loading?: boolean;
+  typeOptions?: SelectOption[];
+  typeValue?: any;
+  onTypeChange?: (value: any) => void;
 }
 
 export const FormDialog: React.FC<FormDialogProps> = ({
@@ -50,6 +55,10 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   confirmTextResource = 'confirm',
   cancelTextResource = 'cancel',
   onFieldChange,
+  loading = false,
+  typeOptions,
+  typeValue,
+  onTypeChange,
 }) => {
   const { t } = useTranslation();
 
@@ -82,8 +91,32 @@ export const FormDialog: React.FC<FormDialogProps> = ({
     onSubmit(formData);
   };
 
-  const dialogContent = (
+  const dialogContent = loading ? (
+    <LoadingProgress />
+  ) : (
     <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2.5}>
+      {typeOptions && (
+        <Box>
+          <TextField
+            fullWidth
+            select
+            value={typeValue || ''}
+            onChange={e => onTypeChange?.(e.target.value)}
+            label={t('type')}
+            disabled={loading}
+          >
+            {typeOptions.map(option => (
+              <MenuItem
+                key={option.value}
+                value={option.value}
+                sx={option.isAddOption ? { color: 'primary.main', fontWeight: 500 } : undefined}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
+      )}
       {textFieldConfigs.map(field => (
         <Box key={field.id}>
           <TextField
@@ -102,6 +135,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
             helperText={field.helperText}
             placeholder={field.placeholder}
             inputRef={field.inputRef}
+            disabled={loading}
           >
             {field.type === 'select' &&
               field.options?.map(option => (
@@ -129,11 +163,11 @@ export const FormDialog: React.FC<FormDialogProps> = ({
       showDividers={true}
       actions={
         <Box display="flex" justifyContent="flex-end" mt={2}>
-          <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }}>
+          <Button variant="outlined" onClick={onClose} sx={{ mr: 1 }} disabled={loading}>
             {t(cancelTextResource)}
           </Button>
-          <Button variant="contained" onClick={() => onSubmit(formData)}>
-            {t(confirmTextResource)}
+          <Button variant="contained" onClick={() => onSubmit(formData)} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : t(confirmTextResource)}
           </Button>
         </Box>
       }
