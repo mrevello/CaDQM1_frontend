@@ -24,7 +24,7 @@
   "activity-7-description": "Update the context model with new findings. Revise DQ requirements, business rules, or metadata as needed.",
   "activity-8-name": "A08",
   "activity-8-title": "Interaction with data users",
-  "activity-8-description": "",
+  "activity-8-description": "Interact with data users to collect feedback, spot further DQ problems, and adjust the context model.",
   "add": "Add",
   "already-have-account": "Already have an account?",
   "application-domain": "Application Domain",
