@@ -50,10 +50,15 @@ const computeStages = (stages: ProjectStage[]): ProjectStage[] => {
 
 type StageTimelineProps = {
   project: Project;
-  onProjectStageClick: (stage: Stage) => void;
+  stageClickable: boolean;
+  onProjectStageClick?: (stage: Stage) => void;
 };
 
-export const StageTimeline: React.FC<StageTimelineProps> = ({ project, onProjectStageClick }) => {
+export const StageTimeline: React.FC<StageTimelineProps> = ({
+  project,
+  stageClickable = true,
+  onProjectStageClick,
+}) => {
   const { t } = useTranslation();
 
   const stages = useMemo<ProjectStage[]>(() => {
@@ -66,7 +71,7 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({ project, onProject
   const [stagesDialogOpen, setStagesDialogOpen] = useState(false);
 
   const handleStageSelect = (stage: Stage) => {
-    onProjectStageClick(stage);
+    onProjectStageClick?.(stage);
     setStagesDialogOpen(false);
   };
 
@@ -79,12 +84,16 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({ project, onProject
             stage={projectStage.stage}
             state={projectStage.status}
             isLast={index === stages.length - 1}
-            isClickable={canContinueToStage(projectStage.stage, projectStage.status, stages)}
+            isClickable={
+              stageClickable && canContinueToStage(projectStage.stage, projectStage.status, stages)
+            }
             onClick={(stage: Stage) => {
-              if (canContinueToStage(stage, projectStage.status, stages)) {
-                setStage(stage);
-                setState(projectStage.status);
-                setStagesDialogOpen(true);
+              if (stageClickable) {
+                if (canContinueToStage(stage, projectStage.status, stages)) {
+                  setStage(stage);
+                  setState(projectStage.status);
+                  setStagesDialogOpen(true);
+                }
               }
             }}
           />

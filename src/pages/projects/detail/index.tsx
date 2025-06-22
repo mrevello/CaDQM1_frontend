@@ -91,6 +91,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, open, onC
 
             <StageTimeline
               project={project}
+              stageClickable={true}
               onProjectStageClick={stage => navigate(projectLink(project, stage))}
             />
           </Box>

@@ -275,5 +275,10 @@
   "delete-title": "Delete",
   "suggestion": "Suggestion",
   "data_filtering": "Data filtering",
-  "organization-elements-title": "Organization Elements (systems, services, metadata, business processes, etc.)"
+  "organization-elements-title": "Organization Elements (systems, services, metadata, business processes, etc.)",
+  "view-context": "View context",
+  "view-dq-problems": "View DQ problems",
+  "view-project-timeline": "View project timeline",
+  "project-timeline": "Project timeline",
+  "project-timeline-description": "Project stage progress"
 }
