@@ -70,27 +70,6 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
     }
   }, [listContextComponents, showError]);
 
-  const fetchAnalysis = useCallback(async () => {
-    if (!type) return;
-    try {
-      setLoadingAnalysis(true);
-      removeSuggestedComponents();
-
-      const response = await getContextComponentsAnalysis();
-      console.log('response', response);
-      if (response) {
-        setContextComponents(prev => {
-          if (!prev) return response;
-          return mergeAllComponents(prev, response);
-        });
-      }
-    } catch (error) {
-      showError('Failed to fetch analysis');
-    } finally {
-      setLoadingAnalysis(false);
-    }
-  }, [getContextComponentsAnalysis, showError, type]);
-
   const removeSuggestedComponents = useCallback(() => {
     setContextComponents(prev => {
       if (!prev) return emptyContextComponentsType;
@@ -114,6 +93,27 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
       return cleanedComponents;
     });
   }, []);
+
+  const fetchAnalysis = useCallback(async () => {
+    if (!type) return;
+    try {
+      setLoadingAnalysis(true);
+      removeSuggestedComponents();
+
+      const response = await getContextComponentsAnalysis();
+
+      if (response) {
+        setContextComponents(prev => {
+          if (!prev) return response;
+          return mergeAllComponents(prev, response);
+        });
+      }
+    } catch (error) {
+      showError('Failed to fetch analysis');
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  }, [getContextComponentsAnalysis, removeSuggestedComponents, showError, type]);
 
   useEffect(() => {
     fetchContextComponents();

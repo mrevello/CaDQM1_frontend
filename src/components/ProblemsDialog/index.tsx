@@ -3,6 +3,8 @@ import { GenericDialog } from '../Dialog';
 import { useTranslation } from 'react-i18next';
 import { ProblemList } from '../ProblemList';
 import { useDQProblems } from '../../hooks/useDQProblems';
+import { NewProblemDialog } from '../NewProblemDialog';
+import { AlertDialog } from '../AlertDialog';
 
 interface ProblemsDialogProps {
   projectId: number;
@@ -15,7 +17,6 @@ export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({ projectId, open,
 
   const {
     problems,
-    setProblems,
     handleCreateProblem,
     handleCloseNewProblemDialog,
     handleNewProblemSubmit,
@@ -23,31 +24,48 @@ export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({ projectId, open,
     selectedEditProblem,
     newProblemDialogOpen,
     handleEditProblem,
-    deleteProblem,
+    deleteDialogOpen,
+    problemToDelete,
+    cancelDeleteProblem,
+    confirmDeleteProblem,
+    handleDeleteProblem,
+    handleAddSuggestionProblem,
   } = useDQProblems({ projectId });
 
   return (
-    <GenericDialog
-      open={open}
-      onClose={onClose}
-      title={t('problems')}
-      content={
-        <ProblemList
-          projectId={Number(projectId)}
-          problems={problems}
-          setProblems={setProblems}
-          handleCreateProblem={handleCreateProblem}
-          handleEditProblem={handleEditProblem}
-          handleCloseNewProblemDialog={handleCloseNewProblemDialog}
-          handleNewProblemSubmit={handleNewProblemSubmit}
-          newProblemDialogOpen={newProblemDialogOpen}
-          problemErrors={problemErrors}
-          selectedEditProblem={selectedEditProblem}
-          deleteProblem={deleteProblem}
-        />
-      }
-      maxWidth="lg"
-      minHeight={500}
-    />
+    <>
+      <GenericDialog
+        open={open}
+        onClose={onClose}
+        title={t('problems')}
+        content={
+          <ProblemList
+            problems={problems}
+            handleCreateProblem={handleCreateProblem}
+            handleEditProblem={handleEditProblem}
+            handleDeleteProblem={handleDeleteProblem}
+            handleAddSuggestionProblem={handleAddSuggestionProblem}
+          />
+        }
+        maxWidth="lg"
+        minHeight={500}
+      />
+
+      <NewProblemDialog
+        open={newProblemDialogOpen}
+        onClose={handleCloseNewProblemDialog}
+        onSubmit={handleNewProblemSubmit}
+        errors={problemErrors}
+        problem={selectedEditProblem}
+      />
+
+      <AlertDialog
+        open={deleteDialogOpen}
+        title={t('delete-title')}
+        description={problemToDelete ? problemToDelete.description : ''}
+        onClose={cancelDeleteProblem}
+        onConfirm={confirmDeleteProblem}
+      />
+    </>
   );
 };

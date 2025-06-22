@@ -6,6 +6,8 @@ import { ReviewType } from '../../types/review';
 import { ReviewComponent } from '../Review';
 import { ProblemList } from '../ProblemList';
 import { useDQProblems } from '../../hooks/useDQProblems';
+import { NewProblemDialog } from '../NewProblemDialog';
+import { AlertDialog } from '../AlertDialog';
 
 export interface DQPRoblemsIdentificationProps {
   label?: string;
@@ -24,7 +26,6 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
 
   const {
     problems,
-    setProblems,
     loading,
     fetchProblems,
     fetchReview,
@@ -37,7 +38,12 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
     handleNewProblemSubmit,
     handleEditProblem,
     handleDiscardProblem,
-    deleteProblem,
+    handleAddSuggestionProblem,
+    handleDeleteProblem,
+    deleteDialogOpen,
+    problemToDelete,
+    confirmDeleteProblem,
+    cancelDeleteProblem,
   } = useDQProblems({ projectId, type });
 
   useEffect(() => {
@@ -80,23 +86,33 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
 
           <Box pt={1}>
             <ProblemList
-              projectId={Number(projectId)}
               problems={problems}
-              setProblems={setProblems}
               onDiscardProblem={handleDiscardProblem}
               loading={loading}
               handleCreateProblem={handleCreateProblem}
               handleEditProblem={handleEditProblem}
-              handleCloseNewProblemDialog={handleCloseNewProblemDialog}
-              handleNewProblemSubmit={handleNewProblemSubmit}
-              newProblemDialogOpen={newProblemDialogOpen}
-              problemErrors={problemErrors}
-              selectedEditProblem={selectedEditProblem}
-              deleteProblem={deleteProblem}
+              handleAddSuggestionProblem={handleAddSuggestionProblem}
+              handleDeleteProblem={handleDeleteProblem}
             />
           </Box>
         </Box>
       </Box>
+
+      <NewProblemDialog
+        open={newProblemDialogOpen}
+        onClose={handleCloseNewProblemDialog}
+        onSubmit={handleNewProblemSubmit}
+        errors={problemErrors}
+        problem={selectedEditProblem}
+      />
+
+      <AlertDialog
+        open={deleteDialogOpen}
+        title={t('delete-title')}
+        description={problemToDelete ? problemToDelete.description : ''}
+        onClose={cancelDeleteProblem}
+        onConfirm={confirmDeleteProblem}
+      />
     </>
   );
 };

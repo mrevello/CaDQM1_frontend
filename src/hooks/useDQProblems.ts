@@ -20,6 +20,9 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
   const [selectedEditProblem, setSelectedEditProblem] = useState<Problem | null>(null);
   const [reviewId, setReviewId] = useState<number>();
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [problemToDelete, setProblemToDelete] = useState<Problem | null>(null);
+
   const fetchProblems = useCallback(async () => {
     try {
       setLoadingProblems(true);
@@ -69,7 +72,6 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
     try {
       setLoadingProblems(true);
       const createdProblem = await problemsApi.createProblem(data);
-      console.log('createdProblem', createdProblem);
       if (createdProblem) {
         setProblems(prev => [...prev, createdProblem]);
         return true;
@@ -89,9 +91,11 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
         setLoadingProblems(true);
         const updatedProblem = await problemsApi.updateProblem(id, data, projectId);
         if (updatedProblem) {
-          setProblems(prev =>
-            prev.map(problem => (problem.id === id ? { ...problem, ...updatedProblem } : problem))
-          );
+          setProblems(prev => {
+            return prev.map(problem =>
+              problem.id === id ? { ...problem, ...updatedProblem } : problem
+            );
+          });
           return true;
         }
         return false;
@@ -123,11 +127,14 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
   }, []);
 
   const handleCreateProblem = useCallback(() => {
-    console.log('handleCreateProblem called');
     setProblemErrors({});
     setSelectedEditProblem(null);
     setNewProblemDialogOpen(true);
-    console.log('newProblemDialogOpen set to true');
+  }, []);
+
+  const handleEditProblem = useCallback((problem: Problem) => {
+    setSelectedEditProblem(problem);
+    setNewProblemDialogOpen(true);
   }, []);
 
   const handleCloseNewProblemDialog = useCallback(() => {
@@ -175,11 +182,6 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
     [createProblem, updateProblem, selectedEditProblem, projectId, handleCloseNewProblemDialog]
   );
 
-  const handleEditProblem = useCallback((problem: Problem) => {
-    setSelectedEditProblem(problem);
-    setNewProblemDialogOpen(true);
-  }, []);
-
   const handleDiscardProblem = useCallback(
     async (problem: Problem) => {
       if (!reviewId) {
@@ -197,16 +199,49 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
     [reviewId]
   );
 
+  const handleAddSuggestionProblem = useCallback(
+    async (problem: Problem, description: string) => {
+      try {
+        const createdProblem = await problemsApi.createProblem({
+          description,
+          project_id: projectId,
+        });
+
+        if (createdProblem) {
+          setProblems(prevProblems => prevProblems.filter(p => p.id !== problem.id));
+          setProblems(prevProblems => [...prevProblems, createdProblem]);
+        }
+      } catch (error) {
+        console.error('Error adding problem:', error);
+      }
+    },
+    [projectId]
+  );
+
+  const handleDeleteProblem = useCallback((problem: Problem) => {
+    setProblemToDelete(problem);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const confirmDeleteProblem = useCallback(() => {
+    if (problemToDelete) {
+      deleteProblem(problemToDelete.id);
+      setDeleteDialogOpen(false);
+      setProblemToDelete(null);
+    }
+  }, [problemToDelete, deleteProblem]);
+
+  const cancelDeleteProblem = useCallback(() => {
+    setDeleteDialogOpen(false);
+    setProblemToDelete(null);
+  }, []);
+
   return {
     problems,
-    setProblems,
     loading: loadingProblems || loadingAnalysis,
     fetchProblems,
     fetchReview,
     fetchAnalysis,
-    createProblem,
-    updateProblem,
-    deleteProblem,
     newProblemDialogOpen,
     problemErrors,
     selectedEditProblem,
@@ -215,5 +250,11 @@ export const useDQProblems = ({ projectId, type }: UseDQProblemsProps) => {
     handleNewProblemSubmit,
     handleEditProblem,
     handleDiscardProblem,
+    handleAddSuggestionProblem,
+    handleDeleteProblem,
+    deleteDialogOpen,
+    problemToDelete,
+    confirmDeleteProblem,
+    cancelDeleteProblem,
   };
 };

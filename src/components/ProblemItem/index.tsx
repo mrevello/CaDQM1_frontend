@@ -21,7 +21,7 @@ interface ProblemItemProps {
   problem: Problem;
   onUpdate: (problem: Problem) => void;
   onDelete: (problem: Problem) => void;
-  onAdd: (problem: Problem, description: string) => void;
+  onAddSuggestion: (problem: Problem, description: string) => void;
   onDiscard?: (problem: Problem) => void;
 }
 
@@ -29,7 +29,7 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({
   problem,
   onUpdate,
   onDelete,
-  onAdd,
+  onAddSuggestion,
   onDiscard,
 }) => {
   const { t } = useTranslation();
@@ -58,7 +58,7 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({
 
   const handleBlurOrEnter = () => {
     setIsEditing(false);
-    onAdd(problem, description);
+    onAddSuggestion(problem, description);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -116,7 +116,11 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({
               <Button size="small" variant="outlined" onClick={() => onDiscard(problem)}>
                 {t('discard')}
               </Button>
-              <Button size="small" variant="contained" onClick={() => onAdd(problem, description)}>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => onAddSuggestion(problem, description)}
+              >
                 {t('add')}
               </Button>
             </Box>

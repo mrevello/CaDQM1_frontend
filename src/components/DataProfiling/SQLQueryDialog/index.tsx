@@ -29,9 +29,6 @@ import {
 } from '../../../api/dataProfiling.api';
 import { useNotification } from '../../../context/notification.context';
 import { NewProblemDialog } from '../../NewProblemDialog';
-import { ProblemErrorsType } from '../../../types/problem';
-import { ProblemValidate } from '../../../utils/validateForm';
-import * as yup from 'yup';
 import Draggable from 'react-draggable';
 import { Close } from '@mui/icons-material';
 import { Schema } from '../../../types/dataProfiling';
@@ -65,7 +62,13 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
 }) => {
   const { t } = useTranslation();
   const { showError } = useNotification();
-  const { createProblem } = useDQProblems({ projectId });
+  const {
+    handleCreateProblem,
+    handleCloseNewProblemDialog,
+    handleNewProblemSubmit,
+    problemErrors,
+    newProblemDialogOpen,
+  } = useDQProblems({ projectId });
 
   const [sql, setSql] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -75,9 +78,6 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
   const INCREMENT = 50;
   const [displayCount, setDisplayCount] = useState(INITIAL_ROWS);
   const visibleRows = result ? result.rows.slice(0, displayCount) : [];
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [problemErrors, setProblemErrors] = useState<ProblemErrorsType>({});
 
   useEffect(() => {
     if (result) {
@@ -101,38 +101,6 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
       showError(error.toString());
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCloseProblemDialog = () => {
-    setProblemErrors({});
-    setDialogOpen(false);
-  };
-
-  const handleProblemSubmit = async (formData: Record<string, any>) => {
-    try {
-      await ProblemValidate.validate(formData, { abortEarly: false });
-      setProblemErrors({});
-
-      const success = await createProblem({
-        description: formData.description,
-        project_id: projectId,
-      });
-
-      if (success) {
-        handleCloseProblemDialog();
-      }
-    } catch (error) {
-      if (error instanceof yup.ValidationError) {
-        const errors: ProblemErrorsType = {};
-        error.inner.forEach(validationError => {
-          errors.description = validationError.message;
-        });
-        setProblemErrors(errors);
-      } else {
-        showError(String(error));
-        handleCloseProblemDialog();
-      }
     }
   };
 
@@ -246,7 +214,7 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
                 </TableContainer>
 
                 <Box display="flex" justifyContent="flex-end" width="100%">
-                  <Button size="small" onClick={() => setDialogOpen(true)}>
+                  <Button size="small" onClick={handleCreateProblem}>
                     {t('identify-problem')}
                   </Button>
                 </Box>
@@ -257,9 +225,9 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
       </Dialog>
 
       <NewProblemDialog
-        open={dialogOpen}
-        onClose={handleCloseProblemDialog}
-        onSubmit={handleProblemSubmit}
+        open={newProblemDialogOpen}
+        onClose={handleCloseNewProblemDialog}
+        onSubmit={handleNewProblemSubmit}
         errors={problemErrors}
       />
     </>
