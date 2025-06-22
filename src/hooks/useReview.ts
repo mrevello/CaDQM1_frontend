@@ -13,10 +13,11 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
   const [review, setReview] = useState<Review>();
   const [files, setFiles] = useState<FileItem[]>([]);
 
-  const fetchReviewAndFiles = async () => {
+  const fetchReviewAndFiles = useCallback(async () => {
     try {
       setLoading(true);
       let review = await reviewApi.getReview(projectId, type);
+      console.log('review', review);
 
       if (!review) {
         const reviewBody: ReviewBody = {
@@ -65,7 +66,7 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, type]);
 
   const uploadFile = useCallback(
     async (fileItem: FileItem) => {
@@ -119,15 +120,18 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
     [review?.id]
   );
 
-  const deleteFile = async (fileId: string) => {
-    try {
-      if (!review) return;
-      await reviewApi.deleteFile(review?.id, fileId);
-      setFiles(prev => prev.filter(f => f.id !== fileId));
-    } catch (error) {
-      console.error('Failed to delete file:', error);
-    }
-  };
+  const deleteFile = useCallback(
+    async (fileId: string) => {
+      try {
+        if (!review) return;
+        await reviewApi.deleteFile(review?.id, fileId);
+        setFiles(prev => prev.filter(f => f.id !== fileId));
+      } catch (error) {
+        console.error('Failed to delete file:', error);
+      }
+    },
+    [review]
+  );
 
   return {
     loading,

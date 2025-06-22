@@ -1,7 +1,7 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { ReviewScreen } from "../../../../components/ReviewScreen";
-import { useParams } from "react-router-dom";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { ReviewScreen } from '../../../../components/ReviewScreen';
+import { useParams } from 'react-router-dom';
 
 export const A02: React.FC = () => {
   const { t } = useTranslation();
@@ -10,7 +10,7 @@ export const A02: React.FC = () => {
 
   return (
     <ReviewScreen
-      label={t("organization-elements")}
+      label={t('organization-elements-title')}
       type="organization_elements"
       projectId={Number(projectId)}
     />
