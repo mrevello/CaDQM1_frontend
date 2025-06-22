@@ -7,6 +7,7 @@ import {
 import { Stage } from '../types/stage';
 import { reviewApi } from '../api/review.api';
 import { ReviewType } from '../types/review';
+import { useCallback } from 'react';
 
 interface UseContextComponentsProps {
   projectId: number;
@@ -15,35 +16,41 @@ interface UseContextComponentsProps {
 }
 
 export const useContextComponents = ({ projectId, stage, type }: UseContextComponentsProps) => {
-  const listContextComponents = async (): Promise<ContextComponentsType> => {
+  const listContextComponents = useCallback(async (): Promise<ContextComponentsType> => {
     return await contextApi.listContextComponents(Number(projectId));
-  };
+  }, [projectId]);
 
-  const getContextComponentsAnalysis = async (): Promise<ContextComponentsType | null> => {
-    if (!type) return null;
-    const analysisData = await reviewApi.getContextComponentsAnalysis(Number(projectId), type);
-    return analysisData;
-  };
+  const getContextComponentsAnalysis =
+    useCallback(async (): Promise<ContextComponentsType | null> => {
+      if (!type) return null;
+      const analysisData = await reviewApi.getContextComponentsAnalysis(Number(projectId), type);
+      return analysisData;
+    }, [projectId, type]);
 
-  const createContextComponent = async (
-    type: ContextComponentType,
-    data: any
-  ): Promise<ContextComponent> => {
-    const response = await contextApi.createContextComponent(type, data, Number(projectId), stage);
-    return response;
-  };
+  const createContextComponent = useCallback(
+    async (type: ContextComponentType, data: any): Promise<ContextComponent> => {
+      const response = await contextApi.createContextComponent(
+        type,
+        data,
+        Number(projectId),
+        stage
+      );
+      return response;
+    },
+    [projectId, stage]
+  );
 
-  const updateContextComponent = async (
-    id: number,
-    type: ContextComponentType,
-    data: any
-  ): Promise<ContextComponent> => {
-    return await contextApi.updateContextComponent(id, type, data, projectId);
-  };
+  const updateContextComponent = useCallback(
+    async (id: number, type: ContextComponentType, data: any): Promise<ContextComponent> => {
+      return await contextApi.updateContextComponent(id, type, data, projectId);
+    },
+    [projectId]
+  );
 
-  const deleteContextComponent = async (id: number, type: ContextComponentType) => {
+  const deleteContextComponent = useCallback(async (id: number, type: ContextComponentType) => {
     return await contextApi.deleteComponent(id, type);
-  };
+  }, []);
+
   return {
     listContextComponents,
     getContextComponentsAnalysis,

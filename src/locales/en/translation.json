@@ -274,5 +274,6 @@
   "suggest-problems-with-ai": "Suggest DQ problems with AI",
   "delete-title": "Delete",
   "suggestion": "Suggestion",
-  "data_filtering": "Data filtering"
+  "data_filtering": "Data filtering",
+  "organization-elements-title": "Organization Elements (systems, services, metadata, business processes, etc.)"
 }

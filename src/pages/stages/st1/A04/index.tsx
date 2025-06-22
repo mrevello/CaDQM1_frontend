@@ -1,8 +1,8 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { ContextReview } from "../../../../components/ContextReview";
-import { Stage } from "../../../../types/stage";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { ContextReview } from '../../../../components/ContextReview';
+import { Stage } from '../../../../types/stage';
 
 export const A04: React.FC = () => {
   const { t } = useTranslation();
@@ -10,7 +10,7 @@ export const A04: React.FC = () => {
 
   return (
     <ContextReview
-      label={t("organization-elements")}
+      label={t('organization-elements')}
       type="organization_elements"
       projectId={Number(projectId)}
       stage={Stage.ST1}

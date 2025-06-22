@@ -271,5 +271,6 @@
   "suggest-problems-with-ai": "Sugerir problema de calidad de datos con IA",
   "delete-title": "Eliminar",
   "suggestion": "Sugerido",
-  "data_filtering": "Filtrado de datos"
+  "data_filtering": "Filtrado de datos",
+  "organization-elements-title": "Elementos organizacionales (sistemas, servicios, metadatos, procesos, etc.)"
 }
