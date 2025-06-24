@@ -63,17 +63,20 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, open, onC
       <DialogContent sx={{ mt: 3 }}>
         <Box display="flex" flexDirection="row" gap={8}>
           <Box gap={2} display="flex" flexDirection="column" flex={1}>
-            <LabeledValue label={`${t('description')}:`} value={project.description} />
+            <LabeledValue label={`${t('description')}:`} value={project.description ?? '-'} />
 
             <LabeledValue
               label={`${t('context-version')}:`}
-              value={project.context?.version ?? 'v 1.0'}
+              value={project.context?.version ?? '-'}
               onClick={() => window.open(`/projects/${project.id}/context`, '_blank')}
             />
 
-            <LabeledValue label={`${t('dq-model-version')}:`} value={project.dqModel?.version} />
+            <LabeledValue
+              label={`${t('dq-model-version')}:`}
+              value={project.dqModel?.version ?? '-'}
+            />
 
-            <LabeledValue label={`${t('data-at-hand')}:`} value={project.dataAtHand?.name} />
+            <LabeledValue label={`${t('data-at-hand')}:`} value={project.dataAtHand?.name ?? '-'} />
 
             <LabeledValue
               label={`${t('created')}:`}
@@ -81,7 +84,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, open, onC
             />
 
             <LabeledValue
-              label={`${t('status')}:`}
+              label={t('phase-1-status')}
               value={<StateChip state={projectStatus(project.stages)} />}
             />
           </Box>

@@ -18,10 +18,12 @@ import {
   TaskAtHand,
   UserType,
 } from '../types/contextComponent';
+import { Context, ContextResponse } from '../types/context';
 import { Stage } from '../types/stage';
 import { instance } from './base.api';
 import { handleApiError } from './errorHandler';
 import { API_ENDPOINTS } from '../constants';
+import { projectsApi } from './projects.api';
 
 const endpoints: Record<keyof typeof ContextComponentType, string> = {
   APPLICATION_DOMAIN: API_ENDPOINTS.CONTEXT.APPLICATION_DOMAIN,
@@ -37,6 +39,29 @@ const endpoints: Record<keyof typeof ContextComponentType, string> = {
 };
 
 export const contextApi = {
+  getContext: async function (contextId: number): Promise<Context> {
+    try {
+      const response = await instance.get(`${API_ENDPOINTS.CONTEXT.CONTEXT}${contextId}/`);
+      const data: ContextResponse = response.data;
+
+      const previousContext = data.previous_version
+        ? await contextApi.getContext(data.previous_version)
+        : null;
+
+      const context: Context = {
+        id: data.id,
+        name: data.name,
+        version: data.version,
+        previousVersion: previousContext,
+      };
+
+      return context;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+
   createContextComponent: async function (
     type: ContextComponentType,
     data: Record<string, any>,

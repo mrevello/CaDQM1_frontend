@@ -243,15 +243,13 @@ export const ProjectsList: React.FC = () => {
       id: 'context-version',
       label: t('context-version'),
       width: '15%',
-      render: (project: Project) =>
-        project.context ? <span>{project.context.version}</span> : <span>v 1.0</span>,
+      render: (project: Project) => <span>{project.context?.version || '-'}</span>,
     },
     {
       id: 'dq-model-version',
       label: t('dq-model-version'),
       width: '15%',
-      render: (project: Project) =>
-        project.dqModel ? <span>{project.dqModel.version}</span> : <span>-</span>,
+      render: (project: Project) => <span>{project.dqModel?.version || '-'}</span>,
     },
     {
       id: 'stage',
