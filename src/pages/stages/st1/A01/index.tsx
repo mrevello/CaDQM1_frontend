@@ -110,7 +110,7 @@ export const A01: React.FC = () => {
       showError(String(err));
       return false;
     }
-  }, [dataAtHand, projectId]);
+  }, [dataAtHand, projectId, showError]);
 
   useEffect(() => {
     if (activityRef) {

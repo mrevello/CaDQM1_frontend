@@ -1,5 +1,5 @@
 import { Add, Sync } from '@mui/icons-material';
-import { Box, Typography, Button, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Button, Tooltip } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReviewType } from '../../types/review';
@@ -8,7 +8,6 @@ import { ProblemList } from '../ProblemList';
 import { useDQProblems } from '../../hooks/useDQProblems';
 import { NewProblemDialog } from '../NewProblemDialog';
 import { AlertDialog } from '../AlertDialog';
-import { Problem } from '../../types/problem';
 import { Stage } from '../../types/stage';
 
 export interface DQPRoblemsIdentificationProps {

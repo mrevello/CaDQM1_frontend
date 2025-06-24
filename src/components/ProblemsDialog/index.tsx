@@ -6,7 +6,6 @@ import { useDQProblems } from '../../hooks/useDQProblems';
 import { NewProblemDialog } from '../NewProblemDialog';
 import { AlertDialog } from '../AlertDialog';
 import { Stage } from '../../types/stage';
-import { Problem } from '../../types/problem';
 
 interface ProblemsDialogProps {
   projectId: number;

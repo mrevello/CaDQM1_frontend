@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, Button, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Button, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Add, Sync } from '@mui/icons-material';
 import { Stage } from '../../types/stage';
