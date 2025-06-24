@@ -228,7 +228,7 @@
   "stages": "Etapas",
   "project": "Proyecto",
   "warnings": "Advertencias",
-  "facts": "Hechos",
+  "information": "Información",
   "selected": "seleccionado",
   "regenerate": "Regenerar",
   "save": "Guardar",
@@ -277,5 +277,9 @@
   "view-dq-problems": "Ver problemas de calidad de datos",
   "view-project-timeline": "Ver cronograma del proyecto",
   "project-timeline": "Cronograma del proyecto",
-  "project-timeline-description": "Progreso de las etapas del proyecto"
+  "project-timeline-description": "Progreso de las etapas del proyecto",
+  "estimation": "Estimación", 
+  "suggest-with-ai": "Sugerir con IA",
+  "suggest-estimation-with-ai": "Sugerir estimación con IA",
+  "phase-1-status": "Estado de la fase 1:"
 }

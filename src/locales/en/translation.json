@@ -228,7 +228,7 @@
   "stages": "Stages",
   "project": "Project",
   "warnings": "Warnings",
-  "facts": "Facts",
+  "information": "Information",
   "selected": "selected",
   "regenerate": "Regenerate",
   "save": "Save",
@@ -280,5 +280,9 @@
   "view-dq-problems": "View DQ problems",
   "view-project-timeline": "View project timeline",
   "project-timeline": "Project timeline",
-  "project-timeline-description": "Project stage progress"
+  "project-timeline-description": "Project stage progress",
+  "estimation": "Estimation",
+  "suggest-with-ai": "Suggest with AI",
+  "suggest-estimation-with-ai": "Suggest estimation with AI",
+  "phase-1-status": "Phase 1 status:"
 }
