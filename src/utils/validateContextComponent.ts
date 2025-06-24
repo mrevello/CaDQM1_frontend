@@ -18,6 +18,7 @@ export const DataFilteringValidate = yup.object().shape({
 export const DQMetadataValidate = yup.object().shape({
   path: yup.string().trim().required("This field is mandatory"),
   measurement: yup.string().trim().required("This field is mandatory"),
+  description: yup.string().trim().required("This field is mandatory"),
 });
 
 export const DQRequirementValidate = yup.object().shape({

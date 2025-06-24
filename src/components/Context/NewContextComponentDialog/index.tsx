@@ -214,6 +214,14 @@ export const NewContextComponentDialog: React.FC<NewContextComponentDialogProps>
         error: !!errors[ContextComponentType.DQ_METADATA]?.measurement,
         helperText: errors[ContextComponentType.DQ_METADATA]?.measurement,
       },
+      {
+        id: 'description',
+        name: 'description',
+        label: t('description'),
+        defaultValue: (item?.component as DQMetadata)?.description || '',
+        error: !!errors[ContextComponentType.DQ_METADATA]?.description,
+        helperText: errors[ContextComponentType.DQ_METADATA]?.description,
+      }
     ],
     [ContextComponentType.DQ_REQUIREMENT]: [
       {

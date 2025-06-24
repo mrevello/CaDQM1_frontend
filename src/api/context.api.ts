@@ -77,8 +77,11 @@ export const contextApi = {
         throw new Error(`Invalid type: ${type}`);
       }
 
+      const project = await projectsApi.getProject(projectId);
+      const projectStage = project?.stages.findLast(ps => ps.stage === stage);
+
       data.project = projectId;
-      data.stage = stage;
+      data.project_stage = projectStage?.id;
       const response = await instance.post(endpoints[typeKey], data);
       return createContextComponent(response.data.id, type, response.data);
     } catch (error) {
@@ -141,12 +144,13 @@ export const contextApi = {
       }
 
       const res = await instance.get(endpoints[typeKey]);
+
       const filteredData = res.data
         .filter((item: any) => item.project === projectId)
         .map((item: any) => {
           const base = {
             id: item.id,
-            stage: item.project_stage?.stage || Stage.ST1,
+            stage: item.project_stage_info?.stage || Stage.ST1,
           };
 
           switch (type) {

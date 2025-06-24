@@ -219,6 +219,7 @@ export const StageLayout: React.FC = () => {
 
       <ProblemsDialog
         projectId={Number(projectId)}
+        stage={stage}
         open={problemsDialogOpen}
         onClose={() => setProblemsDialogOpen(false)}
       />

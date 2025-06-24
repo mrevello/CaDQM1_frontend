@@ -31,6 +31,7 @@ const computeStages = (stages: ProjectStage[]): ProjectStage[] => {
   for (const required of requiredStages) {
     if (!mappedStages.some(ms => ms.stage === required)) {
       mappedStages.push({
+        id: Math.random(),
         stage: required,
         status: State.TO_DO,
       });

@@ -1,8 +1,9 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
-import { DQPRoblemsIdentification } from "../../../../components/DQProblemsIdentification";
-import { Activity, getActivityTitle } from "../../../../types/activity";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { DQPRoblemsIdentification } from '../../../../components/DQProblemsIdentification';
+import { Activity, getActivityTitle } from '../../../../types/activity';
+import { Stage } from '../../../../types/stage';
 
 export const A03: React.FC = () => {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ export const A03: React.FC = () => {
       label={t(getActivityTitle(Activity.A08))}
       type="interaction"
       projectId={Number(projectId)}
+      stage={Stage.ST3}
     />
   );
 };

@@ -231,7 +231,7 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
           >
             <Typography variant="subtitle2">{t('context-components')}</Typography>
 
-            <Box display="flex" flexDirection="row" gap={1}>
+            <Box display="flex" flexDirection="row" gap={2}>
               <Button
                 startIcon={<Add />}
                 onClick={() => handleEditContextComponent()}
@@ -242,9 +242,9 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
 
               {type && (
                 <Tooltip title={t('suggest-context-components-with-ai')}>
-                  <IconButton onClick={fetchAnalysis} sx={{ p: 0 }} size="small">
-                    <Sync fontSize="small" color="primary" />
-                  </IconButton>
+                  <Button startIcon={<Sync />} onClick={fetchAnalysis} sx={{ p: 0 }}>
+                    {t('suggest-with-ai')}
+                  </Button>
                 </Tooltip>
               )}
             </Box>

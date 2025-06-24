@@ -8,11 +8,14 @@ import { ProblemList } from '../ProblemList';
 import { useDQProblems } from '../../hooks/useDQProblems';
 import { NewProblemDialog } from '../NewProblemDialog';
 import { AlertDialog } from '../AlertDialog';
+import { Problem } from '../../types/problem';
+import { Stage } from '../../types/stage';
 
 export interface DQPRoblemsIdentificationProps {
   label?: string;
   type?: ReviewType;
   projectId: number;
+  stage: Stage;
   showReview?: boolean;
 }
 
@@ -20,6 +23,7 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
   label,
   type,
   projectId,
+  stage,
   showReview = true,
 }) => {
   const { t } = useTranslation();
@@ -44,7 +48,7 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
     problemToDelete,
     confirmDeleteProblem,
     cancelDeleteProblem,
-  } = useDQProblems({ projectId, type });
+  } = useDQProblems({ projectId, type, stage });
 
   useEffect(() => {
     fetchProblems();
@@ -70,15 +74,16 @@ export const DQPRoblemsIdentification: React.FC<DQPRoblemsIdentificationProps> =
           >
             <Typography variant="subtitle2">{t('problems')}</Typography>
 
-            <Box display="flex" flexDirection="row" gap={1}>
+            <Box display="flex" flexDirection="row" gap={2}>
               <Button startIcon={<Add />} onClick={handleCreateProblem} sx={{ p: 0 }}>
                 {t('new')}
               </Button>
+
               {type && (
                 <Tooltip title={t('suggest-problems-with-ai')}>
-                  <IconButton onClick={handleLoadAnalysis} sx={{ p: 0 }} size="small">
-                    <Sync fontSize="small" color="primary" />
-                  </IconButton>
+                  <Button startIcon={<Sync />} onClick={handleLoadAnalysis} sx={{ p: 0 }}>
+                    {t('suggest-with-ai')}
+                  </Button>
                 </Tooltip>
               )}
             </Box>

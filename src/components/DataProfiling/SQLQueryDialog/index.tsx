@@ -33,6 +33,7 @@ import Draggable from 'react-draggable';
 import { Close } from '@mui/icons-material';
 import { Schema } from '../../../types/dataProfiling';
 import { useDQProblems } from '../../../hooks/useDQProblems';
+import { Stage } from '../../../types/stage';
 
 interface SQLQueryDialogProps {
   open: boolean;
@@ -68,7 +69,7 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
     handleNewProblemSubmit,
     problemErrors,
     newProblemDialogOpen,
-  } = useDQProblems({ projectId });
+  } = useDQProblems({ projectId, stage: Stage.ST2 });
 
   const [sql, setSql] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -88,10 +89,7 @@ export const SQLQueryDialog: React.FC<SQLQueryDialogProps> = ({
   const run = async () => {
     setLoading(true);
     try {
-      let query = sql.trim();
-
-      if (query.endsWith(';')) query = query.slice(0, -1);
-      if (!/limit\s+\d+/i.test(query)) query += ' LIMIT 500';
+      const query = sql.trim();
 
       const data: SQLQueryBody = { projectId, sql: query };
       const response = await dataProfilingApi.runSQLQuery(data);

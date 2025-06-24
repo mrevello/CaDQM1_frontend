@@ -1,9 +1,9 @@
-import { Activity } from "./activity";
-import { ContextType } from "./context";
-import { DataAtHand } from "./dataAtHand";
-import { DQModel } from "./model";
-import { getStageActivities, Stage, stageOrder } from "./stage";
-import { State } from "./state";
+import { Activity } from './activity';
+import { Context } from './context';
+import { DataAtHand } from './dataAtHand';
+import { DQModel } from './model';
+import { getStageActivities, Stage, stageOrder } from './stage';
+import { State } from './state';
 
 // ui model
 export type Project = {
@@ -12,13 +12,14 @@ export type Project = {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  context?: ContextType;
+  context?: Context;
   dqModel?: DQModel;
   dataAtHand?: DataAtHand;
   stages: ProjectStage[];
 };
 
 export type ProjectStage = {
+  id: number;
   stage: Stage;
   status: State;
 };
@@ -28,9 +29,9 @@ export type ProjectErrorsType = {
 };
 
 export const projectStatus = (stages: ProjectStage[]): State => {
-  if (stages.every((stage) => stage.status === State.DONE)) {
+  if (stages.every(stage => stage.status === State.DONE)) {
     return State.DONE;
-  } else if (stages.every((stage) => stage.status === State.TO_DO)) {
+  } else if (stages.every(stage => stage.status === State.TO_DO)) {
     return State.TO_DO;
   } else {
     return State.IN_PROGRESS;
@@ -67,23 +68,26 @@ export type ProjectResponse = {
 };
 
 export type ProjectStageResponse = {
-  id: string;
+  id: number;
   stage: Stage;
   status: State;
 };
 
 export function toProject(
   response: ProjectResponse,
-  dataAtHand?: DataAtHand
+  dataAtHand?: DataAtHand,
+  context?: Context
 ): Project {
-  const mappedStages: ProjectStage[] = response.stages.map((s) => ({
+  const mappedStages: ProjectStage[] = response.stages.map(s => ({
+    id: s.id,
     stage: s.stage,
     status: s.status,
   }));
 
   for (const required of [Stage.ST1, Stage.ST2, Stage.ST3] as const) {
-    if (!mappedStages.some((ms) => ms.stage === required)) {
+    if (!mappedStages.some(ms => ms.stage === required)) {
       mappedStages.push({
+        id: Math.random(),
         stage: required,
         status: State.TO_DO,
       });
@@ -101,10 +105,13 @@ export function toProject(
   mappedStages.sort((a, b) => orderMap[a.stage] - orderMap[b.stage]);
 
   return {
-    ...response,
+    id: response.id,
+    name: response.name,
+    description: response.description,
     createdAt: new Date(response.created_at),
     updatedAt: new Date(response.updated_at),
     dataAtHand: dataAtHand,
     stages: mappedStages,
+    context: context,
   };
 }

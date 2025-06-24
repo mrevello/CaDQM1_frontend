@@ -5,14 +5,22 @@ import { ProblemList } from '../ProblemList';
 import { useDQProblems } from '../../hooks/useDQProblems';
 import { NewProblemDialog } from '../NewProblemDialog';
 import { AlertDialog } from '../AlertDialog';
+import { Stage } from '../../types/stage';
+import { Problem } from '../../types/problem';
 
 interface ProblemsDialogProps {
   projectId: number;
+  stage: Stage;
   open: boolean;
   onClose: () => void;
 }
 
-export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({ projectId, open, onClose }) => {
+export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({
+  projectId,
+  stage,
+  open,
+  onClose,
+}) => {
   const { t } = useTranslation();
 
   const {
@@ -30,7 +38,7 @@ export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({ projectId, open,
     confirmDeleteProblem,
     handleDeleteProblem,
     handleAddSuggestionProblem,
-  } = useDQProblems({ projectId });
+  } = useDQProblems({ projectId, stage });
 
   return (
     <>

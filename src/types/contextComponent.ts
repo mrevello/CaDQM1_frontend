@@ -124,6 +124,7 @@ export type ContextComponentErrorsType = {
   [ContextComponentType.DQ_METADATA]?: {
     path?: string;
     measurement?: string;
+    description?: string;
   };
   [ContextComponentType.DQ_REQUIREMENT]?: {
     statement?: string;
@@ -550,6 +551,7 @@ export const createContextComponent = (
   const base = {
     id: id,
     isSuggestion: false,
+    stage: data.project_stage_info?.stage,
   };
 
   switch (type) {
