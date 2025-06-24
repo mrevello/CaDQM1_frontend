@@ -28,11 +28,11 @@ export const AppRouter: React.FC = () => {
       <Route path={ROUTES.REGISTER} element={<Register />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path={ROUTES.PROJECT_CONTEXT} element={<Context />} />
-
         <Route element={<RouterLayout />}>
           <Route path={ROUTES.SERVER_ERROR} element={<ServerError />} />
           <Route path={ROUTES.PROJECTS} element={<ProjectsList />} />
+          <Route path={ROUTES.PROJECT_CONTEXT} element={<Context />} />
+
           <Route path="*" element={<Navigate to={ROUTES.PROJECTS} />} />
 
           {/* ST1 */}
