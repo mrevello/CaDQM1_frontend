@@ -1,111 +1,69 @@
 import { SimpleTreeView } from '@mui/x-tree-view';
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ContextComponent,
   ContextComponentData,
-  ContextComponentErrorsType,
-  ContextComponentsType,
   ContextComponentType,
+  ContextComponentsType,
+  componentTypeToKey,
+  populateContextComponentReferences,
 } from '../../../types/contextComponent';
 import { Placeholder } from '../../Placeholder';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import TocSharpIcon from '@mui/icons-material/TocSharp';
-import { contextApi } from '../../../api/context.api';
-import { NewContextComponentDialog } from '../../NewContextComponentDialog';
 import { AlertDialog } from '../../AlertDialog';
 import { useNotification } from '../../../context/notification.context';
 import { getStageTitle, Stage } from '../../../types/stage';
 import { ContextComponentList } from '../ContextComponentList';
 import { StageGroupSection } from '../StageGroupSection';
+import { useContextComponents } from '../../../hooks/useContextComponents';
 
 interface ContextComponentsProps {
   projectId: number;
-  contextComponents: ContextComponentsType | null;
-  setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType | null>>;
   showActions?: boolean;
   stage?: Stage;
+  onEdit: (component?: ContextComponent, type?: ContextComponentType) => void;
+  loading: boolean;
+  contextComponents: ContextComponentsType;
+  setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType>>;
 }
 
 export const ContextComponents: React.FC<ContextComponentsProps> = ({
   projectId,
-  contextComponents,
-  setContextComponents,
   showActions = false,
   stage,
+  onEdit,
+  loading,
+  contextComponents,
+  setContextComponents,
 }) => {
-  const { t } = useTranslation('context');
-  const { showError, showSuccess } = useNotification();
+  const { t } = useTranslation();
+  const { showError } = useNotification();
+  const [groupByStage, setGroupByStage] = useState(false);
 
-  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] = useState(false);
-  const [contextComponentErrors, setContextComponentErrors] = useState<ContextComponentErrorsType>(
-    {}
-  );
+  const [emptyContextComponents, setEmptyContextComponents] = useState(false);
+
+  const [contextComponentsWithReferences, setContextComponentsWithReferences] =
+    useState<ContextComponentsType>(contextComponents);
+
+  useEffect(() => {
+    setEmptyContextComponents(Object.values(contextComponents || {}).every(comp => comp == null));
+
+    const contextComponentsWithReferences = populateContextComponentReferences(contextComponents);
+    setContextComponentsWithReferences(contextComponentsWithReferences);
+  }, [contextComponents]);
+
+  const { deleteContextComponent } = useContextComponents({
+    projectId,
+    stage,
+  });
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [compToDelete, setCompToDelete] = useState<{
     component: ContextComponent;
     type: ContextComponentType;
   } | null>(null);
-
-  const [selectedEditCompoenent, setSelectedEditCompoenent] = useState<{
-    component: ContextComponent;
-    type: ContextComponentType;
-  } | null>(null);
-
-  const [groupByStage, setGroupByStage] = useState(false);
-
-  const fetchContextComponents = useCallback(async () => {
-    try {
-      const contextFromApi = await contextApi.listContextComponents(Number(projectId));
-      setContextComponents(contextFromApi);
-    } catch (err) {
-      console.error('Error fetching context components:', err);
-    }
-  }, [projectId, setContextComponents]);
-
-  useEffect(() => {
-    if (!projectId) return;
-
-    fetchContextComponents();
-  }, [projectId, fetchContextComponents]);
-
-  const handleCreateContextComponent = () => {
-    setNewContextComponentDialogOpen(true);
-  };
-
-  const handleCloseNewContextComponentDialog = () => {
-    setContextComponentErrors({});
-    setNewContextComponentDialogOpen(false);
-  };
-
-  const handleNewContextComponentSubmit = async (formData: Record<string, any>) => {
-    try {
-      const { id, type, ...data } = formData;
-
-      if (!type) {
-        console.error('No type provided for context component.');
-        return;
-      }
-      if (selectedEditCompoenent) {
-        await contextApi.updateContextComponent(id, type, data, projectId);
-      } else {
-        await contextApi.createContextComponent(type, data, projectId, stage);
-      }
-
-      handleCloseNewContextComponentDialog();
-      fetchContextComponents();
-    } catch (error) {
-      console.error('Error creating context component:', error);
-    }
-  };
-
-  const confirmEditContextComponent = (component: ContextComponent, type: ContextComponentType) => {
-    setSelectedEditCompoenent({
-      component: component,
-      type: type,
-    });
-    setNewContextComponentDialogOpen(true);
-  };
 
   const confirmDeleteContextComponent = (
     component: ContextComponent,
@@ -118,20 +76,98 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
   const handleDeleteConfirm = async () => {
     if (compToDelete) {
       try {
-        const response = await contextApi.deleteComponent(
-          compToDelete.component.id,
-          compToDelete.type
-        );
-        if (response) {
-          fetchContextComponents();
-          showSuccess(t('context-component-deleted'));
+        const success = await deleteContextComponent(compToDelete.component.id, compToDelete.type);
+        if (success) {
+          setDeleteDialogOpen(false);
+          setCompToDelete(null);
+          // Refresh components after deletion
+          setContextComponents(prev => {
+            if (!prev) return prev;
+            const key = componentTypeToKey[compToDelete.type];
+            const newData = prev[key]?.data.filter(d => d.id !== compToDelete.component.id);
+            if (!newData) return prev;
+
+            return {
+              ...prev,
+              [key]: newData.length > 0 ? { ...prev[key], data: newData } : null,
+            };
+          });
         }
       } catch (error) {
-        showError(t('failed-to-delete-context-component'));
+        showError('Failed to delete context component.');
       }
     }
-    setDeleteDialogOpen(false);
-    setCompToDelete(null);
+  };
+
+  const setContextComponent =
+    <T extends ContextComponent>(
+      type: ContextComponentType
+    ): React.Dispatch<React.SetStateAction<ContextComponentData<T>>> =>
+    updater => {
+      setContextComponents(prev => {
+        if (!prev) return prev;
+        const key = componentTypeToKey[type];
+        const slot = prev[key] as ContextComponentData<T> | null;
+        if (!slot) return prev;
+
+        const newSlot =
+          typeof updater === 'function'
+            ? (updater as (old: ContextComponentData<T>) => ContextComponentData<T>)(slot)
+            : updater;
+
+        return {
+          ...prev,
+          [key]: newSlot,
+        };
+      });
+    };
+
+  const handleMoveItem = (
+    movedComp: ContextComponent,
+    fromType: ContextComponentType,
+    toType: ContextComponentType
+  ) => {
+    setContextComponents(prev => {
+      if (!prev) return prev;
+
+      const fromKey = componentTypeToKey[fromType];
+      const toKey = componentTypeToKey[toType];
+
+      const src = prev[fromKey];
+      const dst = prev[toKey];
+
+      if (!src || !dst) return prev;
+
+      const newSrc = {
+        ...src,
+        data: src.data.filter(d => d.id !== movedComp.id),
+      };
+
+      const newDst = {
+        ...dst,
+        data: [...dst.data, { ...movedComp, type: toType }],
+      };
+
+      return {
+        ...prev,
+        [fromKey]: newSrc,
+        [toKey]: newDst,
+      };
+    });
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const handleEdit = (component: ContextComponent, type: ContextComponentType) => {
+    if (onEdit) {
+      onEdit(component, type);
+    }
   };
 
   return (
@@ -149,18 +185,17 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
                 fontWeight={550}
                 color={groupByStage ? 'primary' : 'action'}
               >
-                group by stage
+                {t('group-by-stage')}
               </Typography>
             </Button>
           </Box>
         )}
-
         <SimpleTreeView>
-          {contextComponents ? (
+          {contextComponentsWithReferences && !emptyContextComponents ? (
             groupByStage ? (
               <>
                 {Object.values(Stage).map(stage => {
-                  const stageComponents = Object.values(contextComponents)
+                  const stageComponents = Object.values(contextComponentsWithReferences)
                     .filter(
                       (comp): comp is ContextComponentData<ContextComponent> =>
                         comp !== null &&
@@ -179,48 +214,28 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
                       label={t(getStageTitle(stage))}
                       components={stageComponents}
                       prefix={stage}
-                      onEdit={confirmEditContextComponent}
+                      onEdit={handleEdit}
                       onDelete={confirmDeleteContextComponent}
+                      setContextComponents={setContextComponents}
+                      loading={loading}
                     />
                   );
                 })}
-
-                {/* {(() => {
-                  const otherComponents = Object.values(contextComponents)
-                    .filter(
-                      (comp): comp is ContextComponentData<ContextComponent> =>
-                        comp !== null &&
-                        comp.data.some((item: ContextComponent) => !item.stage)
-                    )
-                    .map((comp) => ({
-                      ...comp,
-                      data: comp.data.filter(
-                        (item: ContextComponent) => !item.stage
-                      ),
-                    }));
-
-                  if (otherComponents.length === 0) return null;
-
-                  return (
-                    <StageGroupSection
-                      label="other"
-                      components={otherComponents}
-                      onEdit={confirmEditContextComponent}
-                      onDelete={confirmDeleteContextComponent}
-                    />
-                  );
-                })()} */}
               </>
             ) : (
-              Object.values(contextComponents).map(
-                (component, index) =>
+              Object.values(contextComponentsWithReferences).map(
+                (component, _) =>
                   component && (
                     <ContextComponentList
                       key={`${component.type}`}
                       itemId={`${component.type}`}
                       component={component}
-                      onEdit={(comp, type) => confirmEditContextComponent(comp, type)}
-                      onDelete={(comp, type) => confirmDeleteContextComponent(comp, type)}
+                      onEdit={handleEdit}
+                      onDelete={confirmDeleteContextComponent}
+                      setContextComponent={setContextComponent(component.type)}
+                      onAdd={onEdit}
+                      onMove={(moved, fromType) => handleMoveItem(moved, fromType, component.type)}
+                      loading={loading}
                     />
                   )
               )
@@ -229,28 +244,18 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
             <Placeholder
               description={t('context-component-placeholder')}
               linkText={t('identify-component')}
-              onClick={handleCreateContextComponent}
+              onClick={onEdit}
             />
           )}
         </SimpleTreeView>
       </Box>
 
-      <NewContextComponentDialog
-        open={newContextComponentDialogOpen}
-        projectId={projectId}
-        onClose={handleCloseNewContextComponentDialog}
-        onSubmit={handleNewContextComponentSubmit}
-        errors={contextComponentErrors}
-        isEdit={!!selectedEditCompoenent}
-        item={selectedEditCompoenent}
-      />
-
       <AlertDialog
         open={deleteDialogOpen}
-        title={t('context:delete-context-component-alert-title', {
-          type: t(compToDelete?.type || 'context:context-component'),
+        title={t('delete-context-component-alert-title', {
+          type: t(compToDelete?.type || 'context-component'),
         })}
-        description={compToDelete ? t('context:delete-context-component-alert-description') : ''}
+        description={compToDelete ? t('delete-context-component-alert-description') : ''}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />

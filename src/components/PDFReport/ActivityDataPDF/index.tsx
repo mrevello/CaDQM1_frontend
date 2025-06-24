@@ -42,8 +42,7 @@ export const ActivityDataPDF: React.FC<ActivityDataPDFProps> = ({
   const { t } = useTranslation();
 
   const problemsByStage = problems.filter((problem: Problem) => {
-    return true;
-    // return problem.stage === stage;
+    return problem.stage === stage;
   });
 
   const renderActivityContent = () => {

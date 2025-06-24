@@ -1,15 +1,11 @@
-import {
-  Project,
-  ProjectResponse,
-  ProjectBody,
-  toProject,
-} from "../types/project";
-import { Stage } from "../types/stage";
-import { State } from "../types/state";
-import { instance } from "./base.api";
-import { dataAtHandApi } from "./dataAtHand.api";
-import { handleApiError } from "./errorHandler";
-import { API_ENDPOINTS } from "../constants";
+import { Project, ProjectResponse, ProjectBody, toProject } from '../types/project';
+import { Stage } from '../types/stage';
+import { State } from '../types/state';
+import { instance } from './base.api';
+import { dataAtHandApi } from './dataAtHand.api';
+import { handleApiError } from './errorHandler';
+import { API_ENDPOINTS } from '../constants';
+import { contextApi } from './context.api';
 
 export const endpoint = API_ENDPOINTS.PROJECTS;
 
@@ -20,12 +16,14 @@ export const projectsApi = {
       const projectResponses: ProjectResponse[] = response.data;
 
       const projects: Project[] = await Promise.all(
-        projectResponses.map(async (resp) => {
+        projectResponses.map(async resp => {
           const dataAtHand = resp.data_at_hand
             ? await dataAtHandApi.getDataAtHand(resp.data_at_hand)
             : undefined;
-
-          return toProject(resp, dataAtHand);
+          const context = resp.context_id
+            ? await contextApi.getContext(resp.context_id)
+            : undefined;
+          return toProject(resp, dataAtHand, context);
         })
       );
 
@@ -35,22 +33,18 @@ export const projectsApi = {
     }
   },
 
-  createProject: async function (
-    data: ProjectBody
-  ): Promise<Project | undefined> {
+  createProject: async function (data: ProjectBody): Promise<Project | undefined> {
     try {
       const response = await instance.post(endpoint, data);
       const resp: ProjectResponse = response.data;
 
-      return toProject(resp, undefined);
+      return toProject(resp);
     } catch (error: any) {
       handleApiError(error);
     }
   },
 
-  getProject: async function (
-    id: number | string
-  ): Promise<Project | undefined> {
+  getProject: async function (id: number | string): Promise<Project | undefined> {
     try {
       const response = await instance.get(`${endpoint}${id}/`);
       const resp: ProjectResponse = response.data;
@@ -59,16 +53,15 @@ export const projectsApi = {
         ? await dataAtHandApi.getDataAtHand(resp.data_at_hand)
         : undefined;
 
-      return toProject(resp, dataAtHand);
+      const context = resp.context_id ? await contextApi.getContext(resp.context_id) : undefined;
+
+      return toProject(resp, dataAtHand, context);
     } catch (error: any) {
       return undefined;
     }
   },
 
-  updateProject: async function (
-    id: number | string,
-    data: Partial<ProjectBody>
-  ) {
+  updateProject: async function (id: number | string, data: Partial<ProjectBody>) {
     try {
       const response = await instance.put(`${endpoint}${id}/`, data);
       return response.data;
@@ -86,17 +79,10 @@ export const projectsApi = {
     }
   },
 
-  updateStage: async function (
-    id: number | string,
-    stage: Stage,
-    status: State
-  ) {
+  updateStage: async function (id: number | string, stage: Stage, status: State) {
     try {
       const data = { stage, status };
-      const response = await instance.put(
-        `${endpoint}${id}/update-stage/`,
-        data
-      );
+      const response = await instance.put(`${endpoint}${id}/update-stage/`, data);
       return response.data;
     } catch (error: any) {
       handleApiError(error);

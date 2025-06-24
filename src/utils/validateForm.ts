@@ -22,7 +22,6 @@ export const ProblemValidate = yup.object().shape({
 
 export const a01Validate = yup.object().shape({
   name: yup.string().trim().required("This field is mandatory"),
-  description: yup.string().trim().required("This field is mandatory"),
   host: yup.string().trim().required("This field is mandatory"),
   port: yup.string().trim().required("This field is mandatory"),
   database: yup.string().trim().required("This field is mandatory"),

@@ -228,7 +228,7 @@
   "stages": "Etapas",
   "project": "Proyecto",
   "warnings": "Advertencias",
-  "facts": "Hechos",
+  "information": "Información",
   "selected": "seleccionado",
   "regenerate": "Regenerar",
   "save": "Guardar",
@@ -271,5 +271,15 @@
   "suggest-problems-with-ai": "Sugerir problema de calidad de datos con IA",
   "delete-title": "Eliminar",
   "suggestion": "Sugerido",
-  "data_filtering": "Filtrado de datos"
+  "data_filtering": "Filtrado de datos",
+  "organization-elements-title": "Elementos organizacionales (sistemas, servicios, metadatos, procesos, etc.)",
+  "view-context": "Ver contexto",
+  "view-dq-problems": "Ver problemas de calidad de datos",
+  "view-project-timeline": "Ver cronograma del proyecto",
+  "project-timeline": "Cronograma del proyecto",
+  "project-timeline-description": "Progreso de las etapas del proyecto",
+  "estimation": "Estimación", 
+  "suggest-with-ai": "Sugerir con IA",
+  "suggest-estimation-with-ai": "Sugerir estimación con IA",
+  "phase-1-status": "Estado de la fase 1:"
 }

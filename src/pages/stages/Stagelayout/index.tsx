@@ -7,6 +7,7 @@ import { Activity } from '../../../types/activity';
 import { ActivityStepper } from '../../../components/ActivityStepper';
 import PriorityHighOutlinedIcon from '@mui/icons-material/PriorityHighOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import { KeyboardArrowUpOutlined } from '@mui/icons-material';
 import { StageDialog } from '../../../components/StagesDialog';
 import { ContextDialog } from '../../../components/Context/ContextDialog';
@@ -16,6 +17,7 @@ import { projectsApi } from '../../../api/projects.api';
 import { State } from '../../../types/state';
 import { useTranslation } from 'react-i18next';
 import { ROUTES } from '../../../constants';
+import { TimelineDialog } from '../../../components/TimelineDialog';
 
 export interface ActivityHandle {
   validateForm: () => Promise<boolean>;
@@ -45,6 +47,7 @@ export const StageLayout: React.FC = () => {
   const [stagesDialogOpen, setStagesDialogOpen] = useState(false);
   const [contextDialogOpen, setContextDialogOpen] = useState(false);
   const [problemsDialogOpen, setProblemsDialogOpen] = useState(false);
+  const [timelineDialogOpen, setTimelineDialogOpen] = useState(false);
 
   const [project, setProject] = useState<Project | null>(null);
 
@@ -131,13 +134,18 @@ export const StageLayout: React.FC = () => {
   const actions = [
     {
       icon: <AddOutlinedIcon />,
-      name: 'View Context',
+      name: t('view-context'),
       onClick: () => setContextDialogOpen(true),
     },
     {
       icon: <PriorityHighOutlinedIcon />,
-      name: 'View Problems',
+      name: t('view-dq-problems'),
       onClick: () => setProblemsDialogOpen(true),
+    },
+    {
+      icon: <TimelineIcon />,
+      name: t('view-project-timeline'),
+      onClick: () => setTimelineDialogOpen(true),
     },
   ];
 
@@ -211,9 +219,18 @@ export const StageLayout: React.FC = () => {
 
       <ProblemsDialog
         projectId={Number(projectId)}
+        stage={stage}
         open={problemsDialogOpen}
         onClose={() => setProblemsDialogOpen(false)}
       />
+
+      {project && (
+        <TimelineDialog
+          project={project}
+          open={timelineDialogOpen}
+          onClose={() => setTimelineDialogOpen(false)}
+        />
+      )}
     </>
   );
 };

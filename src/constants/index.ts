@@ -64,6 +64,7 @@ export const API_ENDPOINTS = {
 
   // Context component endpoints
   CONTEXT: {
+    CONTEXT: 'contexts/',
     APPLICATION_DOMAIN: 'application-domains/',
     BUSINESS_RULE: 'business-rules/',
     DATA_FILTERING: 'data-filterings/',

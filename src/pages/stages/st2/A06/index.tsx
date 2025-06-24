@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Alert,
   Box,
@@ -6,139 +6,176 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CircularProgress,
+  IconButton,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
 import { useNotification } from '../../../../context/notification.context';
 import { estimationApi } from '../../../../api/estimation.api';
 import { Estimation } from '../../../../types/estimation';
+import { LoadingProgress } from '../../../../components/LoadingProgress';
+import { Sync } from '@mui/icons-material';
+import { ActivityHandle } from '../../Stagelayout';
 
 export const A06: React.FC = () => {
   const { t } = useTranslation();
   const { showError } = useNotification();
   const { projectId } = useParams<{ projectId: string }>();
+  const { activityRef } = useOutletContext<{
+    activityRef: React.MutableRefObject<ActivityHandle | null>;
+  }>();
 
-  const [loadingEstimation, setLoadingEstimation] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(false);
 
-  const [estimationId, setEstimationId] = useState<number | null>(null);
-  const [estimation, setEstimation] = useState<Estimation | null>(null);
+  const [estimation, setEstimation] = useState<Estimation>();
 
-  const [prompt, setPrompt] = useState('');
-  const [manualEstimation, setManualEstimation] = useState('');
-
-  const mountedRef = useRef(false);
+  const [manualEstimation, setManualEstimation] = useState(estimation?.text || '');
 
   const handleRegenerate = useCallback(async () => {
-    console.log('handleRegenerate', prompt);
-    setLoadingEstimation(true);
+    setLoadingSuggestion(true);
     try {
-      const estimation: Estimation = await estimationApi.regenerateEstimation(
-        Number(projectId),
-        prompt
-      );
+      const estimation: Estimation = await estimationApi.regenerateEstimation(Number(projectId));
 
       if (estimation) {
-        setEstimationId(estimation.id);
         setEstimation(estimation);
-        setPrompt('');
+        setManualEstimation(estimation.text);
       }
     } catch (err) {
       showError(String(err));
       console.error('Failed to regenerate estimation:', err);
     } finally {
-      setLoadingEstimation(false);
+      setLoadingSuggestion(false);
     }
-  }, [projectId, prompt, showError]);
+  }, [projectId, showError]);
 
   useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-
     const fetchEstimation = async () => {
-      setLoadingEstimation(true);
+      setLoading(true);
       try {
         const estimation = await estimationApi.getEstimation(Number(projectId));
 
         if (estimation) {
-          setEstimationId(estimation.id);
           setEstimation(estimation);
-        } else {
-          handleRegenerate();
+          setManualEstimation(estimation.text);
         }
       } catch (err) {
         showError(String(err));
         console.error('Failed to load estimation:', err);
       } finally {
-        setLoadingEstimation(false);
+        setLoading(false);
       }
     };
     fetchEstimation();
   }, [projectId, handleRegenerate, showError]);
 
   const handleDismissWarning = async (warning: string) => {
-    if (estimationId) {
-      const estimation = await estimationApi.discardEstimation(estimationId, warning, 'warnings');
+    if (estimation) {
+      const updatedEstimation = await estimationApi.discardEstimation(
+        estimation.id,
+        warning,
+        'warnings'
+      );
 
-      console.log('estimation', estimation);
-
-      if (estimation) {
-        setEstimation(estimation);
+      if (updatedEstimation) {
+        setEstimation(updatedEstimation);
       }
     }
   };
 
   const handleDismissFact = async (fact: string) => {
-    if (estimationId) {
-      const estimation = await estimationApi.discardEstimation(estimationId, fact, 'facts');
+    if (estimation) {
+      const updatedEstimation = await estimationApi.discardEstimation(estimation.id, fact, 'facts');
 
-      if (estimation) {
-        setEstimation(estimation);
+      if (updatedEstimation) {
+        setEstimation(updatedEstimation);
       }
     }
   };
 
-  const handleSaveManualEstimation = async () => {
-    if (estimationId) {
-      const estimation = await estimationApi.addEstimation(estimationId, manualEstimation);
-
+  const validateForm = useCallback(async () => {
+    try {
       if (estimation) {
-        setEstimation(estimation);
-        setManualEstimation('');
+        const updatedEstimation = await estimationApi.addEstimation(
+          Number(projectId),
+          manualEstimation
+        );
+
+        if (updatedEstimation) {
+          setEstimation(updatedEstimation);
+          setManualEstimation('');
+        }
+        return true;
       }
+      showError('No estimation found');
+      return false;
+    } catch (err) {
+      showError(String(err));
+      return false;
     }
-  };
+  }, [showError, manualEstimation, estimation]);
+
+  useEffect(() => {
+    if (activityRef) {
+      activityRef.current = { validateForm };
+    }
+  }, [activityRef, validateForm]);
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
-      {loadingEstimation ? (
-        <Box display="flex" width="100%" my={20} justifyContent="center">
-          <CircularProgress />
-        </Box>
+      <Box display="flex" flexDirection="row" justifyContent="space-between">
+        <Typography variant="subtitle2">{t('estimation')}</Typography>
+        <Tooltip title={t('suggest-estimation-with-ai')}>
+          <Button startIcon={<Sync />} onClick={handleRegenerate} sx={{ p: 0 }}>
+            {t('suggest-with-ai')}
+          </Button>
+        </Tooltip>
+      </Box>
+
+      {loading ? (
+        <LoadingProgress />
+      ) : (
+        <TextField
+          fullWidth
+          multiline
+          rows={estimation?.warnings ? 4 : 10}
+          variant="outlined"
+          value={manualEstimation}
+          placeholder="Enter your manual estimation details..."
+          onChange={e => setManualEstimation(e.target.value)}
+          sx={{
+            '& .MuiInputBase-inputMultiline': { resize: 'vertical' },
+          }}
+        />
+      )}
+
+      {loadingSuggestion ? (
+        <LoadingProgress />
       ) : (
         <>
-          {estimation && (
+          {estimation?.warnings && (
             <Card>
               <CardHeader
                 title={
                   <Typography variant="h6" color="warning.main">
-                    Warnings
+                    {t('warnings')}
                   </Typography>
                 }
               />
               <CardContent>
                 <Box display="flex" flexDirection="column" gap={1}>
-                  {estimation.warnings.map((warning, index) => (
+                  {estimation.warnings?.map((warning, index) => (
                     <Alert
                       key={`warning-${index}`}
                       severity="warning"
                       onClose={() => handleDismissWarning(warning)}
                     >
-                      <Typography variant="body2">{warning}</Typography>
+                      <Typography variant="body2" fontSize={14}>
+                        {warning}
+                      </Typography>
                     </Alert>
                   ))}
                 </Box>
@@ -146,82 +183,34 @@ export const A06: React.FC = () => {
             </Card>
           )}
 
-          {estimation && (
+          {estimation?.facts && (
             <Card>
               <CardHeader
                 title={
                   <Typography variant="h6" color="info.main">
-                    Facts
+                    {t('information')}
                   </Typography>
                 }
               />
               <CardContent>
                 <Box display="flex" flexDirection="column" gap={1}>
-                  {estimation.facts.map((fact, index) => (
+                  {estimation.facts?.map((fact, index) => (
                     <Alert
                       key={`fact-${index}`}
                       severity="info"
                       onClose={() => handleDismissFact(fact)}
                     >
-                      <Typography variant="body2">{fact}</Typography>
+                      <Typography variant="body2" fontSize={14}>
+                        {fact}
+                      </Typography>
                     </Alert>
                   ))}
                 </Box>
               </CardContent>
             </Card>
           )}
-
-          <Card>
-            <CardHeader title="Regenerate Estimation" />
-            <CardContent>
-              <Box display="flex" flexDirection="column" gap={2}>
-                <TextField
-                  fullWidth
-                  multiline
-                  variant="outlined"
-                  value={prompt}
-                  placeholder={t('prompt-placeholder')}
-                  onChange={e => setPrompt(e.target.value)}
-                />
-                <Box display="flex" justifyContent="flex-end">
-                  <Button
-                    variant="contained"
-                    onClick={() => handleRegenerate()}
-                    loading={loadingEstimation}
-                  >
-                    {loadingEstimation ? 'Regenerating...' : t('regenerate')}
-                  </Button>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
         </>
       )}
-      <Card>
-        <CardHeader title="Other Estimation" />
-        <CardContent>
-          <Box display="flex" flexDirection="column" gap={2}>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              variant="outlined"
-              value={manualEstimation}
-              placeholder="Enter your manual estimation details..."
-              onChange={e => setManualEstimation(e.target.value)}
-            />
-            <Box display="flex" justifyContent="flex-end">
-              <Button
-                variant="contained"
-                disabled={!manualEstimation.trim()}
-                onClick={() => handleSaveManualEstimation()}
-              >
-                {t('save')}
-              </Button>
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
     </Box>
   );
 };

@@ -18,10 +18,12 @@ import {
   TaskAtHand,
   UserType,
 } from '../types/contextComponent';
+import { Context, ContextResponse } from '../types/context';
 import { Stage } from '../types/stage';
 import { instance } from './base.api';
 import { handleApiError } from './errorHandler';
 import { API_ENDPOINTS } from '../constants';
+import { projectsApi } from './projects.api';
 
 const endpoints: Record<keyof typeof ContextComponentType, string> = {
   APPLICATION_DOMAIN: API_ENDPOINTS.CONTEXT.APPLICATION_DOMAIN,
@@ -37,6 +39,29 @@ const endpoints: Record<keyof typeof ContextComponentType, string> = {
 };
 
 export const contextApi = {
+  getContext: async function (contextId: number): Promise<Context> {
+    try {
+      const response = await instance.get(`${API_ENDPOINTS.CONTEXT.CONTEXT}${contextId}/`);
+      const data: ContextResponse = response.data;
+
+      const previousContext = data.previous_version
+        ? await contextApi.getContext(data.previous_version)
+        : null;
+
+      const context: Context = {
+        id: data.id,
+        name: data.name,
+        version: data.version,
+        previousVersion: previousContext,
+      };
+
+      return context;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+
   createContextComponent: async function (
     type: ContextComponentType,
     data: Record<string, any>,
@@ -52,8 +77,11 @@ export const contextApi = {
         throw new Error(`Invalid type: ${type}`);
       }
 
+      const project = await projectsApi.getProject(projectId);
+      const projectStage = project?.stages.findLast(ps => ps.stage === stage);
+
       data.project = projectId;
-      data.stage = stage;
+      data.project_stage = projectStage?.id;
       const response = await instance.post(endpoints[typeKey], data);
       return createContextComponent(response.data.id, type, response.data);
     } catch (error) {
@@ -116,12 +144,13 @@ export const contextApi = {
       }
 
       const res = await instance.get(endpoints[typeKey]);
+
       const filteredData = res.data
         .filter((item: any) => item.project === projectId)
         .map((item: any) => {
           const base = {
             id: item.id,
-            stage: item.project_stage?.stage || Stage.ST1,
+            stage: item.project_stage_info?.stage || Stage.ST1,
           };
 
           switch (type) {

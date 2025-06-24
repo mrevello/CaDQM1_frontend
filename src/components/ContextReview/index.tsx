@@ -1,18 +1,24 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Box, TextField, Typography, Button } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { Add } from "@mui/icons-material";
-import { contextApi } from "../../api/context.api";
-import { reviewApi } from "../../api/review.api";
+import React, { useEffect, useState, useCallback } from 'react';
+import { Box, Typography, Button, IconButton, Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Add, Sync } from '@mui/icons-material';
+import { Stage } from '../../types/stage';
+import { ContextComponents } from '../Context/ContextComponents';
+import { ReviewType } from '../../types/review';
+import { ReviewComponent } from '../Review';
+import { NewContextComponentDialog } from '../Context/NewContextComponentDialog';
+import { useContextComponents } from '../../hooks/useContextComponents';
 import {
-  ContextComponentErrorsType,
   ContextComponentsType,
-} from "../../types/contextComponent";
-import { Stage } from "../../types/stage";
-import { AddFloatingButton } from "../AddFloatingButton";
-import { ContextComponents } from "../Context/ContextComponents";
-import { NewContextComponentDialog } from "../NewContextComponentDialog";
-import { ReviewType } from "../../types/review";
+  ContextComponent,
+  ContextComponentType,
+  componentTypeToKey,
+  emptyContextComponentsType,
+  mergeAllComponents,
+} from '../../types/contextComponent';
+import { useNotification } from '../../context/notification.context';
+import { ContextComponentValidators } from '../../utils/validateContextComponent';
+import { ContextComponentErrorsType } from '../../types/contextComponent';
 
 interface ContextReviewProps {
   label?: string;
@@ -30,137 +36,190 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
   showReview = true,
 }) => {
   const { t } = useTranslation();
+  const { showError } = useNotification();
 
-  const [text, setText] = useState("");
-  const [showMenu, setShowMenu] = useState(false);
-  const textFieldRef = useRef<HTMLDivElement>(null);
+  const [contextComponents, setContextComponents] = useState<ContextComponentsType>(
+    emptyContextComponentsType
+  );
 
-  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] =
-    useState(false);
-  const [contextComponentErrors, setContextComponentErrors] =
-    useState<ContextComponentErrorsType>({});
-  const [contextComponents, setContextComponents] =
-    useState<ContextComponentsType | null>(null);
+  const [loadingContext, setLoadingContext] = useState(false);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
+  const [newContextComponentDialogOpen, setNewContextComponentDialogOpen] = useState(false);
+  const [contextComponentErrors, setContextComponentErrors] = useState({});
+  const [selectedEditComponent, setSelectedEditComponent] = useState<{
+    component: ContextComponent;
+    type: ContextComponentType;
+  } | null>(null);
+
+  const {
+    listContextComponents,
+    getContextComponentsAnalysis,
+    createContextComponent,
+    updateContextComponent,
+  } = useContextComponents({ projectId, stage, type });
+
+  const fetchContextComponents = useCallback(async () => {
+    try {
+      setLoadingContext(true);
+      const response = await listContextComponents();
+      setContextComponents(response);
+    } catch (error) {
+      showError('Failed to fetch context components');
+    } finally {
+      setLoadingContext(false);
+    }
+  }, [listContextComponents, showError]);
+
+  const removeSuggestedComponents = useCallback(() => {
+    setContextComponents(prev => {
+      if (!prev) return emptyContextComponentsType;
+
+      const cleanedComponents: ContextComponentsType = { ...emptyContextComponentsType };
+
+      Object.keys(prev).forEach(key => {
+        const componentType = key as keyof ContextComponentsType;
+        const componentData = prev[componentType];
+
+        if (componentData && componentData.data) {
+          const filteredData = componentData.data.filter(component => !component.isSuggestion);
+
+          cleanedComponents[componentType] = {
+            type: componentData.type,
+            data: filteredData as any,
+          };
+        }
+      });
+
+      return cleanedComponents;
+    });
+  }, []);
+
+  const fetchAnalysis = useCallback(async () => {
+    if (!type) return;
+    try {
+      setLoadingAnalysis(true);
+      removeSuggestedComponents();
+
+      const response = await getContextComponentsAnalysis();
+
+      if (response) {
+        setContextComponents(prev => {
+          if (!prev) return response;
+          return mergeAllComponents(prev, response);
+        });
+      }
+    } catch (error) {
+      showError('Failed to fetch analysis');
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  }, [getContextComponentsAnalysis, removeSuggestedComponents, showError, type]);
 
   useEffect(() => {
-    const fetchReview = async () => {
-      try {
-        if (type) {
-          const review = await reviewApi.getReview(Number(projectId), type);
-          if (review) {
-            setText(review.data);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch review:", error);
-      }
-    };
-
-    type && fetchReview();
-  }, [projectId]);
-
-  const handleTextSelection = () => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim().length > 0) {
-      // setSelectedText(selection.toString());
-      setShowMenu(true);
-    } else {
-      setShowMenu(false);
-    }
-  };
-
-  const handleCreateContextComponent = () => {
-    setNewContextComponentDialogOpen(true);
-    setShowMenu(false);
-  };
+    fetchContextComponents();
+  }, [fetchContextComponents]);
 
   const handleCloseNewContextComponentDialog = () => {
     setContextComponentErrors({});
+    setSelectedEditComponent(null);
     setNewContextComponentDialogOpen(false);
   };
 
-  const fetchContextComponents = async () => {
-    try {
-      const contextFromApi = await contextApi.listContextComponents(
-        Number(projectId)
-      );
-      setContextComponents(contextFromApi);
-    } catch (err) {
-      console.error("Error fetching context components:", err);
+  const handleEditContextComponent = (
+    component?: ContextComponent,
+    type?: ContextComponentType
+  ) => {
+    setContextComponentErrors({});
+    if (!component || !type) {
+      setSelectedEditComponent(null);
+      setNewContextComponentDialogOpen(true);
+      return;
     }
+
+    setSelectedEditComponent({ component, type });
+    setNewContextComponentDialogOpen(true);
   };
 
-  // Handle form submission for creating a new context component.
   const handleNewContextComponentSubmit = async (
+    type: ContextComponentType,
     formData: Record<string, any>
   ) => {
     try {
-      const { type, ...data } = formData;
-
-      if (!type) {
-        console.error("No type provided for context component.");
-        return;
+      const validator = ContextComponentValidators[type];
+      if (!validator) {
+        throw new Error(`No validator found for component type: ${type}`);
       }
 
-      // Use stage if provided (for A07) or call without it (for A04)
-      let response;
-      if (stage) {
-        response = await contextApi.createContextComponent(
-          type,
-          data,
-          Number(projectId),
-          stage
+      await validator.validate(formData, { abortEarly: false });
+
+      let component: ContextComponent | null = null;
+      if (
+        selectedEditComponent &&
+        selectedEditComponent.component &&
+        !selectedEditComponent.component.isSuggestion
+      ) {
+        component = await updateContextComponent(
+          selectedEditComponent.component.id,
+          selectedEditComponent.type,
+          formData
         );
       } else {
-        response = await contextApi.createContextComponent(
-          type,
-          data,
-          Number(projectId)
-        );
+        component = await createContextComponent(type, formData);
       }
 
-      if (response) {
-        fetchContextComponents();
-        // Close the dialog after successful creation.
-        handleCloseNewContextComponentDialog();
+      if (component) {
+        setNewContextComponentDialogOpen(false);
+        if (selectedEditComponent && selectedEditComponent.component) {
+          setContextComponents(prev => {
+            if (!prev) return emptyContextComponentsType;
+            const currentData = prev[componentTypeToKey[type]]?.data || [];
+            const filteredData = currentData.filter(
+              item => item.id !== selectedEditComponent.component.id
+            );
+            return {
+              ...prev,
+              [componentTypeToKey[type]]: {
+                type,
+                data: [...filteredData, component],
+              },
+            };
+          });
+        } else {
+          setContextComponents(prev => {
+            if (!prev) return emptyContextComponentsType;
+            const currentData = prev[componentTypeToKey[type]]?.data || [];
+
+            return {
+              ...prev,
+              [componentTypeToKey[type]]: {
+                type,
+                data: [...currentData, component],
+              },
+            };
+          });
+        }
       }
-    } catch (error) {
-      console.error("Error creating context component:", error);
+      return 'Error creating context component';
+    } catch (error: any) {
+      if (error.inner) {
+        const validationErrors: { [key: string]: string } = {};
+
+        error.inner.forEach((err: any) => {
+          if (err.path) validationErrors[err.path] = err.message;
+        });
+        setContextComponentErrors({ [type]: validationErrors } as ContextComponentErrorsType);
+      }
+      return 'Error creating context component';
     }
   };
 
   return (
     <>
-      <Box sx={{ display: "flex", flexDirection: "row", gap: 5 }}>
-        {showReview && (
-          <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            <Typography variant="subtitle2" pb={1.5}>
-              {label}
-            </Typography>
-
-            <Box
-              ref={textFieldRef}
-              sx={{ position: "relative" }}
-              onMouseUp={handleTextSelection}
-            >
-              <TextField
-                fullWidth
-                variant="outlined"
-                value={text}
-                multiline
-                rows={20}
-              />
-              {showMenu && textFieldRef.current && (
-                <AddFloatingButton
-                  tooltip={t("context:identify-component")}
-                  onAdd={handleCreateContextComponent}
-                />
-              )}
-            </Box>
-          </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
+        {showReview && label && type && (
+          <ReviewComponent label={label} type={type} projectId={projectId} />
         )}
 
-        {/* Right column: Context components list */}
         <Box display="inline-flex" flexDirection="column" flex={1}>
           <Box
             display="flex"
@@ -170,17 +229,25 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
             borderColor="divider"
             pb={1}
           >
-            <Typography variant="subtitle2">
-              {t("context:context-components")}
-            </Typography>
+            <Typography variant="subtitle2">{t('context-components')}</Typography>
 
-            <Button
-              startIcon={<Add />}
-              onClick={handleCreateContextComponent}
-              sx={{ p: 0 }}
-            >
-              {t("common:new")}
-            </Button>
+            <Box display="flex" flexDirection="row" gap={2}>
+              <Button
+                startIcon={<Add />}
+                onClick={() => handleEditContextComponent()}
+                sx={{ p: 0 }}
+              >
+                {t('new')}
+              </Button>
+
+              {type && (
+                <Tooltip title={t('suggest-context-components-with-ai')}>
+                  <Button startIcon={<Sync />} onClick={fetchAnalysis} sx={{ p: 0 }}>
+                    {t('suggest-with-ai')}
+                  </Button>
+                </Tooltip>
+              )}
+            </Box>
           </Box>
 
           <Box pt={1}>
@@ -189,6 +256,8 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
               contextComponents={contextComponents}
               setContextComponents={setContextComponents}
               {...(stage ? { stage } : {})}
+              loading={loadingContext || loadingAnalysis}
+              onEdit={handleEditContextComponent}
             />
           </Box>
         </Box>
@@ -198,8 +267,10 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
         open={newContextComponentDialogOpen}
         projectId={projectId}
         onClose={handleCloseNewContextComponentDialog}
-        onSubmit={handleNewContextComponentSubmit}
         errors={contextComponentErrors}
+        isEdit={!!selectedEditComponent}
+        item={selectedEditComponent}
+        onSubmit={handleNewContextComponentSubmit}
       />
     </>
   );

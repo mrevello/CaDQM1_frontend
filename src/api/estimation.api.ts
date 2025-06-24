@@ -15,22 +15,27 @@ export const estimationApi = {
     const estimation: EstimationResponse = response.data;
     return {
       id: estimation.estimation_id,
-      warnings: estimation.estimation.warnings,
-      facts: estimation.estimation.facts,
+      text: estimation.manual_facts.join('\n'),
+      warnings: estimation.estimation?.warnings?.length
+        ? estimation.estimation?.warnings
+        : undefined,
+      facts: estimation.estimation?.facts?.length ? estimation.estimation?.facts : undefined,
     };
   },
 
-  regenerateEstimation: async function (projectId: number, prompt: string): Promise<Estimation> {
+  regenerateEstimation: async function (projectId: number): Promise<Estimation> {
     const response = await instance.post(`${projectsEndpoint}${projectId}/estimation/`, {
       regenerate: true,
-      prompt: prompt,
     });
 
     const estimation: EstimationResponse = response.data;
     return {
       id: estimation.estimation_id,
-      warnings: estimation.estimation.warnings,
-      facts: estimation.estimation.facts,
+      text: estimation.manual_facts.join('\n'),
+      warnings: estimation.estimation?.warnings?.length
+        ? estimation.estimation?.warnings
+        : undefined,
+      facts: estimation.estimation?.facts?.length ? estimation.estimation?.facts : undefined,
     };
   },
 
@@ -48,22 +53,28 @@ export const estimationApi = {
     const estimation: EstimationResponse = response.data;
     return {
       id: estimation.estimation_id,
-      warnings: estimation.estimation.warnings,
-      facts: estimation.estimation.facts,
+      text: estimation.manual_facts.join('\n'),
+      warnings: estimation.estimation?.warnings?.length
+        ? estimation.estimation?.warnings
+        : undefined,
+      facts: estimation.estimation?.facts?.length ? estimation.estimation?.facts : undefined,
     };
   },
 
-  addEstimation: async function (estimationId: number, text: string): Promise<Estimation> {
+  addEstimation: async function (projectId: number, text: string): Promise<Estimation> {
     const response = await instance.post(`${endpoint}add-fact/`, {
-      estimation_id: estimationId,
+      project_id: projectId,
       fact_text: text,
     });
 
     const estimation: EstimationResponse = response.data;
     return {
       id: estimation.estimation_id,
-      warnings: estimation.estimation.warnings,
-      facts: estimation.estimation.facts,
+      text: estimation.manual_facts.join('\n'),
+      warnings: estimation.estimation?.warnings?.length
+        ? estimation.estimation?.warnings
+        : undefined,
+      facts: estimation.estimation?.facts?.length ? estimation.estimation?.facts : undefined,
     };
   },
 };
