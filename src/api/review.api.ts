@@ -1,13 +1,12 @@
-import { ReviewData } from "../components/ReviewScreen";
 import {
   ContextComponentsType,
   emptyContextComponentsType,
   mapAnalysisToComponents,
-} from "../types/contextComponent";
-import { Review, ReviewType } from "../types/review";
-import { instance } from "./base.api";
-import { handleApiError } from "./errorHandler";
-import { API_ENDPOINTS } from "../constants";
+} from '../types/contextComponent';
+import { Review, ReviewType } from '../types/review';
+import { instance } from './base.api';
+import { handleApiError } from './errorHandler';
+import { API_ENDPOINTS } from '../constants';
 
 const endpoint = API_ENDPOINTS.REVIEWS;
 
@@ -42,8 +41,7 @@ export type ContextAnalysisResponse = Record<string, string[]>;
 export const reviewApi = {
   createReview: async (data: ReviewBody): Promise<Review | undefined> => {
     try {
-      data.created_at =
-        data.created_at ?? new Date().toISOString().split("T")[0];
+      data.created_at = data.created_at ?? new Date().toISOString().split('T')[0];
       const response = await instance.post(endpoint, data);
 
       const reviewData = response.data;
@@ -60,8 +58,7 @@ export const reviewApi = {
 
   updateReview: async (reviewId: number, data: Partial<ReviewBody>) => {
     try {
-      data.created_at =
-        data.created_at ?? new Date().toISOString().split("T")[0];
+      data.created_at = data.created_at ?? new Date().toISOString().split('T')[0];
       const response = await instance.put(`${endpoint}${reviewId}/`, data);
       return response.data;
     } catch (error: any) {
@@ -72,9 +69,9 @@ export const reviewApi = {
   getReview: async function (projectId: number, type: ReviewType) {
     try {
       const response = await instance.get(endpoint);
-      const reviewData = response.data.filter(
-        (r: any) => r.project === projectId && r.type === type
-      )[0];
+      const reviewData = response.data
+        .filter((r: any) => r.project === projectId && r.type === type)
+        .find((r: any) => r.text !== '');
 
       if (!reviewData) {
         return null;
@@ -97,25 +94,19 @@ export const reviewApi = {
     onProgress?: (progress: number) => void
   ) => {
     try {
-      const response = await instance.post(
-        `${endpoint}${reviewId}/files/upload-only/`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const progress = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              if (onProgress) {
-                onProgress(progress);
-              }
+      const response = await instance.post(`${endpoint}${reviewId}/files/upload-only/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: progressEvent => {
+          if (progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            if (onProgress) {
+              onProgress(progress);
             }
-          },
-        }
-      );
+          }
+        },
+      });
       return response.data;
     } catch (error: any) {
       handleApiError(error);
@@ -125,9 +116,7 @@ export const reviewApi = {
 
   deleteFile: async (reviewId: number, fileId: string) => {
     try {
-      const response = await instance.delete(
-        `${endpoint}${reviewId}/files/${fileId}/`
-      );
+      const response = await instance.delete(`${endpoint}${reviewId}/files/${fileId}/`);
       return response.data;
     } catch (error: any) {
       handleApiError(error);
@@ -135,10 +124,7 @@ export const reviewApi = {
     }
   },
 
-  getReviewFiles: async function (
-    projectId: number,
-    type: ReviewType
-  ): Promise<ReviewFile[]> {
+  getReviewFiles: async function (projectId: number, type: ReviewType): Promise<ReviewFile[]> {
     try {
       const review = await this.getReview(projectId, type);
       if (!review) {
@@ -153,13 +139,9 @@ export const reviewApi = {
     }
   },
 
-  getAnalysis: async function (
-    reviewId: number
-  ): Promise<AnalysisResponse | undefined> {
+  getAnalysis: async function (reviewId: number): Promise<AnalysisResponse | undefined> {
     try {
-      const response = await instance.get(
-        `${endpoint}${reviewId}/files/analyze`
-      );
+      const response = await instance.get(`${endpoint}${reviewId}/files/analyze`);
 
       return {
         data: response.data,
@@ -179,9 +161,7 @@ export const reviewApi = {
         return emptyContextComponentsType;
       }
 
-      const response = await instance.post(
-        `${endpoint}${review.id}/context-components/`
-      );
+      const response = await instance.post(`${endpoint}${review.id}/context-components/`);
 
       return mapAnalysisToComponents(response.data);
     } catch (error: any) {
@@ -196,12 +176,7 @@ export const reviewApi = {
     try {
       const body = { suggestion: suggestion };
 
-      const response = await instance.post(
-        `${endpoint}${reviewId}/reject-suggestion/`,
-        body
-      );
-
-      console.log(response.data);
+      const response = await instance.post(`${endpoint}${reviewId}/reject-suggestion/`, body);
 
       return {
         data: response.data,

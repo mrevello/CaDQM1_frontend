@@ -281,5 +281,6 @@
   "estimation": "Estimación", 
   "suggest-with-ai": "Sugerir con IA",
   "suggest-estimation-with-ai": "Sugerir estimación con IA",
-  "phase-1-status": "Estado de la fase 1:"
+  "phase-1-status": "Estado de la fase 1:",
+  "upload-complete": "Carga completa"
 }
