@@ -117,6 +117,14 @@ export const NewContextComponentDialog: React.FC<NewContextComponentDialogProps>
     }
   }, [open, projectId, showError]);
 
+  useEffect(() => {
+    if (!open) {
+      const defaultType = Object.values(ContextComponentType)[0];
+      setSelectedType(defaultType);
+      setFormValues({});
+    }
+  }, [open]);
+
   const taskAtHandDropdownOptions: SelectOption[] = [
     ...taskAtHandOptions,
     {
@@ -221,7 +229,7 @@ export const NewContextComponentDialog: React.FC<NewContextComponentDialogProps>
         defaultValue: (item?.component as DQMetadata)?.description || '',
         error: !!errors[ContextComponentType.DQ_METADATA]?.description,
         helperText: errors[ContextComponentType.DQ_METADATA]?.description,
-      }
+      },
     ],
     [ContextComponentType.DQ_REQUIREMENT]: [
       {
@@ -233,12 +241,12 @@ export const NewContextComponentDialog: React.FC<NewContextComponentDialogProps>
         helperText: errors[ContextComponentType.DQ_REQUIREMENT]?.statement,
       },
       {
-        id: 'description',
-        name: 'description',
-        label: t('description'),
-        defaultValue: (item?.component as DQRequirement)?.description || '',
-        error: !!errors[ContextComponentType.DQ_REQUIREMENT]?.description,
-        helperText: errors[ContextComponentType.DQ_REQUIREMENT]?.description,
+        id: 'semantic',
+        name: 'semantic',
+        label: t('semantic'),
+        defaultValue: (item?.component as DQRequirement)?.semantic || '',
+        error: !!errors[ContextComponentType.DQ_REQUIREMENT]?.semantic,
+        helperText: errors[ContextComponentType.DQ_REQUIREMENT]?.semantic,
       },
       {
         id: 'user_type',

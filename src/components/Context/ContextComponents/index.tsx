@@ -7,6 +7,8 @@ import {
   ContextComponentType,
   ContextComponentsType,
   componentTypeToKey,
+  createComponent,
+  getValue,
   populateContextComponentReferences,
 } from '../../../types/contextComponent';
 import { Placeholder } from '../../Placeholder';
@@ -27,6 +29,7 @@ interface ContextComponentsProps {
   loading: boolean;
   contextComponents: ContextComponentsType;
   setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType>>;
+  onDiscardContextComponent?: (component: ContextComponent, type: ContextComponentType) => void;
 }
 
 export const ContextComponents: React.FC<ContextComponentsProps> = ({
@@ -37,6 +40,7 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
   loading,
   contextComponents,
   setContextComponents,
+  onDiscardContextComponent,
 }) => {
   const { t } = useTranslation();
   const { showError } = useNotification();
@@ -99,29 +103,6 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
     }
   };
 
-  const setContextComponent =
-    <T extends ContextComponent>(
-      type: ContextComponentType
-    ): React.Dispatch<React.SetStateAction<ContextComponentData<T>>> =>
-    updater => {
-      setContextComponents(prev => {
-        if (!prev) return prev;
-        const key = componentTypeToKey[type];
-        const slot = prev[key] as ContextComponentData<T> | null;
-        if (!slot) return prev;
-
-        const newSlot =
-          typeof updater === 'function'
-            ? (updater as (old: ContextComponentData<T>) => ContextComponentData<T>)(slot)
-            : updater;
-
-        return {
-          ...prev,
-          [key]: newSlot,
-        };
-      });
-    };
-
   const handleMoveItem = (
     movedComp: ContextComponent,
     fromType: ContextComponentType,
@@ -138,6 +119,8 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
 
       if (!src || !dst) return prev;
 
+      const newMovedComp = createComponent(movedComp.id, getValue(movedComp, fromType), toType);
+
       const newSrc = {
         ...src,
         data: src.data.filter(d => d.id !== movedComp.id),
@@ -145,7 +128,7 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
 
       const newDst = {
         ...dst,
-        data: [...dst.data, { ...movedComp, type: toType }],
+        data: [...dst.data, { ...newMovedComp, type: toType }],
       };
 
       return {
@@ -216,7 +199,6 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
                       prefix={stage}
                       onEdit={handleEdit}
                       onDelete={confirmDeleteContextComponent}
-                      setContextComponents={setContextComponents}
                       loading={loading}
                     />
                   );
@@ -232,9 +214,9 @@ export const ContextComponents: React.FC<ContextComponentsProps> = ({
                       component={component}
                       onEdit={handleEdit}
                       onDelete={confirmDeleteContextComponent}
-                      setContextComponent={setContextComponent(component.type)}
                       onAdd={onEdit}
                       onMove={(moved, fromType) => handleMoveItem(moved, fromType, component.type)}
+                      onDiscardComponent={onDiscardContextComponent}
                       loading={loading}
                     />
                   )

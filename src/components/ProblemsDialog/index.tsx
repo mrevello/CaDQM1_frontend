@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { GenericDialog } from '../Dialog';
 import { useTranslation } from 'react-i18next';
 import { ProblemList } from '../ProblemList';
@@ -6,7 +6,6 @@ import { useDQProblems } from '../../hooks/useDQProblems';
 import { NewProblemDialog } from '../NewProblemDialog';
 import { AlertDialog } from '../AlertDialog';
 import { Stage } from '../../types/stage';
-import { Problem } from '../../types/problem';
 
 interface ProblemsDialogProps {
   projectId: number;
@@ -38,7 +37,14 @@ export const ProblemsDialog: React.FC<ProblemsDialogProps> = ({
     confirmDeleteProblem,
     handleDeleteProblem,
     handleAddSuggestionProblem,
+    fetchProblems,
   } = useDQProblems({ projectId, stage });
+
+  useEffect(() => {
+    if (open) {
+      fetchProblems();
+    }
+  }, [open, fetchProblems]);
 
   return (
     <>

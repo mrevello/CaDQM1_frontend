@@ -1,5 +1,5 @@
 import { TreeItem } from '@mui/x-tree-view';
-import { Box, Button, Card, CardHeader, IconButton } from '@mui/material';
+import { Box, Button, Card, CardHeader, IconButton, Typography } from '@mui/material';
 import { TreeViewItemId } from '@mui/x-tree-view';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,10 +9,10 @@ import {
   ContextComponent,
   ContextComponentData,
   ContextComponentType,
+  getComponentPrefix,
 } from '../../../types/contextComponent';
 import { EditDeleteMenu } from '../../EditDeleteMenu';
 import { ItemInfo } from '../../ItemInfo';
-import { useNotification } from '../../../context/notification.context';
 import { LoadingProgress } from '../../LoadingProgress';
 
 interface ContextComponentListProps<T extends ContextComponent> {
@@ -22,7 +22,7 @@ interface ContextComponentListProps<T extends ContextComponent> {
   onDelete: (component: ContextComponent, type: ContextComponentType) => void;
   onAdd?: (component: ContextComponent, type: ContextComponentType, isSuggestion: boolean) => void;
   onMove?: (component: ContextComponent, fromType: ContextComponentType) => void;
-  setContextComponent: React.Dispatch<React.SetStateAction<ContextComponentData<T>>>;
+  onDiscardComponent?: (component: ContextComponent, type: ContextComponentType) => void;
   loading?: boolean;
 }
 
@@ -33,22 +33,10 @@ export const ContextComponentList = <T extends ContextComponent>({
   onDelete,
   onAdd,
   onMove,
-  setContextComponent,
+  onDiscardComponent,
   loading = false,
 }: ContextComponentListProps<T>) => {
   const { t } = useTranslation();
-  const { showError } = useNotification();
-
-  const handleDiscardComponent = (contextComponent: ContextComponent) => {
-    try {
-      setContextComponent(prev => ({
-        ...prev,
-        data: prev.data.filter(item => item !== contextComponent),
-      }));
-    } catch (error) {
-      showError(String(error));
-    }
-  };
 
   const handleDragStart = (
     e: React.DragEvent<HTMLElement>,
@@ -105,7 +93,7 @@ export const ContextComponentList = <T extends ContextComponent>({
             onEdit={onEdit}
             onDelete={onDelete}
             onAdd={onAdd}
-            onDiscard={handleDiscardComponent}
+            onDiscard={onDiscardComponent}
             onDragStart={(e: React.DragEvent<HTMLElement>) =>
               handleDragStart(e, data, component.type)
             }
@@ -122,7 +110,7 @@ interface ContextComponentItemProps {
   onEdit: (component: ContextComponent, type: ContextComponentType) => void;
   onDelete: (component: ContextComponent, type: ContextComponentType) => void;
   onAdd?: (component: ContextComponent, type: ContextComponentType, isSuggestion: boolean) => void;
-  onDiscard: (component: ContextComponent, type: ContextComponentType) => void;
+  onDiscard?: (component: ContextComponent, type: ContextComponentType) => void;
   onDragStart: (e: React.DragEvent<HTMLElement>) => void;
 }
 
@@ -165,12 +153,21 @@ const ContextComponentItem: React.FC<ContextComponentItemProps> = ({
         '&:hover': contextComponent.isSuggestion ? { cursor: 'grab', opacity: 0.9 } : {},
       }}
     >
-      {contextComponent.isSuggestion && (
+      {contextComponent.isSuggestion ? (
         <CardHeader
           title="Suggestion"
           titleTypographyProps={{ variant: 'caption', fontSize: 12 }}
           sx={{ px: 2, pt: 2, pb: 0 }}
         />
+      ) : (
+        <Typography
+          variant="body2"
+          fontSize={12}
+          color="text.secondary"
+          sx={{ px: 2, pt: 2, pb: 0 }}
+        >
+          {getComponentPrefix(type) + String(contextComponent.id)}
+        </Typography>
       )}
       <StyledCardContent>
         <Box display="flex" flexDirection="row" gap={1.5} flex={1}>
@@ -182,7 +179,9 @@ const ContextComponentItem: React.FC<ContextComponentItemProps> = ({
               key !== 'type' &&
               key !== 'task_at_hand' &&
               key !== 'user_type' &&
-              key !== 'data_filtering';
+              key !== 'data_filtering' &&
+              value !== undefined &&
+              value !== null;
             return (
               showItem && (
                 <ItemInfo
@@ -205,7 +204,7 @@ const ContextComponentItem: React.FC<ContextComponentItemProps> = ({
               variant="outlined"
               onClick={e => {
                 e.stopPropagation();
-                onDiscard(contextComponent, type);
+                onDiscard?.(contextComponent, type);
               }}
             >
               {t('discard')}

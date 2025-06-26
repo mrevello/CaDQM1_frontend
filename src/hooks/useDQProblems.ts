@@ -87,33 +87,30 @@ export const useDQProblems = ({ projectId, type, stage }: UseDQProblemsProps) =>
         setLoadingProblems(false);
       }
     },
-    [projectId]
+    []
   );
 
-  const updateProblem = useCallback(
-    async (id: number, description: string, projectId: number) => {
-      try {
-        setLoadingProblems(true);
+  const updateProblem = useCallback(async (id: number, description: string, projectId: number) => {
+    try {
+      setLoadingProblems(true);
 
-        const updatedProblem = await problemsApi.updateProblem(id, description, projectId);
-        if (updatedProblem) {
-          setProblems(prev => {
-            return prev.map(problem =>
-              problem.id === id ? { ...problem, ...updatedProblem } : problem
-            );
-          });
-          return true;
-        }
-        return false;
-      } catch (error) {
-        console.error('Error updating problem:', error);
-        return false;
-      } finally {
-        setLoadingProblems(false);
+      const updatedProblem = await problemsApi.updateProblem(id, description, projectId);
+      if (updatedProblem) {
+        setProblems(prev => {
+          return prev.map(problem =>
+            problem.id === id ? { ...problem, ...updatedProblem } : problem
+          );
+        });
+        return true;
       }
-    },
-    [projectId]
-  );
+      return false;
+    } catch (error) {
+      console.error('Error updating problem:', error);
+      return false;
+    } finally {
+      setLoadingProblems(false);
+    }
+  }, []);
 
   const deleteProblem = useCallback(async (id: number) => {
     try {
@@ -180,7 +177,14 @@ export const useDQProblems = ({ projectId, type, stage }: UseDQProblemsProps) =>
         }
       }
     },
-    [createProblem, updateProblem, selectedEditProblem, projectId, handleCloseNewProblemDialog]
+    [
+      createProblem,
+      updateProblem,
+      selectedEditProblem,
+      projectId,
+      handleCloseNewProblemDialog,
+      stage,
+    ]
   );
 
   const handleDiscardProblem = useCallback(
@@ -213,7 +217,7 @@ export const useDQProblems = ({ projectId, type, stage }: UseDQProblemsProps) =>
         console.error('Error adding problem:', error);
       }
     },
-    [projectId]
+    [stage, projectId]
   );
 
   const handleDeleteProblem = useCallback((problem: Problem) => {

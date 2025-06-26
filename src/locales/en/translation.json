@@ -284,5 +284,8 @@
   "estimation": "Estimation",
   "suggest-with-ai": "Suggest with AI",
   "suggest-estimation-with-ai": "Suggest estimation with AI",
-  "phase-1-status": "Phase 1 status:"
+  "phase-1-status": "Phase 1 status:",
+  "upload-complete": "Upload complete",
+  "real": "Real",
+  "integer": "Integer"
 }

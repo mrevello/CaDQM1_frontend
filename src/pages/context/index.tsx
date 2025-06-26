@@ -151,7 +151,11 @@ export const Context: React.FC = () => {
         overflow="auto"
       >
         <Typography variant="h6">{t('context')}</Typography>
-        <Typography variant="subtitle2">{project?.context?.version}</Typography>
+        {project?.context && (
+          <Typography variant="caption">
+            {t('version')} {project.context.version}
+          </Typography>
+        )}
 
         <ContextComponents
           projectId={Number(projectId)}

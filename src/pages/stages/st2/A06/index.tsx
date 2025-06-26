@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton,
   TextField,
   Tooltip,
   Typography,
@@ -99,6 +98,8 @@ export const A06: React.FC = () => {
   const validateForm = useCallback(async () => {
     try {
       if (estimation) {
+        if (manualEstimation.trim() === '') return true;
+
         const updatedEstimation = await estimationApi.addEstimation(
           Number(projectId),
           manualEstimation
@@ -116,7 +117,7 @@ export const A06: React.FC = () => {
       showError(String(err));
       return false;
     }
-  }, [showError, manualEstimation, estimation]);
+  }, [showError, manualEstimation, estimation, projectId]);
 
   useEffect(() => {
     if (activityRef) {

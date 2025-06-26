@@ -44,7 +44,7 @@ export interface DQMetadata extends ContextComponent {
 
 export interface DQRequirement extends ContextComponent {
   statement: string;
-  description: string;
+  semantic: string;
   data_filtering: DataFiltering[];
   user_type: number;
   userType?: UserType;
@@ -128,7 +128,7 @@ export type ContextComponentErrorsType = {
   };
   [ContextComponentType.DQ_REQUIREMENT]?: {
     statement?: string;
-    description?: string;
+    semantic?: string;
     user_type?: string;
   };
   [ContextComponentType.OTHER_DATA]?: {
@@ -181,9 +181,13 @@ const analysysType: Record<ContextComponentType, string> = {
   'user-type': 'user types',
 };
 
-export const createComponent = (value: string, type: ContextComponentType): ContextComponent => {
+export const createComponent = (
+  id: number = Date.now() + Math.random(),
+  value: string,
+  type: ContextComponentType
+): ContextComponent => {
   const base = {
-    id: 0,
+    id: id,
     isSuggestion: true,
   };
 
@@ -197,13 +201,13 @@ export const createComponent = (value: string, type: ContextComponentType): Cont
     case ContextComponentType.BUSINESS_RULE:
       return {
         ...base,
-        statement: value,
+        semantic: value,
       } as BusinessRule;
 
     case ContextComponentType.DATA_FILTERING:
       return {
         ...base,
-        statement: value,
+        description: value,
       } as DataFiltering;
 
     case ContextComponentType.DQ_METADATA:
@@ -215,7 +219,7 @@ export const createComponent = (value: string, type: ContextComponentType): Cont
     case ContextComponentType.DQ_REQUIREMENT:
       return {
         ...base,
-        description: value,
+        semantic: value,
       } as DQRequirement;
 
     case ContextComponentType.OTHER_DATA:
@@ -262,11 +266,11 @@ export const getValue = (component: ContextComponent, type: ContextComponentType
       break;
 
     case ContextComponentType.BUSINESS_RULE:
-      value = (component as BusinessRule).statement;
+      value = (component as BusinessRule).semantic;
       break;
 
     case ContextComponentType.DATA_FILTERING:
-      value = (component as DataFiltering).statement;
+      value = (component as DataFiltering).description;
       break;
 
     case ContextComponentType.DQ_METADATA:
@@ -274,7 +278,7 @@ export const getValue = (component: ContextComponent, type: ContextComponentType
       break;
 
     case ContextComponentType.DQ_REQUIREMENT:
-      value = (component as DQRequirement).description;
+      value = (component as DQRequirement).semantic;
       break;
 
     case ContextComponentType.OTHER_DATA:
@@ -301,30 +305,6 @@ export const getValue = (component: ContextComponent, type: ContextComponentType
       value = '';
   }
   return value;
-};
-
-export const mapToComponent = (
-  type: ContextComponentType,
-  data: string[]
-): ContextComponentData<ContextComponent> | null => {
-  const typeKey = Object.keys(ContextComponentType).find(
-    key => ContextComponentType[key as keyof typeof ContextComponentType] === type
-  ) as keyof typeof ContextComponentType;
-
-  if (!typeKey) {
-    throw new Error(`Invalid type: ${type}`);
-  }
-
-  const filteredData = data.map((value: string) => {
-    return createComponent(value, type);
-  });
-
-  return filteredData.length
-    ? {
-        type: type,
-        data: filteredData,
-      }
-    : null;
 };
 
 export const mapAnalysisToComponents = (
@@ -368,75 +348,8 @@ export const getComponentAnalysis = <K extends ContextComponentType>(
   if (!data.length) return null;
 
   const components = data.map(value => {
-    const base = {
-      id: Date.now() + Math.random(),
-      isSuggestion: true,
-    };
-
-    switch (type) {
-      case ContextComponentType.APPLICATION_DOMAIN:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.BUSINESS_RULE:
-        return {
-          ...base,
-          statement: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.DATA_FILTERING:
-        return {
-          ...base,
-          statement: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.DQ_METADATA:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.DQ_REQUIREMENT:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.OTHER_DATA:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.OTHER_METADATA:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.SYSTEM_REQUIREMENT:
-        return {
-          ...base,
-          description: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.TASK_AT_HAND:
-        return {
-          ...base,
-          name: value,
-        } as ComponentMap[K];
-
-      case ContextComponentType.USER_TYPE:
-        return {
-          ...base,
-          name: value,
-        } as ComponentMap[K];
-
-      default:
-        throw new Error(`Unhandled ContextComponentType: ${type}`);
-    }
+    const newComp = createComponent(undefined, value, type);
+    return newComp as ComponentMap[K];
   });
 
   return {
@@ -587,7 +500,7 @@ export const createContextComponent = (
     case ContextComponentType.DQ_REQUIREMENT:
       return {
         ...base,
-        description: data.description,
+        semantic: data.semantic,
         data_filtering: data.data_filtering,
         user_type: data.user_type,
         statement: data.statement,
@@ -632,5 +545,30 @@ export const createContextComponent = (
 
     default:
       return base;
+  }
+};
+
+export const getComponentPrefix = (type: ContextComponentType): string => {
+  switch (type) {
+    case ContextComponentType.APPLICATION_DOMAIN:
+      return 'AD';
+    case ContextComponentType.BUSINESS_RULE:
+      return 'BR';
+    case ContextComponentType.DATA_FILTERING:
+      return 'DF';
+    case ContextComponentType.DQ_METADATA:
+      return 'DQM';
+    case ContextComponentType.DQ_REQUIREMENT:
+      return 'DQR';
+    case ContextComponentType.OTHER_DATA:
+      return 'OD';
+    case ContextComponentType.OTHER_METADATA:
+      return 'OM';
+    case ContextComponentType.SYSTEM_REQUIREMENT:
+      return 'SR';
+    case ContextComponentType.TASK_AT_HAND:
+      return 'T';
+    case ContextComponentType.USER_TYPE:
+      return 'UT';
   }
 };

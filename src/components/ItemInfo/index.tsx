@@ -1,4 +1,4 @@
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from '@mui/material';
 
 interface ItemInfoProps {
   label: string;

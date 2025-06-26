@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, Button, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Button, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Add, Sync } from '@mui/icons-material';
 import { Stage } from '../../types/stage';
@@ -213,6 +213,19 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
     }
   };
 
+  const handleDiscardContextComponent = (
+    component: ContextComponent,
+    type: ContextComponentType
+  ) => {
+    setContextComponents(prev => ({
+      ...prev,
+      [componentTypeToKey[type]]: {
+        type,
+        data: prev[componentTypeToKey[type]]?.data.filter(item => item.id !== component.id),
+      },
+    }));
+  };
+
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
@@ -258,6 +271,7 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
               {...(stage ? { stage } : {})}
               loading={loadingContext || loadingAnalysis}
               onEdit={handleEditContextComponent}
+              onDiscardContextComponent={handleDiscardContextComponent}
             />
           </Box>
         </Box>

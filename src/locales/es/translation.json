@@ -278,8 +278,11 @@
   "view-project-timeline": "Ver cronograma del proyecto",
   "project-timeline": "Cronograma del proyecto",
   "project-timeline-description": "Progreso de las etapas del proyecto",
-  "estimation": "Estimación", 
+  "estimation": "Estimación",
   "suggest-with-ai": "Sugerir con IA",
   "suggest-estimation-with-ai": "Sugerir estimación con IA",
-  "phase-1-status": "Estado de la fase 1:"
+  "phase-1-status": "Estado de la fase 1:",
+  "upload-complete": "Carga completa",
+  "real": "Real",
+  "integer": "Entero"
 }

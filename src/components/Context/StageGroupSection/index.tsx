@@ -1,9 +1,7 @@
 import { Box, Divider, Typography } from '@mui/material';
 import {
-  componentTypeToKey,
   ContextComponent,
   ContextComponentData,
-  ContextComponentsType,
   ContextComponentType,
 } from '../../../types/contextComponent';
 import { ContextComponentList } from '../ContextComponentList';
@@ -14,7 +12,6 @@ interface StageGroupSectionProps {
   prefix?: string;
   onEdit: (comp: ContextComponent, type: ContextComponentType) => void;
   onDelete: (comp: ContextComponent, type: ContextComponentType) => void;
-  setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType>>;
   loading?: boolean;
 }
 
@@ -24,34 +21,8 @@ export const StageGroupSection: React.FC<StageGroupSectionProps> = ({
   prefix = label.toLowerCase(),
   onEdit,
   onDelete,
-  setContextComponents,
   loading = false,
 }) => {
-  const setContextComponent =
-    <T extends ContextComponent>(
-      type: ContextComponentType,
-      setContextComponents: React.Dispatch<React.SetStateAction<ContextComponentsType>>
-    ): React.Dispatch<React.SetStateAction<ContextComponentData<T>>> =>
-    updater => {
-      setContextComponents(prev => {
-        if (!prev) return prev;
-        const key = componentTypeToKey[type];
-        const slot = prev[key] as ContextComponentData<T> | null;
-        if (!slot) return prev;
-
-        // apply either an updater fn or a direct value
-        const newSlot =
-          typeof updater === 'function'
-            ? (updater as (old: ContextComponentData<T>) => ContextComponentData<T>)(slot)
-            : updater;
-
-        return {
-          ...prev,
-          [key]: newSlot,
-        };
-      });
-    };
-
   if (!components.length) return null;
 
   return (
@@ -68,7 +39,6 @@ export const StageGroupSection: React.FC<StageGroupSectionProps> = ({
           component={component}
           onEdit={onEdit}
           onDelete={onDelete}
-          setContextComponent={setContextComponent(component.type, setContextComponents)}
           loading={loading}
         />
       ))}
