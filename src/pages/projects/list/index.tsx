@@ -14,7 +14,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
   Tooltip,
   Pagination,
 } from '@mui/material';
@@ -38,6 +37,7 @@ import { EditDeleteMenu } from '../../../components/EditDeleteMenu';
 import { getName, State } from '../../../types/state';
 import { WhiteCard } from '../../../StyledComponents/StyledComponents';
 import { useNavigate } from 'react-router-dom';
+import { LoadingProgress } from '../../../components/LoadingProgress';
 
 interface Column {
   id: string;
@@ -65,7 +65,6 @@ export const ProjectsList: React.FC = () => {
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const [newDialogOpen, setNewDialogOpen] = useState(false);
   const [projectErrors, setProjectErrors] = useState<ProjectErrorsType>({});
@@ -91,17 +90,16 @@ export const ProjectsList: React.FC = () => {
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
       const projects = await projectsApi.listProjects();
       setProjectsList(projects || []);
     } catch (err: any) {
       console.error('Error fetching projects:', err);
-      setError(t('error-fetching-projects'));
+      showError(t('error-fetching-projects'));
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, showError]);
 
   useEffect(() => {
     fetchProjects();
@@ -314,7 +312,9 @@ export const ProjectsList: React.FC = () => {
       </Typography>
 
       <WhiteCard sx={{ p: 3 }}>
-        {projectsList.length === 0 ? (
+        {loading ? (
+          <LoadingProgress />
+        ) : projectsList.length === 0 ? (
           <EmptyProjectState onCreateNew={() => handleOpenNewDialog()} />
         ) : (
           <>
@@ -353,92 +353,80 @@ export const ProjectsList: React.FC = () => {
               </Box>
             </Grid>
 
-            {loading ? (
-              <Box flex={1} display="flex" justifyContent="center" alignItems="center">
-                <CircularProgress />
-              </Box>
-            ) : error ? (
-              <Box flex={1} display="flex" justifyContent="center" alignItems="center">
-                <Typography color="error">{error}</Typography>
-              </Box>
-            ) : (
-              <>
-                <TableContainer
-                  sx={{
-                    flex: 1,
-                    overflow: 'auto',
-                    height: 440,
-                  }}
-                >
-                  <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
-                    <TableHead>
-                      <TableRow>
-                        {columns.map(column => (
-                          <TableCell key={column.id} align={column.align} width={column.width}>
-                            <Label
-                              text={column.label}
-                              fontWeight={500}
-                              infoMenuContent={column.labelInfo}
-                            />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
+            <TableContainer
+              sx={{
+                flex: 1,
+                overflow: 'auto',
+                height: 440,
+              }}
+            >
+              <Table stickyHeader sx={{ tableLayout: 'fixed', width: '100%' }}>
+                <TableHead>
+                  <TableRow>
+                    {columns.map(column => (
+                      <TableCell key={column.id} align={column.align} width={column.width}>
+                        <Label
+                          text={column.label}
+                          fontWeight={500}
+                          infoMenuContent={column.labelInfo}
+                        />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
 
-                    <TableBody>
-                      {hasProjects ? (
-                        filteredProjects
-                          .slice(page * rowsPerPage - rowsPerPage, page * rowsPerPage)
-                          .map(project => (
-                            <TableRow
-                              hover
-                              tabIndex={-1}
-                              key={project.id}
-                              style={{ cursor: 'pointer' }}
-                              onClick={() => {
-                                setSelecredProject(project);
-                                setProjectDialogOpen(true);
+                <TableBody>
+                  {hasProjects ? (
+                    filteredProjects
+                      .slice(page * rowsPerPage - rowsPerPage, page * rowsPerPage)
+                      .map(project => (
+                        <TableRow
+                          hover
+                          tabIndex={-1}
+                          key={project.id}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            setSelecredProject(project);
+                            setProjectDialogOpen(true);
+                          }}
+                        >
+                          {columns.map(column => (
+                            <TableCell
+                              key={column.id}
+                              align={column.align}
+                              width={column.width}
+                              sx={{
+                                pr: column.pr,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
                               }}
                             >
-                              {columns.map(column => (
-                                <TableCell
-                                  key={column.id}
-                                  align={column.align}
-                                  width={column.width}
-                                  sx={{
-                                    pr: column.pr,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                  }}
-                                >
-                                  {column.render(project)}
-                                </TableCell>
-                              ))}
-                            </TableRow>
-                          ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={columns.length} sx={{ borderBottom: 0 }}>
-                            <Typography my={4} color="textSecondary" textAlign="center">
-                              {t('no-projects-found')}
-                            </Typography>
-                          </TableCell>
+                              {column.render(project)}
+                            </TableCell>
+                          ))}
                         </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} sx={{ borderBottom: 0 }}>
+                        <Typography my={4} color="textSecondary" textAlign="center">
+                          {t('no-projects-found')}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-                <Pagination
-                  page={page}
-                  shape="rounded"
-                  count={Math.ceil(projectsList.length / rowsPerPage)}
-                  onChange={handleChangePage}
-                  sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}
-                />
-              </>
-            )}
+            <Pagination
+              page={page}
+              shape="rounded"
+              count={Math.ceil(projectsList.length / rowsPerPage)}
+              onChange={handleChangePage}
+              sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}
+            />
           </>
         )}
       </WhiteCard>
