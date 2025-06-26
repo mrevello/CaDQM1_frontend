@@ -16,19 +16,9 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
   const fetchReviewAndFiles = useCallback(async () => {
     try {
       setLoading(true);
-      let review = await reviewApi.getReview(projectId, type);
-      console.log('review', review);
-
-      if (!review) {
-        const reviewBody: ReviewBody = {
-          data: '',
-          type: type,
-          project: projectId,
-        };
-        review = await reviewApi.createReview(reviewBody);
-      }
-      if (review) {
-        setReview(review);
+      const reviewResponse = await reviewApi.getReview(projectId, type);
+      if (reviewResponse) {
+        setReview(reviewResponse);
       }
 
       const filesResponse = await reviewApi.getReviewFiles(Number(projectId), type);
@@ -70,7 +60,23 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
 
   const uploadFile = useCallback(
     async (fileItem: FileItem) => {
-      if (!review?.id) return;
+      let currentReview = review;
+
+      if (!currentReview) {
+        const reviewBody: ReviewBody = {
+          data: '',
+          type: type,
+          project: projectId,
+        };
+        const newReview = await reviewApi.createReview(reviewBody);
+        if (newReview) {
+          setReview(newReview);
+          currentReview = newReview;
+        } else {
+          console.error('Failed to create review');
+          return;
+        }
+      }
 
       try {
         setFiles(prev => [
@@ -91,7 +97,7 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
           form.append('file_type', fileItem.type);
         }
 
-        await reviewApi.uploadFile(review.id, form, progress => {
+        await reviewApi.uploadFile(currentReview.id, form, progress => {
           setFiles(prev =>
             prev.map(item => (item.id === fileItem.id ? { ...item, progress } : item))
           );
@@ -117,7 +123,7 @@ export const useReview = ({ projectId, type }: UseReviewProps) => {
         );
       }
     },
-    [review?.id]
+    [review, projectId, type]
   );
 
   const deleteFile = useCallback(

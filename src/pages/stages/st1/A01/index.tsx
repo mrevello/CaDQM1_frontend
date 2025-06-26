@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext, useParams } from 'react-router-dom';
@@ -17,6 +10,7 @@ import { dataAtHandApi, DataAtHandBody } from '../../../../api/dataAtHand.api';
 import { DataAtHand } from '../../../../types/dataAtHand';
 import { projectsApi } from '../../../../api/projects.api';
 import { useNotification } from '../../../../context/notification.context';
+import { LoadingProgress } from '../../../../components/LoadingProgress';
 
 type A01ErrorsType = {
   name?: string;
@@ -140,7 +134,7 @@ export const A01: React.FC = () => {
   );
 
   return loading ? (
-    <CircularProgress />
+    <LoadingProgress />
   ) : (
     <Box component="form" display="flex" flexDirection="column" gap={2}>
       {renderGridRow(

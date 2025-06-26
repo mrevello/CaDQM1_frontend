@@ -213,6 +213,19 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
     }
   };
 
+  const handleDiscardContextComponent = (
+    component: ContextComponent,
+    type: ContextComponentType
+  ) => {
+    setContextComponents(prev => ({
+      ...prev,
+      [componentTypeToKey[type]]: {
+        type,
+        data: prev[componentTypeToKey[type]]?.data.filter(item => item.id !== component.id),
+      },
+    }));
+  };
+
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
@@ -258,6 +271,7 @@ export const ContextReview: React.FC<ContextReviewProps> = ({
               {...(stage ? { stage } : {})}
               loading={loadingContext || loadingAnalysis}
               onEdit={handleEditContextComponent}
+              onDiscardContextComponent={handleDiscardContextComponent}
             />
           </Box>
         </Box>

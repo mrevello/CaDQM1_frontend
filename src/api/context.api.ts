@@ -187,7 +187,7 @@ export const contextApi = {
               return {
                 ...base,
                 statement: item.statement,
-                description: item.description,
+                semantic: item.semantic,
                 data_filtering: item.data_filtering,
                 user_type: item.user_type,
               } as DQRequirement;

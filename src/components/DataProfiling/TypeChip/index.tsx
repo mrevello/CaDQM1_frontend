@@ -17,6 +17,8 @@ export const TypeChip: React.FC<TypeChipProps> = ({ type, color, backgroundColor
         color: color,
         backgroundColor: alpha(backgroundColor, 0.8),
       }}
+      clickable={false}
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
     />
   );
 };
