@@ -1,21 +1,28 @@
 import { Text, View } from '@react-pdf/renderer';
 import { ContextComponentsPDF } from '../ContextComponentsPDF';
-import { styles } from '../style';
+import { styles as commonStyles, textStyles } from '../style';
 import { useTranslation } from 'react-i18next';
 import { ContextComponentsType } from '../../../types/contextComponent';
-import { Stage } from '../../../types/stage';
+import { Context } from '../../../types/context';
 
 interface ContextModelPDFProps {
+  context: Context;
   contextComponents: ContextComponentsType;
-  stage?: Stage;
 }
 
-export const ContextModelPDF: React.FC<ContextModelPDFProps> = ({ contextComponents, stage }) => {
+export const ContextModelPDF: React.FC<ContextModelPDFProps> = ({ context, contextComponents }) => {
   const { t } = useTranslation();
   return (
-    <View style={styles.section}>
-      <Text style={styles.label}>{t('context-model')}</Text>
-      <ContextComponentsPDF contextComponents={contextComponents} stage={stage} />
+    <View style={commonStyles.section}>
+      <View style={commonStyles.headerContainer}>
+        <Text style={textStyles.label}>{t('context-model')}</Text>
+        {context.version && (
+          <Text style={textStyles.metaText}>
+            {t('version')} {context.version}
+          </Text>
+        )}
+      </View>
+      <ContextComponentsPDF contextComponents={contextComponents} />
     </View>
   );
 };

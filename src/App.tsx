@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AppRouter } from './Router';
 import { NotificationProvider } from './context/notification.context';
@@ -12,6 +11,6 @@ export const App: React.FC = () => {
       </BrowserRouter>
     </NotificationProvider>
   );
-}
+};
 
 export default App;

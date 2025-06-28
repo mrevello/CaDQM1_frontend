@@ -190,6 +190,7 @@
   "data-profiling": "Data profiling",
   "database-schema": "Database schema",
   "y-profiling": "YData profiling",
+  "y-data-profiling-report": "YData profiling report",
   "r-profiling": "R data profiling",
   "sample-data": "Sample Data",
   "variables-analysis": "Variables Analysis",
@@ -287,5 +288,10 @@
   "phase-1-status": "Phase 1 status:",
   "upload-complete": "Upload complete",
   "real": "Real",
-  "integer": "Integer"
+  "integer": "Integer",
+  "character varying": "Varchar",
+  "version": "Version",
+  "there-is-no-data-for-this-activity": "There is no data for this activity",
+  "pdf-download-success": "PDF report generated successfully!",
+  "pdf-download-error": "Failed to generate PDF report. Please try again."
 }

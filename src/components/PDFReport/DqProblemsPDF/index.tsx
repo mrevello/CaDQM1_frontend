@@ -1,5 +1,5 @@
 import { Text, View } from '@react-pdf/renderer';
-import { styles } from '../style';
+import { styles, textStyles } from '../style';
 import { useTranslation } from 'react-i18next';
 import { ProblemsListPDF } from '../ProblemsListPDF';
 import { Problem } from '../../../types/problem';
@@ -13,7 +13,7 @@ export const DqProblemsPDF: React.FC<DqProblemsPDFProps> = ({ problems }) => {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>{t('dq-problems')}</Text>
+      <Text style={textStyles.label}>{t('dq-problems')}</Text>
       <ProblemsListPDF problems={problems} />
     </View>
   );

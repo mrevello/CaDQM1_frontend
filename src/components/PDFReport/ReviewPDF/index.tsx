@@ -1,7 +1,8 @@
 import { View, Text } from '@react-pdf/renderer';
-import { styles } from '../style';
+import { styles, textStyles } from '../style';
 import { useTranslation } from 'react-i18next';
 import { ReviewPDFData } from '../types';
+import { ListPDF } from '../ListPDF';
 
 interface ReviewPDFProps {
   reviewData: ReviewPDFData;
@@ -11,21 +12,16 @@ export const ReviewPDF: React.FC<ReviewPDFProps> = ({ reviewData }) => {
   const { t } = useTranslation();
 
   return (
-    <>
-      <View style={styles.item}>
-        {reviewData.review.data && <Text style={styles.smallText}>{reviewData.review.data}</Text>}
-      </View>
+    <View style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {reviewData.review.data && <Text style={textStyles.smallText}>{reviewData.review.data}</Text>}
       {reviewData.files.length > 0 && (
-        <View style={styles.sectionSmall}>
-          <Text style={styles.value}>{t('files')}:</Text>
-          {reviewData.files.map(file => (
-            <View key={file.id} style={styles.fileItem}>
-              <Text style={styles.smallText}>• {file.name}</Text>
-              {file.description && <Text style={styles.smallText}> - {file.description}</Text>}
-            </View>
-          ))}
-        </View>
+        <ListPDF
+          title={t('files')}
+          items={reviewData.files.map(
+            file => file.name + (file.description ? ` - ${file.description}` : '')
+          )}
+        />
       )}
-    </>
+    </View>
   );
 };

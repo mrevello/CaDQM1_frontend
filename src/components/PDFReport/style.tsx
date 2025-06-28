@@ -11,7 +11,6 @@ export const styles = StyleSheet.create({
     color: '#333',
   },
   section: {
-    marginBottom: 10,
     gap: 4,
   },
   sectionSmall: {
@@ -31,6 +30,24 @@ export const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 2,
   },
+  dividerStyle: {
+    height: 0.5,
+    backgroundColor: '#ccc',
+    marginVertical: 10,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  pdfContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 24,
+  },
+});
+
+export const textStyles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -53,30 +70,21 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
-  filesContainer: {
-    width: '100%',
-    marginTop: 10,
-    flexDirection: 'column',
-    gap: 3,
-  },
-  fileItem: {
-    width: '100%',
-    flexDirection: 'row',
-    gap: 6,
-    paddingLeft: 4,
-  },
-  error: {
-    color: '#d32f2f',
+  metaText: {
     fontSize: 10,
-  },
-  loading: {
     color: '#666',
-    fontSize: 10,
+    marginBottom: 2,
   },
-  dividerStyle: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    marginVertical: 8,
+  errorText: {
+    fontSize: 10,
+    color: themePalette.ERROR,
+  },
+});
+
+export const stateStyles = StyleSheet.create({
+  text: {
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   [State.DONE]: {
     color: themePalette.SUCCESS,

@@ -53,19 +53,17 @@ export const problemsApi = {
     }
   },
 
-  listProblems: async function (projectId: number, stage?: Stage): Promise<Problem[]> {
+  listProblems: async function (projectId: number): Promise<Problem[]> {
     try {
       const response = await instance.get(`${endpoint}by-project/${projectId}/`);
       const problemsData: ProblemResponse[] = response.data;
-      console.log('problemsData', problemsData);
-      const problems: Problem[] = problemsData
-        .filter(p => (stage ? p.project_stage?.stage === stage : true))
-        .map((p: ProblemResponse) => ({
-          id: p.quality_problem_id,
-          description: p.description,
-          date: p.date,
-          stage: p.project_stage?.stage || Stage.ST1,
-        }));
+
+      const problems: Problem[] = problemsData.map((p: ProblemResponse) => ({
+        id: p.quality_problem_id,
+        description: p.description,
+        date: p.date,
+        stage: p.project_stage_info?.stage,
+      }));
 
       return problems;
     } catch (error: any) {

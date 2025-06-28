@@ -126,6 +126,7 @@
   "data-profiling": "Perfilado de datos",
   "database-schema": "Esquema de la base de datos",
   "y-profiling": "Perfilado YData",
+  "y-data-profiling-report": "Reporte de perfilado YData",
   "r-profiling": "Perfilado de datos R",
   "sample-data": "Datos de muestra",
   "variables-analysis": "Análisis de variables",
@@ -284,5 +285,10 @@
   "phase-1-status": "Estado de la fase 1:",
   "upload-complete": "Carga completa",
   "real": "Real",
-  "integer": "Entero"
+  "integer": "Entero",
+  "character varying": "Varchar",
+  "version": "Versión",
+  "there-is-no-data-for-this-activity": "No hay datos para esta actividad",
+  "pdf-download-success": "¡Reporte PDF generado exitosamente!",
+  "pdf-download-error": "Error al generar el reporte PDF. Por favor, inténtelo de nuevo."
 }

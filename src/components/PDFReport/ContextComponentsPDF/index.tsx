@@ -1,73 +1,124 @@
-import { Text, View } from '@react-pdf/renderer';
+import { View } from '@react-pdf/renderer';
 import { styles } from './../style';
 import { useTranslation } from 'react-i18next';
 import {
   ContextComponent,
   ContextComponentsType,
-  emptyContextComponentsType,
+  ContextComponentType,
+  ApplicationDomain,
+  BusinessRule,
+  DataFiltering,
+  DQMetadata,
+  DQRequirement,
+  OtherData,
+  SystemRequirement,
+  OtherMetadata,
+  TaskAtHand,
+  UserType,
+  getComponentPrefix,
 } from '../../../types/contextComponent';
-import { Stage } from '../../../types/stage';
-import { styles as compStyles } from './style';
+import { ContextComponentTable } from '../ContextComponentTable';
 
 interface ContextComponentsProps {
   contextComponents: ContextComponentsType;
-  stage?: Stage;
 }
 
-export const ContextComponentsPDF: React.FC<ContextComponentsProps> = ({
-  contextComponents,
-  stage,
-}) => {
+export const ContextComponentsPDF: React.FC<ContextComponentsProps> = ({ contextComponents }) => {
   const { t } = useTranslation();
-
-  const filteredContextComponents: ContextComponentsType =
-    contextComponents && stage
-      ? Object.entries(contextComponents).reduce((acc, [key, component]) => {
-          if (component) {
-            const filteredData = component.data.filter(
-              (item: ContextComponent) => item.stage === stage
-            );
-            if (filteredData.length > 0) {
-              acc[key as keyof ContextComponentsType] = {
-                ...component,
-                data: filteredData,
-              };
-            } else {
-              acc[key as keyof ContextComponentsType] = null;
-            }
-          } else {
-            acc[key as keyof ContextComponentsType] = null;
-          }
-          return acc;
-        }, {} as ContextComponentsType)
-      : (contextComponents ?? emptyContextComponentsType);
 
   return (
     <View style={styles.section}>
-      {Object.entries(filteredContextComponents).map(([key, component]) => {
+      {Object.entries(contextComponents).map(([key, component]) => {
         if (!component) return null;
         return (
-          <View key={key} style={compStyles.componentView}>
-            <Text style={styles.labelSmall}>{t(component.type)}</Text>
-            {component.data.map((item: ContextComponent, index: number) => (
-              <View key={index} style={compStyles.itemComponent}>
-                {Object.entries(item).map(([field, value]) => {
-                  if (field === 'id' || field === 'stage' || field === 'isSuggestion') return null;
-                  return (
-                    <View key={field} style={compStyles.labeledValue}>
-                      <Text style={compStyles.componentLabel}>{t(field)}: </Text>
-                      <Text key={field} style={styles.smallText}>
-                        {value}
-                      </Text>
-                    </View>
-                  );
-                })}
-                <View style={styles.dividerStyle} />
-              </View>
-            ))}
-          </View>
+          <ContextComponentTable
+            key={key}
+            title={t(component.type)}
+            data={getComponentData(component.data, component.type)}
+          />
         );
       })}
     </View>
   );
+};
+
+const getComponentData = (
+  components: ContextComponent[],
+  type: ContextComponentType
+): { [key: string]: string }[] => {
+  return components.map((component: ContextComponent) => {
+    return componentData(component, type);
+  });
+};
+
+const componentData = (
+  component: ContextComponent,
+  type: ContextComponentType
+): { [key: string]: string } => {
+  switch (type) {
+    case ContextComponentType.APPLICATION_DOMAIN:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        description: (component as ApplicationDomain).description,
+      };
+    case ContextComponentType.BUSINESS_RULE:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        statement: (component as BusinessRule).statement,
+        semantic: (component as BusinessRule).semantic,
+      };
+    case ContextComponentType.DATA_FILTERING:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        statement: (component as DataFiltering).statement,
+        description: (component as DataFiltering).description,
+        task_at_hand: (component as DataFiltering).taskAtHand?.name ?? '',
+      };
+    case ContextComponentType.DQ_METADATA:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        path: (component as DQMetadata).path,
+        description: (component as DQMetadata).description,
+        measurement: (component as DQMetadata).measurement,
+      };
+    case ContextComponentType.DQ_REQUIREMENT:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        statement: (component as DQRequirement).statement,
+        semantic: (component as DQRequirement).semantic,
+        user_type: (component as DQRequirement).userType?.name ?? '',
+      };
+    case ContextComponentType.OTHER_DATA:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        path: (component as OtherData).path,
+        owner: (component as OtherData).owner,
+        description: (component as OtherData).description,
+      };
+    case ContextComponentType.OTHER_METADATA:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        path: (component as OtherMetadata).path,
+        description: (component as OtherMetadata).description,
+        author: (component as OtherMetadata).author,
+      };
+    case ContextComponentType.SYSTEM_REQUIREMENT:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        statement: (component as SystemRequirement).statement,
+        description: (component as SystemRequirement).description,
+      };
+    case ContextComponentType.TASK_AT_HAND:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        name: (component as TaskAtHand).name,
+        purpose: (component as TaskAtHand).purpose,
+      };
+    case ContextComponentType.USER_TYPE:
+      return {
+        id: getComponentPrefix(type) + component.id,
+        name: (component as UserType).name,
+        characteristics: (component as UserType).characteristics,
+      };
+  }
 };

@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Button, Box, Typography, Chip, Checkbox, styled } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
 import { Stage, getStageTitle, getStageActivities, getStageLabel } from '../../types/stage';
 import {
   Activity,
@@ -17,6 +18,7 @@ import { PDFReport } from '../PDFReport';
 import { Project } from '../../types/project';
 import { State } from '../../types/state';
 import { usePDFReport } from '../../hooks/usePDFReport';
+import { useNotification } from '../../context/notification.context';
 
 interface PDFSelectionDialogProps {
   open: boolean;
@@ -58,31 +60,52 @@ const PDFDownloadButton: React.FC<{
   fileName: string;
 }> = ({ projectId, selection, fileName }) => {
   const { t } = useTranslation();
-  const downloadRef = useRef<any>(null);
+  const { showError, showSuccess } = useNotification();
 
-  const { isLoading: isPDFReportLoading } = usePDFReport({ projectId });
+  const { isLoading, fetchData } = usePDFReport({ projectId });
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleDownload = async () => {
+    setIsGenerating(true);
+
+    try {
+      const reportData = await fetchData(selection);
+
+      if (!reportData.project) return;
+      const blob = await pdf(
+        <PDFReport
+          project={reportData.project}
+          problems={reportData.problems}
+          estimation={reportData.estimation}
+          contextComponents={reportData.contextComponents}
+          interaction={reportData.interaction}
+          organizationElements={reportData.organizationElements}
+          dataProfilingPerTable={reportData.dataProfilingPerTable}
+          schema={reportData.schema}
+          selection={selection}
+        />
+      ).toBlob();
+
+      saveAs(blob, fileName);
+      showSuccess(t('pdf-download-success'));
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      showError(err instanceof Error ? err.message : t('pdf-download-error'));
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   return (
-    <PDFDownloadLink
-      key="ready"
-      document={<PDFReport projectId={projectId} selection={selection} />}
-      fileName={fileName}
+    <Button
+      onClick={handleDownload}
+      variant="contained"
+      loading={isGenerating || isLoading}
+      disabled={isGenerating || isLoading}
+      startIcon={<DownloadIcon />}
     >
-      {({ loading: isPDFGenerating }) => {
-        const isButtonLoading = isPDFReportLoading || isPDFGenerating;
-        return (
-          <Button
-            ref={downloadRef}
-            variant="contained"
-            loading={isButtonLoading}
-            disabled={isButtonLoading}
-            startIcon={<DownloadIcon />}
-          >
-            {isButtonLoading ? t('loading') : t('export')}
-          </Button>
-        );
-      }}
-    </PDFDownloadLink>
+      {isGenerating || isLoading ? t('loading') : t('export')}
+    </Button>
   );
 };
 
