@@ -572,3 +572,7 @@ export const getComponentPrefix = (type: ContextComponentType): string => {
       return 'UT';
   }
 };
+
+export const isEmptyContextComponentsType = (contextComponents: ContextComponentsType): boolean => {
+  return Object.values(contextComponents).every(component => component === null);
+};

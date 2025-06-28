@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Project } from '../types/project';
 import { projectsApi } from '../api/projects.api';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,8 @@ import { dataProfilingApi } from '../api/dataProfiling.api';
 import { reviewApi } from '../api/review.api';
 import { ReviewType } from '../types/review';
 import { DataProfilingReport, PDFFile, ReviewPDFData } from '../components/PDFReport/types';
+import { SchemaSQL } from '../types/dataProfiling';
+import { PDFSelection } from '../components/PDFSelectionDialog';
 
 interface UsePDFReportProps {
   projectId: number;
@@ -27,28 +29,27 @@ interface LoadingStates {
   organizationElements: boolean;
 }
 
-interface UsePDFReportReturn {
+interface UsePDFReportData {
   project: Project | null;
-  error: string | null;
-  isLoading: boolean;
   problems: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
+  schema?: SchemaSQL;
   dataProfilingPerTable?: DataProfilingReport[];
   interaction?: ReviewPDFData;
   organizationElements?: ReviewPDFData;
 }
 
+interface UsePDFReportReturn {
+  error: string | null;
+  isLoading: boolean;
+  fetchData: (selection?: PDFSelection) => Promise<UsePDFReportData>;
+}
+
 export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportReturn => {
   const { t } = useTranslation();
 
-  const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [estimation, setEstimation] = useState<Estimation>();
-  const [contextComponents, setContextComponents] = useState<ContextComponentsType>();
-  const [dataProfilingPerTable, setDataProfilingPerTable] = useState<DataProfilingReport[]>();
-  const [interaction, setInteraction] = useState<ReviewPDFData>();
-  const [organizationElements, setOrganizationElements] = useState<ReviewPDFData>();
 
   // Granular loading states
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
@@ -81,7 +82,6 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
         return null;
       }
 
-      setProject(response);
       return response;
     } catch (err) {
       console.error('Failed to fetch project:', err);
@@ -90,7 +90,7 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
     } finally {
       updateLoadingState('project', false);
     }
-  }, [projectId, t]);
+  }, [projectId, t, updateLoadingState]);
 
   const fetchReview = useCallback(
     async (type: ReviewType) => {
@@ -110,11 +110,8 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
         }));
 
         const reviewData = { review, files: mappedFiles };
-        if (type === 'interaction') {
-          setInteraction(reviewData);
-        } else {
-          setOrganizationElements(reviewData);
-        }
+
+        return reviewData;
       } catch (err) {
         console.error(`Failed to fetch review ${type}:`, err);
         return undefined;
@@ -122,102 +119,169 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
         updateLoadingState(type === 'interaction' ? 'interaction' : 'organizationElements', false);
       }
     },
-    [projectId]
+    [projectId, updateLoadingState]
   );
 
   const fetchEstimation = useCallback(async () => {
     try {
       updateLoadingState('estimation', true);
-      const estimation: Estimation = await estimationApi.getEstimation(Number(projectId));
-
-      if (estimation) {
-        setEstimation(estimation);
-      }
+      const estimationData: Estimation = await estimationApi.getEstimation(Number(projectId));
+      return estimationData;
     } catch (err) {
       console.error('Failed to load estimation:', err);
+      return undefined;
     } finally {
       updateLoadingState('estimation', false);
     }
-  }, [projectId]);
+  }, [projectId, updateLoadingState]);
 
   const fetchContextComponents = useCallback(async () => {
     try {
       updateLoadingState('contextComponents', true);
       const response = await listContextComponents();
-      if (response) {
-        setContextComponents(response);
-      }
+      return response;
     } catch (error) {
       console.error('Failed to fetch context components', error);
+      return undefined;
     } finally {
       updateLoadingState('contextComponents', false);
     }
-  }, [projectId, listContextComponents]);
+  }, [listContextComponents, updateLoadingState]);
 
   const fetchDataProfiling = useCallback(async () => {
     try {
       updateLoadingState('dataProfiling', true);
-      const schema = await dataProfilingApi.schemaSQL(Number(projectId));
+      const schemaRes = await dataProfilingApi.schemaSQL(Number(projectId));
 
-      if (schema) {
-        const tableNames = Object.keys(schema.schema);
-        if (tableNames.length > 0) {
-          // Use Promise.all to handle concurrent API calls
-          const profilingPromises = tableNames.map(async table => {
-            const [rHtmlUrl, yHtmlUrl] = await Promise.all([
-              dataProfilingApi.dataProfilingRhtmlContent(Number(projectId), table),
-              dataProfilingApi.dataProfilingYhtmlContent(Number(projectId), table),
-            ]);
-
-            return {
-              table,
-              rHtmlUrl,
-              yHtmlUrl,
-            };
-          });
-
-          const dataProfilingPerTable = await Promise.all(profilingPromises);
-          if (dataProfilingPerTable) {
-            setDataProfilingPerTable(dataProfilingPerTable);
-          }
-        }
+      const tableNames = Object.keys(schemaRes?.schema ?? {});
+      if (tableNames.length > 0) {
+        const profilingPromises = tableNames.map(async table => {
+          const filename = await dataProfilingApi.downloadDataProfilingYhtml(
+            Number(projectId),
+            table
+          );
+          return {
+            table,
+            filename,
+          };
+        });
+        const profilingData = await Promise.all(profilingPromises);
+        return { schema: schemaRes, dataProfilingPerTable: profilingData };
       }
+      return { schema: schemaRes, dataProfilingPerTable: [] };
     } catch (error) {
       console.error('Failed to fetch data profiling', error);
+      return undefined;
     } finally {
       updateLoadingState('dataProfiling', false);
     }
-  }, [projectId]);
+  }, [projectId, updateLoadingState]);
 
   const loadProblems = useCallback(async () => {
     try {
       updateLoadingState('problems', true);
-      await fetchProblems();
+      const allProblems = await fetchProblems();
+      return allProblems;
     } catch (error) {
       console.error('Failed to fetch problems:', error);
+      return [];
     } finally {
       updateLoadingState('problems', false);
     }
-  }, [projectId, fetchProblems]);
+  }, [fetchProblems, updateLoadingState]);
 
-  useEffect(() => {
-    loadProject();
-    loadProblems();
-    fetchEstimation();
-    fetchContextComponents();
-    fetchReview('interaction');
-    fetchReview('organization_elements');
-  }, [projectId, loadProject, loadProblems, fetchEstimation, fetchContextComponents, fetchReview]);
+  const fetchData = useCallback(
+    async (selection?: PDFSelection): Promise<UsePDFReportData> => {
+      const projectData = await loadProject();
+
+      const promises = [];
+      if (
+        selection?.dqProblems ||
+        selection?.stages.ST1?.activities.a03 ||
+        selection?.stages.ST2?.activities.a03 ||
+        selection?.stages.ST3?.activities.a03
+      ) {
+        promises.push(loadProblems());
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      if (selection?.stages.ST2?.activities.a06) {
+        promises.push(fetchEstimation());
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      if (
+        selection?.contextModel ||
+        selection?.stages.ST1?.activities.a04 ||
+        selection?.stages.ST2?.activities.a07 ||
+        selection?.stages.ST3?.activities.a07
+      ) {
+        promises.push(fetchContextComponents());
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      if (selection?.stages.ST1?.activities.a01) {
+        promises.push(fetchReview('interaction'));
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      if (selection?.stages.ST3?.activities.a08) {
+        promises.push(fetchReview('organization_elements'));
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      if (selection?.stages.ST2?.activities.a05) {
+        promises.push(fetchDataProfiling());
+      } else {
+        promises.push(Promise.resolve(undefined));
+      }
+
+      const [
+        problemsData,
+        estimationData,
+        contextComponentsData,
+        interactionData,
+        organizationElementsData,
+        dataProfilingData,
+      ] = (await Promise.all(promises)) as [
+        Problem[] | undefined,
+        Estimation | undefined,
+        ContextComponentsType | undefined,
+        ReviewPDFData | undefined,
+        ReviewPDFData | undefined,
+        { schema: SchemaSQL; dataProfilingPerTable: DataProfilingReport[] } | undefined,
+      ];
+
+      return {
+        project: projectData,
+        problems: problemsData || problems,
+        estimation: estimationData,
+        contextComponents: contextComponentsData,
+        interaction: interactionData,
+        organizationElements: organizationElementsData,
+        schema: dataProfilingData?.schema,
+        dataProfilingPerTable: dataProfilingData?.dataProfilingPerTable,
+      };
+    },
+    [
+      loadProject,
+      loadProblems,
+      fetchEstimation,
+      fetchContextComponents,
+      fetchReview,
+      fetchDataProfiling,
+      problems,
+    ]
+  );
 
   return {
-    project,
-    problems,
     error,
     isLoading,
-    estimation,
-    contextComponents,
-    dataProfilingPerTable,
-    interaction,
-    organizationElements,
+    fetchData,
   };
 };

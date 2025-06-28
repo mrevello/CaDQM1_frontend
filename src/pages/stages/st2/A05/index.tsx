@@ -117,7 +117,7 @@ export const A05: React.FC = () => {
     }
     try {
       setLoadingHtml(true);
-      await dataProfilingApi.dataProfilingRhtml(Number(projectId), table);
+      await dataProfilingApi.downloadDataProfilingRhtml(Number(projectId), table);
     } catch (err) {
       console.error('Failed to open DataExplorer report:', err);
     } finally {
@@ -132,7 +132,7 @@ export const A05: React.FC = () => {
     }
     try {
       setLoadingHtml(true);
-      await dataProfilingApi.dataProfilingYhtml(Number(projectId), table);
+      await dataProfilingApi.downloadDataProfilingYhtml(Number(projectId), table);
     } catch (err) {
       console.error('Failed to open DataExplorer report:', err);
     } finally {

@@ -19,5 +19,5 @@ export type ProblemResponse = {
   quality_problem_id: number;
   description: string;
   date: Date;
-  project_stage?: ProjectStage;
+  project_stage_info?: ProjectStage;
 };

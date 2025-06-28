@@ -1,21 +1,21 @@
 import { ContextComponentsType } from '../../types/contextComponent';
+import { SchemaSQL } from '../../types/dataProfiling';
 import { Estimation } from '../../types/estimation';
 import { Problem } from '../../types/problem';
 import { Project } from '../../types/project';
 import { Review } from '../../types/review';
 import { Stage } from '../../types/stage';
-import { State } from '../../types/state';
 
 export interface StageProps {
   project: Project;
   stage: Stage;
-  state: State;
   problems: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
   interaction?: ReviewPDFData;
   organizationElements?: ReviewPDFData;
   dataProfilingPerTable?: DataProfilingReport[];
+  schema?: SchemaSQL;
 }
 
 export type ReviewPDFData = {
@@ -36,6 +36,5 @@ export type ActivityProps = {
 
 export type DataProfilingReport = {
   table: string;
-  rHtmlUrl: string;
-  yHtmlUrl: string;
+  filename: string;
 };

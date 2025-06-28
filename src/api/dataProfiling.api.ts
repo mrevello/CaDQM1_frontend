@@ -93,75 +93,49 @@ export const dataProfilingApi = {
     return { message, reports };
   },
 
-  dataProfilingYhtml: async function (projectId: number, table: string): Promise<void> {
+  downloadDataProfilingYhtml: async function (projectId: number, table: string): Promise<string> {
     try {
-      const response = await instance.post(
-        `/full-db-profiling-per-table-html/`,
-        {
-          project_id: projectId,
-          table_name: table,
-        },
-        {
-          responseType: 'text',
-          headers: { Accept: 'text/html' },
-        }
-      );
-
-      const html = response.data;
-      if (!html) return console.warn('Empty profiling HTML');
-
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
+      const url = await dataProfilingApi.dataProfilingYhtmlContent(projectId, table);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${table}-Y.html`;
+      const filename = `${table}-Y.html`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
 
       setTimeout(() => URL.revokeObjectURL(url), 5000);
+      return filename;
     } catch (err: any) {
       console.error('Error fetching DataExplorer report:', err);
+      return '';
     }
   },
 
-  dataProfilingRhtml: async function (projectId: number, table: string): Promise<void> {
+  downloadDataProfilingRhtml: async function (projectId: number, table: string): Promise<string> {
     try {
-      const response = await instance.post(
-        `/data-profiling-r-dataexplorer-full/`,
-        {
-          project_id: projectId,
-          table_name: table,
-        },
-        {
-          responseType: 'text',
-          headers: { Accept: 'text/html' },
-        }
-      );
-
-      const html = response.data;
-      if (!html) return console.warn('Empty profiling HTML');
-
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
+      const url = await dataProfilingApi.dataProfilingRhtmlContent(projectId, table);
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${table}-R.html`;
+      const filename = `${table}-R.html`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
 
       setTimeout(() => URL.revokeObjectURL(url), 5000);
+      return filename;
     } catch (err: any) {
       console.error('Error fetching DataExplorer report:', err);
+      return '';
     }
   },
 
   dataProfilingRhtmlContent: async (projectId: number, table: string): Promise<string> => {
     const htmlContent = await dataProfilingApi.dataProfilingRhtmlText(projectId, table);
-    
+
     // Create blob URL from the HTML content
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -170,7 +144,7 @@ export const dataProfilingApi = {
 
   dataProfilingYhtmlContent: async (projectId: number, table: string): Promise<string> => {
     const htmlContent = await dataProfilingApi.dataProfilingYhtmlText(projectId, table);
-    
+
     // Create blob URL from the HTML content
     const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);

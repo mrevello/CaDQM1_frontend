@@ -26,7 +26,6 @@ export const ROUTES = {
 
   // Project routes
   PROJECT_CONTEXT: '/projects/:projectId/context',
-  PROJECT_PDF: '/projects/:projectId/pdf',
 
   // Stage routes
   STAGE_1: '/projects/:projectId/st1',
