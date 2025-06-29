@@ -1,5 +1,5 @@
 import { View, Text } from '@react-pdf/renderer';
-import { styles, textStyles } from '../style';
+import { textStyles } from '../style';
 import { useTranslation } from 'react-i18next';
 import { ReviewPDFData } from '../types';
 import { ListPDF } from '../ListPDF';

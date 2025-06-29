@@ -4,7 +4,7 @@ import { API_CONFIG, API_ENDPOINTS, AUTH_CONFIG, ROUTES } from '../constants';
 
 export const instance: AxiosInstance = axios.create({
   baseURL: API_CONFIG.BASE_URL,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 20000, // 20 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
