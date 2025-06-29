@@ -11,85 +11,45 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { DataProfilingYResponse, SchemaSQL } from '../../../../types/dataProfiling';
 import DownloadIcon from '@mui/icons-material/Download';
 import { SQLQueryDialog } from '../../../../components/DataProfiling/SQLQueryDialog';
 import { useParams } from 'react-router-dom';
-import { dataProfilingApi } from '../../../../api/dataProfiling.api';
 import { useTranslation } from 'react-i18next';
 import { SchemaVisualizer } from '../../../../components/SchemaVisualizer';
 import { DataProfilingValue } from '../../../../components/DataProfiling/DataProfilingValue';
 import { DataProfilingY } from '../../../../components/DataProfiling/DataProfilingY';
 import { DataProfilingR } from '../../../../components/DataProfiling/DataProfilingR';
+import { useDataProfiling } from '../../../../hooks/useDataProfiling';
 
 export const A05: React.FC = () => {
   const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
 
-  const [schema, setSchema] = useState<SchemaSQL>();
-  const [table, setTable] = useState<string>('');
-
-  const [dataProfilingY, setDataProfilingY] = useState<DataProfilingYResponse>();
-  const [rHtml, setRHtml] = useState<string>('');
-
-  const [loadingSchema, setLoadingSchema] = useState(true);
-  const [loadingY, setLoadingY] = useState(false);
-  const [loadingR, setLoadingR] = useState(false);
-  const [loadingHtml, setLoadingHtml] = useState(false);
-
   const [tabIndex, setTabIndex] = useState(0);
   const [sqlDialogOpen, setSqlDialogOpen] = useState(false);
 
+  const {
+    loadingSchema,
+    loadingY,
+    loadingR,
+    loadingHtml,
+    schema,
+    table,
+    setTable,
+    fetchSchema,
+    dataProfilingY,
+    fetchDataProfilingY,
+    dataProfilingR,
+    fetchDataProfilingR,
+    handleDownloadYProfiling,
+    handleDownloadRProfiling,
+  } = useDataProfiling({ projectId: Number(projectId) });
+
   useEffect(() => {
-    const fetchSchema = async () => {
-      setLoadingSchema(true);
-      try {
-        const resp = await dataProfilingApi.schemaSQL(Number(projectId));
-        if (resp) {
-          setSchema(resp);
-          const names = Object.keys(resp.schema);
-          if (names.length) setTable(names[0]);
-        }
-      } catch (err) {
-        console.error('Failed to load schema:', err);
-      } finally {
-        setLoadingSchema(false);
-      }
-    };
     fetchSchema();
-  }, [projectId]);
-
-  useEffect(() => {
-    if (!schema) return;
-    const fetchY = async () => {
-      setLoadingY(true);
-      try {
-        const y = await dataProfilingApi.dataProfilingY(Number(projectId));
-        if (y) setDataProfilingY(y);
-      } catch (err) {
-        console.error('Failed to load Y profiling:', err);
-      } finally {
-        setLoadingY(false);
-      }
-    };
-    fetchY();
-  }, [schema, projectId]);
-
-  useEffect(() => {
-    if (!table) return;
-    const fetchR = async () => {
-      setLoadingR(true);
-      try {
-        const html = await dataProfilingApi.dataProfilingRhtmlText(Number(projectId), table);
-        setRHtml(html);
-      } catch (err) {
-        console.error('Failed to load R HTML:', err);
-      } finally {
-        setLoadingR(false);
-      }
-    };
-    fetchR();
-  }, [table, projectId]);
+    fetchDataProfilingY();
+    fetchDataProfilingR();
+  }, [fetchSchema, fetchDataProfilingY, fetchDataProfilingR]);
 
   const summary = useMemo(() => {
     if (!schema) return null;
@@ -109,36 +69,6 @@ export const A05: React.FC = () => {
       relations: rels,
     };
   }, [schema]);
-
-  const handleDownloadRProfiling = async () => {
-    if (!table) {
-      console.warn('No table selected for profiling');
-      return;
-    }
-    try {
-      setLoadingHtml(true);
-      await dataProfilingApi.downloadDataProfilingRhtml(Number(projectId), table);
-    } catch (err) {
-      console.error('Failed to open DataExplorer report:', err);
-    } finally {
-      setLoadingHtml(false);
-    }
-  };
-
-  const handleDownloadYProfiling = async () => {
-    if (!table) {
-      console.warn('No table selected for profiling');
-      return;
-    }
-    try {
-      setLoadingHtml(true);
-      await dataProfilingApi.downloadDataProfilingYhtml(Number(projectId), table);
-    } catch (err) {
-      console.error('Failed to open DataExplorer report:', err);
-    } finally {
-      setLoadingHtml(false);
-    }
-  };
 
   const handleDownloadProfiling = async () => {
     if (tabIndex === 0) {
@@ -269,7 +199,7 @@ export const A05: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : (
-          rHtml && table && <DataProfilingR table={table} html={rHtml} />
+          dataProfilingR && table && <DataProfilingR table={table} html={dataProfilingR} />
         )}
       </Box>
 
