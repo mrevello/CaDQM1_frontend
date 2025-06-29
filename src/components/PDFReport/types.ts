@@ -9,7 +9,7 @@ import { Stage } from '../../types/stage';
 export interface StageProps {
   project: Project;
   stage: Stage;
-  problems: Problem[];
+  problems?: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
   interaction?: ReviewPDFData;

@@ -16,7 +16,7 @@ import { SchemaSQL } from '../../types/dataProfiling';
 
 interface ReportProps {
   project: Project;
-  problems: Problem[];
+  problems?: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
   interaction?: ReviewPDFData;

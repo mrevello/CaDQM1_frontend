@@ -44,7 +44,7 @@ export interface DQMetadata extends ContextComponent {
 
 export interface DQRequirement extends ContextComponent {
   statement: string;
-  semantic: string;
+  description: string;
   data_filtering: DataFiltering[];
   user_type: number;
   userType?: UserType;
@@ -128,7 +128,7 @@ export type ContextComponentErrorsType = {
   };
   [ContextComponentType.DQ_REQUIREMENT]?: {
     statement?: string;
-    semantic?: string;
+    description?: string;
     user_type?: string;
   };
   [ContextComponentType.OTHER_DATA]?: {
@@ -219,7 +219,7 @@ export const createComponent = (
     case ContextComponentType.DQ_REQUIREMENT:
       return {
         ...base,
-        semantic: value,
+        description: value,
       } as DQRequirement;
 
     case ContextComponentType.OTHER_DATA:
@@ -278,7 +278,7 @@ export const getValue = (component: ContextComponent, type: ContextComponentType
       break;
 
     case ContextComponentType.DQ_REQUIREMENT:
-      value = (component as DQRequirement).semantic;
+      value = (component as DQRequirement).description;
       break;
 
     case ContextComponentType.OTHER_DATA:
@@ -438,6 +438,7 @@ export const populateContextComponentReferences = (
 
     const populatedDQRequirements = result.dqRequirement.data.map(dqRequirement => {
       const userType = userTypeMap.get(dqRequirement.user_type);
+      console.log('userType', userType);
       return {
         ...dqRequirement,
         userType: userType || undefined,
@@ -500,7 +501,7 @@ export const createContextComponent = (
     case ContextComponentType.DQ_REQUIREMENT:
       return {
         ...base,
-        semantic: data.semantic,
+        description: data.description,
         data_filtering: data.data_filtering,
         user_type: data.user_type,
         statement: data.statement,

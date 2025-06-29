@@ -68,9 +68,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
     if (open) {
       const initialData = textFieldConfigs.reduce(
         (acc, field) => {
-          if (field.defaultValue !== undefined) {
-            acc[field.name] = field.defaultValue;
-          }
+          acc[field.name] = field.defaultValue ?? '';
           return acc;
         },
         {} as Record<string, any>
@@ -122,7 +120,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
           <TextField
             fullWidth
             select={field.type === 'select'}
-            value={formData[field.name] || ''}
+            value={formData[field.name]}
             onChange={e => handleChange(field.name, e.target.value)}
             SelectProps={{ native: false }}
             id={field.id}
