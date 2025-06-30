@@ -129,6 +129,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
             type={field.type}
             multiline={field.multiline}
             rows={field.rows}
+            maxRows={Math.max(field.rows ?? 1, 3)}
             error={field.error}
             helperText={field.helperText}
             placeholder={field.placeholder}
