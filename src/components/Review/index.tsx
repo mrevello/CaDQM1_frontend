@@ -40,7 +40,7 @@ export const ReviewComponent: React.FC<ReviewProps> = ({ label, type, projectId 
     }
   }, [deleteFile, fileIdToDelete]);
 
-  return (
+  return review || files.length > 0 ? (
     <>
       <Box display="flex" flexDirection="column" flex={1} gap={1}>
         {label && (
@@ -73,5 +73,7 @@ export const ReviewComponent: React.FC<ReviewProps> = ({ label, type, projectId 
         onConfirm={handleDeleteFile}
       />
     </>
+  ) : (
+    <></>
   );
 };

@@ -3,6 +3,7 @@ import {
   ContextComponent,
   ContextComponentsType,
   ContextComponentType,
+  populateContextComponentReferences,
 } from '../types/contextComponent';
 import { Stage } from '../types/stage';
 import { reviewApi } from '../api/review.api';
@@ -17,7 +18,8 @@ interface UseContextComponentsProps {
 
 export const useContextComponents = ({ projectId, stage, type }: UseContextComponentsProps) => {
   const listContextComponents = useCallback(async (): Promise<ContextComponentsType> => {
-    return await contextApi.listContextComponents(Number(projectId));
+    const contextComponents = await contextApi.listContextComponents(Number(projectId));
+    return populateContextComponentReferences(contextComponents);
   }, [projectId]);
 
   const getContextComponentsAnalysis =

@@ -16,7 +16,7 @@ export const A06ContentPDF: React.FC<A06ContentPDFProps> = ({ estimation }) => {
         <ListPDF title={t('warnings')} items={estimation.warnings} />
       )}
       {estimation.facts && estimation.facts.length > 0 && (
-        <ListPDF title={t('facts')} items={estimation.facts} />
+        <ListPDF title={t('information')} items={estimation.facts} />
       )}
     </View>
   );

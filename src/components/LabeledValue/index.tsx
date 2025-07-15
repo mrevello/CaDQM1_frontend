@@ -1,6 +1,6 @@
-import { Link, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid";
-import { Label } from "../Label";
+import { Link, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { Label } from '../Label';
 
 interface LabeledValueProps {
   label: string;
@@ -8,11 +8,7 @@ interface LabeledValueProps {
   onClick?: () => void;
 }
 
-export const LabeledValue: React.FC<LabeledValueProps> = ({
-  label,
-  value,
-  onClick,
-}) => {
+export const LabeledValue: React.FC<LabeledValueProps> = ({ label, value, onClick }) => {
   return (
     <Grid container spacing={0.5} direction="column">
       <Grid>
@@ -20,12 +16,12 @@ export const LabeledValue: React.FC<LabeledValueProps> = ({
       </Grid>
       <Grid>
         {onClick ? (
-          <Link variant="body2" onClick={onClick}>
-            {value !== undefined ? value : "-"}
+          <Link variant="body2" onClick={onClick} component="div">
+            {value !== undefined ? value : '-'}
           </Link>
         ) : (
-          <Typography variant="body2">
-            {value !== undefined ? value : "-"}
+          <Typography variant="body2" component="div">
+            {value !== undefined ? value : '-'}
           </Typography>
         )}
       </Grid>

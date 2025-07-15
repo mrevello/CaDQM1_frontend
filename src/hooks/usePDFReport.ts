@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { Project } from '../types/project';
 import { projectsApi } from '../api/projects.api';
 import { useTranslation } from 'react-i18next';
-import { useDQProblems } from './useDQProblems';
 import { Problem } from '../types/problem';
 import { Estimation } from '../types/estimation';
 import { estimationApi } from '../api/estimation.api';
@@ -14,6 +13,7 @@ import { ReviewType } from '../types/review';
 import { DataProfilingReport, PDFFile, ReviewPDFData } from '../components/PDFReport/types';
 import { SchemaSQL } from '../types/dataProfiling';
 import { PDFSelection } from '../components/PDFSelectionDialog';
+import { problemsApi } from '../api/problem.api';
 
 interface UsePDFReportProps {
   projectId: number;
@@ -31,7 +31,7 @@ interface LoadingStates {
 
 interface UsePDFReportData {
   project: Project | null;
-  problems: Problem[];
+  problems?: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
   schema?: SchemaSQL;
@@ -62,7 +62,6 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
     organizationElements: false,
   });
 
-  const { problems, fetchProblems } = useDQProblems({ projectId });
   const { listContextComponents } = useContextComponents({ projectId });
 
   // Computed overall loading state
@@ -180,15 +179,14 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
   const loadProblems = useCallback(async () => {
     try {
       updateLoadingState('problems', true);
-      const allProblems = await fetchProblems();
-      return allProblems;
-    } catch (error) {
-      console.error('Failed to fetch problems:', error);
-      return [];
+      const problemsFromApi = await problemsApi.listProblems(projectId);
+      return problemsFromApi ?? [];
+    } catch (err) {
+      console.error('Error fetching problems:', err);
     } finally {
       updateLoadingState('problems', false);
     }
-  }, [fetchProblems, updateLoadingState]);
+  }, [projectId, updateLoadingState]);
 
   const fetchData = useCallback(
     async (selection?: PDFSelection): Promise<UsePDFReportData> => {
@@ -224,13 +222,13 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
       }
 
       if (selection?.stages.ST1?.activities.a01) {
-        promises.push(fetchReview('interaction'));
+        promises.push(fetchReview('organization_elements'));
       } else {
         promises.push(Promise.resolve(undefined));
       }
 
       if (selection?.stages.ST3?.activities.a08) {
-        promises.push(fetchReview('organization_elements'));
+        promises.push(fetchReview('interaction'));
       } else {
         promises.push(Promise.resolve(undefined));
       }
@@ -245,8 +243,8 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
         problemsData,
         estimationData,
         contextComponentsData,
-        interactionData,
         organizationElementsData,
+        interactionData,
         dataProfilingData,
       ] = (await Promise.all(promises)) as [
         Problem[] | undefined,
@@ -259,7 +257,7 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
 
       return {
         project: projectData,
-        problems: problemsData || problems,
+        problems: problemsData,
         estimation: estimationData,
         contextComponents: contextComponentsData,
         interaction: interactionData,
@@ -275,7 +273,6 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
       fetchContextComponents,
       fetchReview,
       fetchDataProfiling,
-      problems,
     ]
   );
 

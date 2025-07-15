@@ -1,5 +1,5 @@
 import { SimpleTreeView } from '@mui/x-tree-view';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ContextComponent,

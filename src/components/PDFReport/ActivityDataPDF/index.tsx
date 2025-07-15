@@ -25,7 +25,7 @@ interface ActivityDataPDFProps {
   activity: Activity;
   stage: Stage;
   project: Project;
-  problems: Problem[];
+  problems?: Problem[];
   estimation?: Estimation;
   contextComponents?: ContextComponentsType;
   organizationElements?: ReviewPDFData;
@@ -48,7 +48,7 @@ export const ActivityDataPDF: React.FC<ActivityDataPDFProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const problemsByStage = problems.filter((problem: Problem) => {
+  const problemsByStage = problems?.filter((problem: Problem) => {
     return problem.stage === stage;
   });
 
@@ -84,7 +84,7 @@ export const ActivityDataPDF: React.FC<ActivityDataPDFProps> = ({
         return <A02ContentPDF organizationElements={organizationElements} />;
 
       case Activity.A03:
-        if (problemsByStage.length === 0) return <ActivityErrorPDF />;
+        if (!problemsByStage || problemsByStage.length === 0) return <ActivityErrorPDF />;
         return <A03ContentPDF problems={problemsByStage} />;
 
       case Activity.A04:

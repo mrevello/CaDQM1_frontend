@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { instance } from './base.api';
 import {
-  DataProfilingResponse,
   DataProfilingYResponse,
   mapRawReports,
   normalizeSchemaSQL,
@@ -57,21 +56,6 @@ export const dataProfilingApi = {
         }
       }
       console.log('Error running SQL query:', error);
-    }
-  },
-
-  dataProfilingR: async function (projectId: number): Promise<DataProfilingResponse | undefined> {
-    try {
-      const response = await instance.post(`data-profiling-r-dataexplorer-full-JSON/`, {
-        project_id: projectId,
-      });
-      if (response && response.data) {
-        return response.data;
-      }
-
-      return undefined;
-    } catch (error: any) {
-      console.log('Error fetching DataExplorer report:', error);
     }
   },
 

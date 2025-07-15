@@ -85,6 +85,7 @@ export const StageTimeline: React.FC<StageTimelineProps> = ({
             stage={projectStage.stage}
             state={projectStage.status}
             isLast={index === stages.length - 1}
+            canContinueToStage={canContinueToStage(projectStage.stage, projectStage.status, stages)}
             isClickable={
               stageClickable && canContinueToStage(projectStage.stage, projectStage.status, stages)
             }
@@ -124,6 +125,7 @@ type StageTimelineItemProps = {
   stage: Stage;
   state: State;
   isLast: boolean;
+  canContinueToStage: boolean;
   isClickable: boolean;
   onClick: (stage: Stage) => void;
 };
@@ -132,6 +134,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
   stage,
   state,
   isLast,
+  canContinueToStage,
   isClickable,
   onClick,
 }) => {
@@ -163,7 +166,7 @@ const StageTimelineItem: React.FC<StageTimelineItemProps> = ({
           </Typography>
           <Box display="flex" alignItems="center" gap={1}>
             <StateChip state={state} />
-            {!isClickable && state !== State.DONE && (
+            {!isClickable && !canContinueToStage && state !== State.DONE && (
               <Tooltip title={t('start-stage-error')}>
                 <ReportProblemIcon color="warning" sx={{ fontSize: 18 }} />
               </Tooltip>

@@ -85,7 +85,7 @@ const componentData = (
       return {
         id: getComponentPrefix(type) + component.id,
         statement: (component as DQRequirement).statement,
-        semantic: (component as DQRequirement).semantic,
+        description: (component as DQRequirement).description,
         user_type: (component as DQRequirement).userType?.name ?? '',
       };
     case ContextComponentType.OTHER_DATA:
