@@ -438,7 +438,6 @@ export const populateContextComponentReferences = (
 
     const populatedDQRequirements = result.dqRequirement.data.map(dqRequirement => {
       const userType = userTypeMap.get(dqRequirement.user_type);
-      console.log('userType', userType);
       return {
         ...dqRequirement,
         userType: userType || undefined,

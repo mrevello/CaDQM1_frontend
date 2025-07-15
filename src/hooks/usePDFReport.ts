@@ -222,13 +222,13 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
       }
 
       if (selection?.stages.ST1?.activities.a01) {
-        promises.push(fetchReview('interaction'));
+        promises.push(fetchReview('organization_elements'));
       } else {
         promises.push(Promise.resolve(undefined));
       }
 
       if (selection?.stages.ST3?.activities.a08) {
-        promises.push(fetchReview('organization_elements'));
+        promises.push(fetchReview('interaction'));
       } else {
         promises.push(Promise.resolve(undefined));
       }
@@ -243,8 +243,8 @@ export const usePDFReport = ({ projectId }: UsePDFReportProps): UsePDFReportRetu
         problemsData,
         estimationData,
         contextComponentsData,
-        interactionData,
         organizationElementsData,
+        interactionData,
         dataProfilingData,
       ] = (await Promise.all(promises)) as [
         Problem[] | undefined,

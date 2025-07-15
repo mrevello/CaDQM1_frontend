@@ -20,6 +20,7 @@ export type ReviewBody = {
 export type ReviewApiResponse = {
   id: number;
   data: string;
+  project: number;
   type: ReviewType;
 };
 
@@ -66,17 +67,17 @@ export const reviewApi = {
     }
   },
 
-  getReview: async function (projectId: number, type: ReviewType) {
+  getReview: async function (projectId: number, type: ReviewType): Promise<Review | undefined> {
     try {
       const response = await instance.get(endpoint);
-      const reviewData = response.data
-        .filter((r: any) => r.project === projectId && r.type === type)
-        .find((r: any) => r.text !== '');
+      const reviewData = response.data.find(
+        (review: ReviewApiResponse) => review.project === projectId && review.type === type
+      );
 
       if (!reviewData) {
-        return null;
+        return undefined;
       } else {
-        const review: ReviewApiResponse = {
+        const review: Review = {
           id: reviewData.id,
           data: reviewData.data,
           type: reviewData.type,

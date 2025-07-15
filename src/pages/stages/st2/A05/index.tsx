@@ -48,8 +48,13 @@ export const A05: React.FC = () => {
   useEffect(() => {
     fetchSchema();
     fetchDataProfilingY();
-    fetchDataProfilingR();
-  }, [fetchSchema, fetchDataProfilingY, fetchDataProfilingR]);
+  }, [fetchSchema, fetchDataProfilingY]);
+
+  useEffect(() => {
+    if (table) {
+      fetchDataProfilingR();
+    }
+  }, [table, fetchDataProfilingR]);
 
   const summary = useMemo(() => {
     if (!schema) return null;
