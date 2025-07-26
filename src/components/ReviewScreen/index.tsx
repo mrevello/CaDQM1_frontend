@@ -46,7 +46,7 @@ export const ReviewScreen: React.FC<ReviewProps> = ({ label, type, projectId }) 
   const [text, setText] = useState<string>(review?.data ?? '');
 
   useEffect(() => {
-    if (review) {
+    if (review?.data != undefined) {
       setText(review.data);
     }
   }, [review]);
@@ -72,12 +72,10 @@ export const ReviewScreen: React.FC<ReviewProps> = ({ label, type, projectId }) 
         project: projectId,
       };
 
-      if (reviewBody.data) {
-        if (review) {
-          await reviewApi.updateReview(review.id, reviewBody);
-        } else {
-          await reviewApi.createReview(reviewBody);
-        }
+      if (review) {
+        await reviewApi.updateReview(review.id, reviewBody);
+      } else {
+        await reviewApi.createReview(reviewBody);
       }
       return true;
     } catch (err: any) {
