@@ -53,6 +53,7 @@ export const useDQProblems = ({ projectId, type, stage }: UseDQProblemsProps) =>
 
     try {
       setLoadingAnalysis(true);
+      setProblems(problems.filter(problem => !problem.isSuggestion));
       const response = await reviewApi.getAnalysis(reviewId);
       if (response) {
         const suggestedProblems: Problem[] = response.data.map(suggestion => ({
