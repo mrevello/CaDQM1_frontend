@@ -2,7 +2,10 @@ export const APP_NAME = 'CADQM';
 export const APP_VERSION = process.env.REACT_APP_VERSION || '0.1.0';
 
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+  BASE_URL:
+    process.env.NODE_ENV === 'development'
+      ? '/api'
+      : process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
   TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT || '30000', 10),
 };
 
